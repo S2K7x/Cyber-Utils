@@ -1,0 +1,53 @@
+# --- System Files ---
+.DS_Store
+Thumbs.db
+*.swp
+desktop.ini
+
+# --- Node / Frontend ---
+node_modules/
+dist/
+build/
+.npm
+core
+package-lock.json
+yarn.lock
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+.pytest_cache/
+
+# --- Infrastructure & Virtualization (Terraform, Docker, Vagrant) ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+.vagrant/
+.docker/
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+secrets.yaml
+
+# --- IDEs & Editors ---
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
