@@ -1,3 +1,9 @@
+## Dummy Uploads | File Upload Vulnerability Lab
+
+A comprehensive collection of ready-to-use files designed to test for **File Upload Vulnerabilities**, restriction bypasses, and server-side execution. This repository organizes payloads by bypass technique and backend technology.
+
+---
+
 ### Folder Structure & Attack Vectors
 
 #### 1. `php-variants/`

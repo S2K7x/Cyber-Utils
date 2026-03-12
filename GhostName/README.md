@@ -2,8 +2,6 @@
 
 GhostName is a specialized Python utility designed to generate digital aliases that protect your privacy. By using **Leet Speak**, **data poisoning**, and **contextual variations**, it helps you create usernames that decouple your online presence from your real identity, effectively making OSINT (Open Source Intelligence) investigations much harder.
 
-🚀 **Web Version Available:** [cyber-utils.vercel.app](https://cyber-utils.vercel.app/)
-
 ---
 
 ### Key Features
