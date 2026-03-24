@@ -1,246 +1,401 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dummy Uploads | Arsenal Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Syne', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        dark: {
-                            DEFAULT: '#060910',
-                            100: '#0c1018',
-                            200: '#121820',
-                            300: '#1e2a38',
-                            400: '#2a3a4a'
-                        },
-                        accent: {
-                            cyan: '#00e5ff',
-                            red: '#ff3c6e',
-                            green: '#a0ff6e',
-                            amber: '#ffb800',
-                            purple: '#a78bfa',
-                            pink: '#ff79c6'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer base {
-            body {
-                @apply bg-[#060910] text-[#cdd6e0] font-sans min-h-screen selection:bg-accent-pink/30;
-            }
-        }
-        
-        .premium-bg {
-            background: radial-gradient(circle at 100% 0%, rgba(255, 121, 198, 0.05) 0%, transparent 40%),
-                        radial-gradient(circle at 0% 100%, rgba(167, 139, 250, 0.03) 0%, transparent 40%),
-                        #060910;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dummy Uploads | Arsenal Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
 
-        .glass-panel {
-            @apply bg-dark-200/40 backdrop-blur-xl border border-white/5 rounded-2xl transition-all duration-300;
-        }
+  :root {
+    --bg: #060910;
+    --bg2: #0c1018;
+    --bg3: #121820;
+    --border: #1e2a38;
+    --accent: #ff79c6; /* Pink for Dummy Uploads */
+    --accent2: #ff3c6e;
+    --accent3: #a0ff6e;
+    --accent4: #00e5ff;
+    --text: #cdd6e0;
+    --text-dim: #5a7080;
+    --text-bright: #eaf4ff;
+  }
 
-        .glass-panel:hover {
-            @apply border-white/10 bg-dark-200/60 shadow-2xl shadow-accent-pink/5;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .file-link {
-            @apply flex items-center justify-between p-3.5 bg-dark-100/50 border border-white/5 rounded-xl font-mono text-[11px] text-[#cdd6e0] transition-all duration-300 no-underline mb-2;
-        }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 13.5px;
+  }
 
-        .file-link:hover {
-            @apply border-accent-pink/40 bg-dark-100 text-white translate-x-1 shadow-lg shadow-accent-pink/5;
-        }
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 41px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
 
-        .file-icon {
-            @apply flex items-center justify-center w-8 h-8 bg-accent-pink/10 text-accent-pink rounded-lg mr-3 shrink-0;
-        }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span.emoji { font-size: 24px; }
+  .logo span.highlight { color: var(--accent); }
 
-        .category-header {
-            @apply flex items-center gap-4 mb-6 pb-4 border-b border-white/5;
-        }
+  .header-meta {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
 
-        .category-title {
-            @apply font-black text-white text-lg tracking-tight;
-        }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-pink { background: rgba(255,121,198,0.15); color: var(--accent); border: 1px solid rgba(255,121,198,0.3); }
 
-        .category-count {
-            @apply bg-accent-pink/10 text-accent-pink text-[9px] font-black px-2.5 py-1 rounded-full font-mono uppercase tracking-widest border border-accent-pink/20;
-        }
+  /* ── CROSS NAV ── */
+  .cross-nav {
+    background:#070b12;
+    border-bottom:1px solid #1e2a38;
+    padding:10px 28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    position:sticky;
+    top:0;
+    z-index:200;
+  }
+  .cross-nav a {
+    color:#5a7080;
+    text-decoration:none;
+    font-weight:700;
+    letter-spacing:1px;
+    transition:color 0.15s;
+  }
+  .cross-nav a:hover { color: var(--accent4); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { @apply bg-dark-DEFAULT; }
-        ::-webkit-scrollbar-thumb { @apply bg-dark-300 border-2 border-dark-DEFAULT; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { @apply bg-dark-400; }
-    </style>
+  /* ── LAYOUT ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+    background: radial-gradient(circle at 100% 0%, rgba(255,121,198,0.05) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(167,139,250,0.03) 0%, transparent 40%);
+    min-height: calc(100vh - 114px);
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 20px 0;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--text-bright);
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    font-style: italic;
+  }
+  .hero h1 span {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: rgba(255,121,198,0.3);
+    text-underline-offset: 8px;
+  }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 500;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+  .card:hover { border-color: rgba(255,121,198,0.3); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+  }
+  .card-subtitle {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .file-count {
+    background: rgba(255,121,198,0.1);
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255,121,198,0.2);
+  }
+
+  /* File Links */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .file-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .file-link:hover {
+    background: var(--bg2);
+    border-color: rgba(255,121,198,0.4);
+    color: var(--text-bright);
+    transform: translateX(4px);
+  }
+  .file-link span.arrow {
+    color: var(--accent);
+    opacity: 0.3;
+    transition: opacity 0.2s;
+  }
+  .file-link:hover span.arrow { opacity: 1; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 700;
+    margin-top: 40px;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    main { padding: 20px; }
+    header { padding: 14px 20px; }
+    .hero h1 { font-size: 28px; }
+  }
+</style>
 </head>
-<body class="premium-bg">
+<body>
 
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-dark-DEFAULT/80 backdrop-blur-md border-b border-white/5 px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-6">
-            <a href="../index.html" class="group flex items-center gap-2 text-dark-400 font-mono text-[11px] font-bold tracking-widest hover:text-accent-cyan transition-colors">
-                <span class="group-hover:-translate-x-1 transition-transform">←</span> HOME
-            </a>
-            <div class="h-4 w-px bg-white/5"></div>
-            <div class="flex items-center gap-3">
-                <span class="text-xl">📦</span>
-                <span class="font-black tracking-tighter text-white text-lg uppercase">Dummy <span class="text-accent-pink">Uploads</span></span>
-            </div>
+<div class="cross-nav">
+  <a href="../index.html">← HOME</a>
+  <span style="color:#1e2a38;">|</span>
+  <span style="color:var(--accent);font-weight:700;letter-spacing:0.5px;">📦 DUMMY UPLOADS</span>
+</div>
+
+<header>
+  <div class="logo"><span class="emoji">📦</span> DUMMY <span class="highlight" style="margin-left: 6px;">UPLOADS</span></div>
+  <div class="header-meta">
+    <span class="badge badge-pink">Arsenal Lab</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>File Upload <span>Arsenal</span></h1>
+    <p>Une collection de fichiers prêts à l'emploi (webshells, extensions altérées, polyglottes) conçus pour diagnostiquer et exploiter les vulnérabilités d'upload lors d'audits techniques.</p>
+  </div>
+
+  <div class="grid-3">
+    <!-- PHP Variants -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Variantes PHP</div>
+          <div class="card-subtitle">Bypass Blacklists</div>
         </div>
-        <div class="hidden md:flex items-center gap-4 text-[10px] font-bold text-dark-400 tracking-widest uppercase">
-            <span>Arsenal Lab</span>
-            <div class="w-1.5 h-1.5 rounded-full bg-accent-pink animate-pulse"></div>
+        <div class="file-count">10 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./php-variants/webshell.PHP" download="webshell.PHP" class="file-link">webshell.PHP <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php3" download="webshell.php3" class="file-link">webshell.php3 <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php4" download="webshell.php4" class="file-link">webshell.php4 <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php5" download="webshell.php5" class="file-link">webshell.php5 <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php7" download="webshell.php7" class="file-link">webshell.php7 <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.phtml" download="webshell.phtml" class="file-link">webshell.phtml <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.phar" download="webshell.phar" class="file-link">webshell.phar <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php.jpg" download="webshell.php.jpg" class="file-link">webshell.php.jpg <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.jpg.php" download="webshell.jpg.php" class="file-link">webshell.jpg.php <span class="arrow">↓</span></a>
+        <a href="./php-variants/webshell.php%00.jpg" download="webshell.php%00.jpg" class="file-link">webshell.php%00.jpg <span class="arrow">↓</span></a>
+      </div>
+    </div>
+
+    <!-- MIME & Polyglottes -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">MIME & Polyglottes</div>
+          <div class="card-subtitle">Content-Type Bypass</div>
         </div>
-    </nav>
+        <div class="file-count">3 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./mime-bypass/fake.gif" download="fake.gif" class="file-link">fake.gif <span class="arrow">↓</span></a>
+        <a href="./mime-bypass/webshell_with_magic.php" download="webshell_with_magic.php" class="file-link">webshell_with_magic.php <span class="arrow">↓</span></a>
+        <a href="./mime-bypass/polyglot.php.jpg" download="polyglot.php.jpg" class="file-link">polyglot.php.jpg <span class="arrow">↓</span></a>
+      </div>
+    </div>
 
-    <!-- Header -->
-    <header class="max-w-6xl mx-auto px-6 pt-16 pb-12 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-        <h1 class="text-5xl font-black text-white mb-6 tracking-tighter uppercase italic">
-            File Upload <span class="text-accent-pink underline decoration-accent-pink/30 underline-offset-8">Arsenal</span>
-        </h1>
-        <p class="text-base text-dark-400 max-w-2xl mx-auto font-bold leading-relaxed">
-            Une collection de fichiers prêts à l'emploi (webshells, extensions altérées, polyglottes) conçus pour diagnostiquer et exploiter les vulnérabilités d'upload lors d'audits techniques.
-        </p>
-    </header>
+    <!-- Multi-Backends -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Multi-Backends</div>
+          <div class="card-subtitle">ASP, JSP, Perl, CGI</div>
+        </div>
+        <div class="file-count">8 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./other-backends/webshell.asp" download="webshell.asp" class="file-link">webshell.asp <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.aspx" download="webshell.aspx" class="file-link">webshell.aspx <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.jsp" download="webshell.jsp" class="file-link">webshell.jsp <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.jspx" download="webshell.jspx" class="file-link">webshell.jspx <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.pl" download="webshell.pl" class="file-link">webshell.pl <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.cgi" download="webshell.cgi" class="file-link">webshell.cgi <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.shtml" download="webshell.shtml" class="file-link">webshell.shtml <span class="arrow">↓</span></a>
+        <a href="./other-backends/webshell.cfm" download="webshell.cfm" class="file-link">webshell.cfm <span class="arrow">↓</span></a>
+      </div>
+    </div>
 
-    <!-- Content Grid -->
-    <main class="max-w-7xl mx-auto px-6 pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <!-- configurations -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Configurations</div>
+          <div class="card-subtitle">Execution Override</div>
+        </div>
+        <div class="file-count">3 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./config/.htaccess" download=".htaccess" class="file-link">.htaccess <span class="arrow">↓</span></a>
+        <a href="./config/.user.ini" download=".user.ini" class="file-link">.user.ini <span class="arrow">↓</span></a>
+        <a href="./config/web.config" download="web.config" class="file-link">web.config <span class="arrow">↓</span></a>
+      </div>
+    </div>
 
-        <!-- PHP Variants -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">Variantes PHP</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">Bypass Blacklists</span>
-                </div>
-                <span class="category-count ml-auto">10 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./php-variants/webshell.PHP" download="webshell.PHP" class="file-link"><span>webshell.PHP</span><span class="text-accent-pink opacity-50 group-hover:opacity-100 transition-opacity">↓</span></a>
-                <a href="./php-variants/webshell.php3" download="webshell.php3" class="file-link"><span>webshell.php3</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.php4" download="webshell.php4" class="file-link"><span>webshell.php4</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.php5" download="webshell.php5" class="file-link"><span>webshell.php5</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.php7" download="webshell.php7" class="file-link"><span>webshell.php7</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.phtml" download="webshell.phtml" class="file-link"><span>webshell.phtml</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.phar" download="webshell.phar" class="file-link"><span>webshell.phar</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.php.jpg" download="webshell.php.jpg" class="file-link"><span>webshell.php.jpg</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.jpg.php" download="webshell.jpg.php" class="file-link"><span>webshell.jpg.php</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./php-variants/webshell.php%00.jpg" download="webshell.php%00.jpg" class="file-link"><span>webshell.php%00.jpg</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
+    <!-- Docs & XSS -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Docs & XSS</div>
+          <div class="card-subtitle">Macros & Stored XSS</div>
+        </div>
+        <div class="file-count">6 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./docs-and-xss/test.html" download="test.html" class="file-link">test.html <span class="arrow">↓</span></a>
+        <a href="./docs-and-xss/test.svg" download="test.svg" class="file-link">test.svg <span class="arrow">↓</span></a>
+        <a href="./docs-and-xss/test.xml" download="test.xml" class="file-link">test.xml <span class="arrow">↓</span></a>
+        <a href="./docs-and-xss/test.pdf" download="test.pdf" class="file-link">test.pdf <span class="arrow">↓</span></a>
+        <a href="./docs-and-xss/macro.docx" download="macro.docx" class="file-link">macro.docx <span class="arrow">↓</span></a>
+        <a href="./docs-and-xss/macro.xlsx" download="macro.xlsx" class="file-link">macro.xlsx <span class="arrow">↓</span></a>
+      </div>
+    </div>
 
-        <!-- MIME Bypass -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">MIME & Polyglottes</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">Content-Type Bypass</span>
-                </div>
-                <span class="category-count ml-auto">3 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./mime-bypass/fake.gif" download="fake.gif" class="file-link"><span>fake.gif</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./mime-bypass/webshell_with_magic.php" download="webshell_with_magic.php" class="file-link"><span>webshell_with_magic.php</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./mime-bypass/polyglot.php.jpg" download="polyglot.php.jpg" class="file-link"><span>polyglot.php.jpg</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
+    <!-- Archives -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Archives & Tests</div>
+          <div class="card-subtitle">ZipSlip & Integrity</div>
+        </div>
+        <div class="file-count">7 Files</div>
+      </div>
+      <div class="file-list">
+        <a href="./archives/test.zip" download="test.zip" class="file-link">test.zip <span class="arrow">↓</span></a>
+        <a href="./archives/test.tar.gz" download="test.tar.gz" class="file-link">test.tar.gz <span class="arrow">↓</span></a>
+        <a href="./simples/luffy.jpg" download="luffy.jpg" class="file-link">luffy.jpg <span class="arrow">↓</span></a>
+        <a href="./simples/test.txt" download="test.txt" class="file-link">test.txt <span class="arrow">↓</span></a>
+        <a href="./simples/test.pdf" download="test.pdf" class="file-link">test.pdf <span class="arrow">↓</span></a>
+        <a href="./simples/test.docx" download="test.docx" class="file-link">test.docx <span class="arrow">↓</span></a>
+        <a href="./simples/test.csv" download="test.csv" class="file-link">test.csv <span class="arrow">↓</span></a>
+      </div>
+    </div>
+  </div>
+</main>
 
-        <!-- Other Backends -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">Multi-Backends</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">ASP, JSP, Perl, CGI</span>
-                </div>
-                <span class="category-count ml-auto">8 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./other-backends/webshell.asp" download="webshell.asp" class="file-link"><span>webshell.asp</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.aspx" download="webshell.aspx" class="file-link"><span>webshell.aspx</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.jsp" download="webshell.jsp" class="file-link"><span>webshell.jsp</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.jspx" download="webshell.jspx" class="file-link"><span>webshell.jspx</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.pl" download="webshell.pl" class="file-link"><span>webshell.pl</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.cgi" download="webshell.cgi" class="file-link"><span>webshell.cgi</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.shtml" download="webshell.shtml" class="file-link"><span>webshell.shtml</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./other-backends/webshell.cfm" download="webshell.cfm" class="file-link"><span>webshell.cfm</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
-
-        <!-- Config Files -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">Configurations</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">Execution Override</span>
-                </div>
-                <span class="category-count ml-auto">3 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./config/.htaccess" download=".htaccess" class="file-link"><span>.htaccess</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./config/.user.ini" download=".user.ini" class="file-link"><span>.user.ini</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./config/web.config" download="web.config" class="file-link"><span>web.config</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
-
-        <!-- Docs & XSS -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">Docs & XSS</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">Macros & Stored XSS</span>
-                </div>
-                <span class="category-count ml-auto">6 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./docs-and-xss/test.html" download="test.html" class="file-link"><span>test.html</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./docs-and-xss/test.svg" download="test.svg" class="file-link"><span>test.svg</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./docs-and-xss/test.xml" download="test.xml" class="file-link"><span>test.xml</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./docs-and-xss/test.pdf" download="test.pdf" class="file-link"><span>test.pdf</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./docs-and-xss/macro.docx" download="macro.docx" class="file-link"><span>macro.docx</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./docs-and-xss/macro.xlsx" download="macro.xlsx" class="file-link"><span>macro.xlsx</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
-
-        <!-- Archives & Simples -->
-        <section class="glass-panel p-7 h-fit group">
-            <div class="category-header">
-                <div class="flex flex-col">
-                    <h2 class="category-title">Archives & Tests</h2>
-                    <span class="text-[10px] text-dark-400 font-bold uppercase tracking-widest mt-0.5">ZipSlip & Integrity</span>
-                </div>
-                <span class="category-count ml-auto">7 Files</span>
-            </div>
-            <div class="flex flex-col">
-                <a href="./archives/test.zip" download="test.zip" class="file-link"><span>test.zip</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./archives/test.tar.gz" download="test.tar.gz" class="file-link"><span>test.tar.gz</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./simples/luffy.jpg" download="luffy.jpg" class="file-link"><span>luffy.jpg</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./simples/test.txt" download="test.txt" class="file-link"><span>test.txt</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./simples/test.pdf" download="test.pdf" class="file-link"><span>test.pdf</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./simples/test.docx" download="test.docx" class="file-link"><span>test.docx</span><span class="text-accent-pink opacity-50">↓</span></a>
-                <a href="./simples/test.csv" download="test.csv" class="file-link"><span>test.csv</span><span class="text-accent-pink opacity-50">↓</span></a>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="max-w-6xl mx-auto px-6 py-12 border-t border-white/5 text-center text-[11px] font-bold text-dark-400 uppercase tracking-[0.3em]">
-        SEC.NOTES Arsenal Hub · Build 2025.03.24
-    </footer>
+<footer>
+  SEC.NOTES Arsenal Hub · Build 2025.03.24
+</footer>
 
 </body>
 </html>

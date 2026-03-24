@@ -1,301 +1,496 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostName | Identités Numériques</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Syne', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        dark: {
-                            DEFAULT: '#060910',
-                            100: '#0c1018',
-                            200: '#121820',
-                            300: '#1e2a38',
-                            400: '#2a3a4a'
-                        },
-                        accent: {
-                            cyan: '#00e5ff',
-                            red: '#ff3c6e',
-                            green: '#a0ff6e',
-                            amber: '#ffb800',
-                            purple: '#a78bfa'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer base {
-            body {
-                @apply bg-[#060910] text-[#cdd6e0] font-sans min-h-screen selection:bg-accent-purple/30;
-            }
-        }
-        
-        .premium-bg {
-            background: radial-gradient(circle at 0% 0%, rgba(167, 139, 250, 0.05) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 100%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
-                        #060910;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostName | Identités Numériques</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
 
-        .glass-panel {
-            @apply bg-dark-200/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl;
-        }
+  :root {
+    --bg: #060910;
+    --bg2: #0c1018;
+    --bg3: #121820;
+    --border: #1e2a38;
+    --accent: #a78bfa; /* Purple for GhostName */
+    --accent2: #ff3c6e;
+    --accent3: #a0ff6e;
+    --accent4: #00e5ff;
+    --text: #cdd6e0;
+    --text-dim: #5a7080;
+    --text-bright: #eaf4ff;
+  }
 
-        .input-field {
-            @apply bg-dark-100 border border-dark-300 text-white px-4 py-2.5 rounded-xl font-mono text-sm w-full transition-all duration-300;
-            @apply focus:outline-none focus:border-accent-purple/50 focus:ring-4 focus:ring-accent-purple/10 placeholder:text-dark-400;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .label-text {
-            @apply block text-[10px] font-bold text-dark-400 uppercase tracking-[0.2em] mb-1.5 ml-1;
-        }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 13.5px;
+  }
 
-        .btn-primary {
-            @apply relative overflow-hidden bg-gradient-to-r from-accent-purple to-[#7c3aed] text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-accent-purple/20 hover:shadow-accent-purple/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3 w-full;
-        }
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 41px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
 
-        .btn-primary::after {
-            content: '';
-            @apply absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300 pointer-events-none;
-        }
-        .btn-primary:hover::after {
-            @apply translate-y-0;
-        }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span.emoji { font-size: 24px; }
+  .logo span.highlight { color: var(--accent); }
+  .logo span.version { font-size: 12px; color: var(--text-dim); font-style: italic; }
 
-        .btn-secondary {
-            @apply bg-dark-200 border border-dark-300 text-[#cdd6e0] px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex items-center gap-2 hover:border-accent-purple hover:text-white hover:bg-dark-300;
-        }
+  .header-meta {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
 
-        .result-item {
-            @apply bg-dark-100/50 border border-white/5 rounded-xl p-3.5 flex justify-between items-center group transition-all duration-300 hover:border-accent-purple/30 hover:bg-dark-100;
-        }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-purple { background: rgba(167,139,250,0.15); color: var(--accent); border: 1px solid rgba(167,139,250,0.3); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { @apply bg-dark-DEFAULT; }
-        ::-webkit-scrollbar-thumb { @apply bg-dark-300 border-2 border-dark-DEFAULT; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { @apply bg-dark-400; }
-    </style>
+  /* ── CROSS NAV ── */
+  .cross-nav {
+    background:#070b12;
+    border-bottom:1px solid #1e2a38;
+    padding:10px 28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    position:sticky;
+    top:0;
+    z-index:200;
+  }
+  .cross-nav a {
+    color:#5a7080;
+    text-decoration:none;
+    font-weight:700;
+    letter-spacing:1px;
+    transition:color 0.15s;
+  }
+  .cross-nav a:hover { color: var(--accent4); }
+
+  /* ── LAYOUT ── */
+  .container { display: flex; min-height: calc(100vh - 114px); }
+
+  /* SIDEBAR (Config) */
+  .sidebar {
+    width: 320px;
+    min-width: 320px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 30px 24px;
+  }
+
+  .sidebar h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-bright);
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  
+  .form-section-title {
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-section-title::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text-bright);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(167,139,250,0.05);
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  .checkbox-group input { cursor: pointer; }
+  .checkbox-group span { font-size: 11px; color: var(--text); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
+  }
+  .btn-primary:hover {
+    background: #b19afb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(167,139,250,0.3);
+  }
+
+  /* MAIN (Results) */
+  main {
+    flex: 1;
+    padding: 40px;
+    background: radial-gradient(circle at 50% 0%, rgba(167,139,250,0.05) 0%, transparent 50%), var(--bg);
+    overflow-y: auto;
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .results-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-bright);
+  }
+
+  .btn-secondary {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Bio Card */
+  .bio-card {
+    background: var(--bg2);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  .bio-title {
+    font-size: 10px;
+    color: var(--accent4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .bio-content {
+    font-size: 13px;
+    color: var(--text-bright);
+    line-height: 1.6;
+  }
+
+  /* Results Grid */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .result-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  .result-item:hover {
+    border-color: rgba(167,139,250,0.4);
+    background: rgba(167,139,250,0.05);
+  }
+  .result-name {
+    font-size: 14px;
+    color: var(--text-bright);
+    font-weight: 500;
+  }
+  .result-copy {
+    color: var(--text-dim);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .result-item:hover .result-copy { color: var(--accent); }
+
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    background: rgba(12,16,24,0.5);
+  }
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  .empty-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .empty-desc {
+    color: var(--text-dim);
+    font-size: 12px;
+    max-width: 300px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; min-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 20px; }
+    header { padding: 14px 20px; }
+  }
+</style>
 </head>
-<body class="premium-bg">
+<body>
 
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-dark-DEFAULT/80 backdrop-blur-md border-b border-white/5 px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-6">
-            <a href="../index.html" class="group flex items-center gap-2 text-dark-400 font-mono text-[11px] font-bold tracking-widest hover:text-accent-cyan transition-colors">
-                <span class="group-hover:-translate-x-1 transition-transform">←</span> HOME
-            </a>
-            <div class="h-4 w-px bg-white/5"></div>
-            <div class="flex items-center gap-3">
-                <span class="text-xl">👻</span>
-                <span class="font-black tracking-tighter text-white text-lg">GHOSTNAME <span class="text-accent-purple italic">v4.0</span></span>
-            </div>
-        </div>
-        <div class="hidden md:flex items-center gap-4 text-[10px] font-bold text-dark-400 tracking-widest uppercase">
-            <span>Privacy Engine</span>
-            <div class="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse"></div>
-        </div>
-    </nav>
+<div class="cross-nav">
+  <a href="../index.html">← HOME</a>
+  <span style="color:#1e2a38;">|</span>
+  <span style="color:var(--accent);font-weight:700;letter-spacing:0.5px;">👻 GHOSTNAME</span>
+</div>
 
-    <main class="max-w-7xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-10">
+<header>
+  <div class="logo"><span class="emoji">👻</span> GHOSTNAME <span class="version">v4.0</span></div>
+  <div class="header-meta">
+    <span class="badge badge-purple">Privacy Engine</span>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Config Sidebar -->
+  <aside class="sidebar">
+    <h2>Config</h2>
+    
+    <div class="form-section-title">1. Identité Source</div>
+    <div class="grid-2 form-group">
+      <div>
+        <label>Prénom</label>
+        <input type="text" id="info-first" placeholder="John">
+      </div>
+      <div>
+        <label>Nom</label>
+        <input type="text" id="info-last" placeholder="Doe">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Pseudo Habituel</label>
+      <input type="text" id="info-pseudo" placeholder="johndoe99">
+    </div>
+
+    <div class="form-section-title" style="margin-top: 30px;">2. Éléments Leurre</div>
+    <div class="form-group">
+      <label>Ville Leurre</label>
+      <input type="text" id="decoy-city" placeholder="Ex: Lyon">
+    </div>
+    <div class="form-group">
+      <label>Intérêts (CSV)</label>
+      <input type="text" id="decoy-hobbies" placeholder="Tech, Design">
+    </div>
+    <div class="form-group">
+      <label>Nombre Référence</label>
+      <input type="text" id="decoy-number" placeholder="Ex: 1999">
+    </div>
+
+    <div class="form-section-title" style="margin-top: 30px;">3. Contraintes</div>
+    <div class="form-group">
+      <label>Plateforme</label>
+      <select id="config-platform">
+        <option value="generic">Générique</option>
+        <option value="twitter">X / Twitter</option>
+        <option value="instagram">Instagram</option>
+        <option value="tiktok">TikTok</option>
+      </select>
+    </div>
+    <div class="grid-2 form-group">
+      <div>
+        <label>Long. Min</label>
+        <input type="number" id="config-min" value="0" min="0">
+      </div>
+      <div>
+        <label>Long. Max</label>
+        <input type="number" id="config-max" value="0" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="checkbox-group">
+        <input type="checkbox" id="config-req-num">
+        <span>Chiffre Requis</span>
+      </label>
+      <label class="checkbox-group">
+        <input type="checkbox" id="config-req-spec">
+        <span>Caractère Spécial Requis</span>
+      </label>
+    </div>
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+      <div class="form-group">
+        <label style="color: var(--accent4);">Quantité à générer</label>
+        <input type="number" id="config-count" value="50" min="1" max="500">
+      </div>
+      <button id="generate-btn" class="btn-primary">Générer Identités</button>
+    </div>
+  </aside>
+
+  <!-- Results Main -->
+  <main>
+    <div id="empty-state" class="empty-state">
+      <div class="empty-icon">🛡️</div>
+      <div class="empty-title">En attente de paramètres</div>
+      <div class="empty-desc">Remplissez les informations dans le panneau latéral pour générer un set d'identités numériques brouillées.</div>
+    </div>
+
+    <div id="results-container" class="hidden">
+      <div class="results-header">
+        <h2>Identités Générées</h2>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span id="results-count-badge" class="badge" style="background: rgba(160,255,110,0.1); color: var(--accent3);">0 résultats</span>
+          <button id="export-btn" class="btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Exporter .txt
+          </button>
+        </div>
+      </div>
+
+      <div class="bio-card">
+        <div class="bio-title">Suggestion de Biographie (Leurre)</div>
+        <div id="bio-output" class="bio-content"></div>
+      </div>
+
+      <div id="results-grid" class="results-grid">
+        <!-- Results will be injected here by script.js -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="script.js"></script>
+<script>
+    document.getElementById('generate-btn').addEventListener('click', () => {
+        const empty = document.getElementById('empty-state');
+        const results = document.getElementById('results-container');
+        const countBadge = document.getElementById('results-count-badge');
         
-        <!-- Left Panel: Configuration -->
-        <aside class="lg:w-[380px] flex flex-col gap-8 shrink-0">
-            <div class="glass-panel p-8">
-                <header class="mb-8">
-                    <h2 class="text-2xl font-black text-white tracking-tight mb-2">Config</h2>
-                    <div class="h-1 w-12 bg-accent-purple rounded-full"></div>
-                </header>
-
-                <div class="space-y-8">
-                    <!-- 1. IDENTITÉ -->
-                    <section>
-                        <h3 class="flex items-center gap-3 text-xs font-black text-accent-purple tracking-[0.2em] uppercase mb-5">
-                            <span class="w-5 h-5 rounded-full bg-accent-purple/10 flex items-center justify-center text-[10px]">1</span>
-                            Identité Source
-                        </h3>
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="label-text">Prénom</label>
-                                <input type="text" id="info-first" class="input-field" placeholder="John">
-                            </div>
-                            <div>
-                                <label class="label-text">Nom</label>
-                                <input type="text" id="info-last" class="input-field" placeholder="Doe">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="label-text">Pseudo Habituel</label>
-                            <input type="text" id="info-pseudo" class="input-field" placeholder="johndoe99">
-                        </div>
-                    </section>
-
-                    <!-- 2. LEURRES -->
-                    <section>
-                        <h3 class="flex items-center gap-3 text-xs font-black text-accent-purple tracking-[0.2em] uppercase mb-5">
-                            <span class="w-5 h-5 rounded-full bg-accent-purple/10 flex items-center justify-center text-[10px]">2</span>
-                            Éléments Leurre
-                        </h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="label-text">Ville</label>
-                                <input type="text" id="decoy-city" class="input-field" placeholder="Ex: Lyon">
-                            </div>
-                            <div>
-                                <label class="label-text">Intérêts (CSV)</label>
-                                <input type="text" id="decoy-hobbies" class="input-field" placeholder="Tech, Design, Art">
-                            </div>
-                            <div>
-                                <label class="label-text">Nombre Ref.</label>
-                                <input type="text" id="decoy-number" class="input-field" placeholder="Ex: 1999">
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 3. CONTRAINTES -->
-                    <section>
-                        <h3 class="flex items-center gap-3 text-xs font-black text-accent-purple tracking-[0.2em] uppercase mb-5">
-                            <span class="w-5 h-5 rounded-full bg-accent-purple/10 flex items-center justify-center text-[10px]">3</span>
-                            Contraintes
-                        </h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="label-text">Plateforme</label>
-                                <div class="relative">
-                                    <select id="config-platform" class="input-field appearance-none pr-10">
-                                        <option value="generic">Générique</option>
-                                        <option value="twitter">X / Twitter</option>
-                                        <option value="instagram">Instagram</option>
-                                        <option value="tiktok">TikTok</option>
-                                        <option value="youtube">YouTube</option>
-                                        <option value="twitch">Twitch</option>
-                                        <option value="discord">Discord</option>
-                                    </select>
-                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-dark-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="label-text">L. Min</label>
-                                    <input type="number" id="config-min" class="input-field text-center" value="0" min="0">
-                                </div>
-                                <div>
-                                    <label class="label-text">L. Max</label>
-                                    <input type="number" id="config-max" class="input-field text-center" value="0" min="0">
-                                </div>
-                            </div>
-
-                            <div class="space-y-3 pt-2">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="config-req-num" class="sr-only peer">
-                                    <div class="w-5 h-5 border border-dark-300 rounded-lg flex items-center justify-center peer-checked:bg-accent-purple peer-checked:border-accent-purple transition-all duration-300 overflow-hidden relative">
-                                        <svg class="w-3 h-3 text-white translate-y-4 peer-checked:translate-y-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="text-[11px] font-bold text-dark-400 group-hover:text-white uppercase tracking-wider transition-colors">Chiffre Requis</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" id="config-req-spec" class="sr-only peer">
-                                    <div class="w-5 h-5 border border-dark-300 rounded-lg flex items-center justify-center peer-checked:bg-accent-purple peer-checked:border-accent-purple transition-all duration-300 overflow-hidden relative">
-                                        <svg class="w-3 h-3 text-white translate-y-4 peer-checked:translate-y-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                                    </div>
-                                    <span class="text-[11px] font-bold text-dark-400 group-hover:text-white uppercase tracking-wider transition-colors">Special Requis</span>
-                                </label>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <div class="mt-10 pt-8 border-t border-white/5">
-                    <div class="mb-5">
-                        <label class="label-text">Quantité</label>
-                        <input type="number" id="config-count" class="input-field text-center text-accent-cyan font-bold" value="50" min="1" max="500">
-                    </div>
-                    <button id="generate-btn" class="btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        Générer
-                    </button>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Right Panel: Results -->
-        <article class="flex-1 min-w-0">
-            <!-- Results Container -->
-            <div id="results-container" class="glass-panel p-10 flex flex-col hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-10 border-b border-white/5">
-                    <div>
-                        <h2 class="text-3xl font-black text-white tracking-tighter mb-2">Identités Générées</h2>
-                        <div class="flex items-center gap-3">
-                            <span class="px-2.5 py-1 rounded-md bg-accent-green/10 text-accent-green text-[10px] font-black tracking-widest uppercase">Prêt à l'usage</span>
-                            <div class="w-1 h-1 rounded-full bg-dark-400"></div>
-                            <span class="text-[11px] font-bold text-dark-400 uppercase tracking-widest" id="results-count-badge">0 résultats</span>
-                        </div>
-                    </div>
-                    <button id="export-btn" class="btn-secondary h-12 px-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Exporter (.txt)
-                    </button>
-                </header>
-
-                <div class="mb-10 group cursor-default">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="text-[10px] font-black text-accent-cyan uppercase tracking-[0.3em]">Suggestion Bio</div>
-                        <div class="flex-1 h-px bg-white/5 group-hover:bg-accent-cyan/20 transition-colors"></div>
-                    </div>
-                    <div class="p-6 bg-dark-100/50 rounded-2xl border border-white/5 group-hover:border-accent-cyan/30 transition-all">
-                        <p id="bio-output" class="font-mono text-sm leading-relaxed text-white/90"></p>
-                    </div>
-                </div>
-
-                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 auto-rows-max overflow-y-auto pr-4 max-h-[700px]">
-                    <!-- Results -->
-                </div>
-            </div>
-            
-            <!-- Empty State -->
-            <div id="empty-state" class="glass-panel p-20 flex flex-col items-center justify-center text-center border-dashed border-dark-300">
-                <div class="w-24 h-24 rounded-3xl bg-dark-100 flex items-center justify-center mb-8 rotate-3 shadow-2xl border border-white/5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-accent-purple"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
-                </div>
-                <h3 class="text-2xl font-black text-white mb-3 tracking-tight italic uppercase">En attente de data</h3>
-                <p class="text-sm text-dark-400 max-w-sm leading-relaxed font-bold">Configurez les paramètres de protection de la vie privée à gauche pour générer un set d'identités numériques brouillées.</p>
-            </div>
-        </article>
-    </main>
-
-    <script src="script.js"></script>
-    <script>
-        document.getElementById('generate-btn').addEventListener('click', () => {
-            const empty = document.getElementById('empty-state');
-            const results = document.getElementById('results-container');
-            const countBadge = document.getElementById('results-count-badge');
-            
-            if (empty.classList.contains('hidden')) return;
-            
+        if (!empty.classList.contains('hidden')) {
             empty.classList.add('hidden');
             results.classList.remove('hidden');
-            
-            // Sync count badge after production delay
-            setTimeout(() => {
-                const count = document.querySelectorAll('.result-item').length;
-                countBadge.textContent = count + ' identités';
-            }, 100);
-        });
-    </script>
+        }
+        
+        setTimeout(() => {
+            const count = document.querySelectorAll('.result-item').length;
+            countBadge.textContent = count + ' résultats';
+        }, 100);
+    });
+</script>
 </body>
 </html>
