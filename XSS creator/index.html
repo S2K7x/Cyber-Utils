@@ -1,12 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blind XSS Payload Generator</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blind XSS Payload Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0a0a0f; color: #f3f4f6; font-family: ui-sans-serif, system-ui, sans-serif; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+  <header class="border-b border-gray-800 bg-[#0d0d14]">
+    <div class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex items-center gap-4">
+        <div class="text-4xl">💉</div>
+        <div>
+          <h1 class="text-2xl font-bold bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+            Blind XSS Payload Generator
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">
+            Génère des wordlists avec ID unique par payload • Context breakers • Export one-click
+          </p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6" id="app">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="stats-container"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1 space-y-4">
+        <!-- Configuration sections... -->
+        <div class="bg-gray-900/40 border border-gray-800 rounded-lg overflow-hidden">
+          <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800/30 transition-colors toggle-btn">
+            <span class="text-sm font-semibold text-gray-200">🎯 Callback IP / URL</span>
+            <span class="text-gray-500 transition-transform text-xs indicator rotate-180">▼</span>
+          </button>
+          <div class="px-4 pb-4 border-t border-gray-800 pt-3">
+            <input type="text" id="ip-input" value="http://YOUR_IP_HERE" placeholder="http://YOUR_IP:PORT" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm font-mono text-green-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30">
+            <p class="text-xs text-gray-600 mt-1">Ex: http://10.10.14.1:8080 ou https://abc.burpcollaborator.net</p>
+          </div>
+        </div>
+
+        <div class="bg-gray-900/40 border border-gray-800 rounded-lg overflow-hidden">
+          <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800/30 transition-colors toggle-btn">
+            <span class="text-sm font-semibold text-gray-200">📂 Catégories</span>
+            <span class="text-gray-500 transition-transform text-xs indicator rotate-180">▼</span>
+          </button>
+          <div class="px-4 pb-4 border-t border-gray-800 pt-3">
+            <div class="flex gap-2 mb-3">
+              <button id="btn-cat-all" class="text-xs px-2 py-1 bg-green-900/40 text-green-400 rounded hover:bg-green-900/60 transition-colors">Tout</button>
+              <button id="btn-cat-none" class="text-xs px-2 py-1 bg-red-900/40 text-red-400 rounded hover:bg-red-900/60 transition-colors">Rien</button>
+            </div>
+            <div class="space-y-1" id="categories-container"></div>
+          </div>
+        </div>
+
+        <div class="bg-gray-900/40 border border-gray-800 rounded-lg overflow-hidden">
+          <button class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800/30 transition-colors toggle-btn">
+            <span class="text-sm font-semibold text-gray-200">🔓 Context Breakers</span>
+            <span class="text-gray-500 transition-transform text-xs indicator rotate-180">▼</span>
+          </button>
+          <div class="px-4 pb-4 border-t border-gray-800 pt-3">
+            <p class="text-xs text-gray-500 mb-3">Ajouter des caractères avant/après chaque payload</p>
+            <div class="grid grid-cols-2 gap-1.5 mb-3" id="breaker-modes"></div>
+            <div class="flex gap-2 mb-3">
+              <button id="btn-breaker-all" class="text-xs px-2 py-1 bg-green-900/40 text-green-400 rounded">Tout</button>
+              <button id="btn-breaker-none" class="text-xs px-2 py-1 bg-red-900/40 text-red-400 rounded">Rien</button>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mb-3" id="breakers-container"></div>
+            <div class="flex gap-2">
+              <input type="text" id="custom-breaker-input" placeholder="Custom breaker..." class="flex-1 bg-gray-900 border border-gray-700 rounded px-2 text-xs font-mono text-orange-400">
+              <button id="btn-add-breaker" class="px-3 py-1.5 bg-orange-600 text-white rounded text-xs">+ Add</button>
+            </div>
+            <div id="breaker-summary" class="mt-3 p-2 bg-gray-900/80 rounded border border-gray-800 hidden">
+              <p class="text-xs text-gray-400 mb-1">Mode: <span id="summary-mode" class="text-orange-400 font-medium"></span></p>
+              <p class="text-xs text-gray-400">Sélectionné: <span id="summary-selected" class="text-orange-300 font-mono"></span></p>
+              <p id="summary-combo" class="text-xs text-gray-500 mt-1 hidden">Préfixe combiné: <span id="summary-combo-val" class="text-yellow-400 font-mono"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-900/40 border border-gray-800 rounded-lg overflow-hidden">
+          <button class="w-full flex items-center justify-between px-4 py-3 transition-colors toggle-btn">
+            <span class="text-sm font-semibold text-gray-200">⚙️ Options</span>
+            <span class="text-gray-500 transition-transform text-xs indicator">▼</span>
+          </button>
+          <div class="px-4 pb-4 border-t border-gray-800 pt-3 hidden">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" id="chk-comments" checked class="accent-red-500">
+              <span class="text-gray-300">Inclure commentaires dans l'export</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <button id="btn-download" class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-lg font-medium text-sm hover:from-red-700 hover:to-orange-700 transition-all shadow-lg shadow-red-900/30">
+            📥 Download Wordlist
+          </button>
+          <button id="btn-copy-all" class="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all bg-gray-800 text-gray-300 border border-gray-700">
+            <span id="copy-icon">📋</span> <span id="copy-text">Copier tout</span>
+          </button>
+          <button id="btn-preview" class="flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all bg-gray-800 text-gray-300 border border-gray-700">
+            <span>👁️</span> <span id="preview-text">Voir Raw</span>
+          </button>
+        </div>
+
+        <div class="bg-gray-900/60 border border-gray-800 rounded-lg p-4 space-y-2">
+          <h3 class="text-sm font-semibold text-gray-300">📌 Usage rapide</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div class="code-block bg-gray-950 rounded px-3 py-2 cursor-pointer group" data-code="ffuf -u https://TARGET/PARAM -w blind_xss_wordlist.txt">
+              <span class="text-[10px] text-gray-600 uppercase">ffuf</span>
+              <pre class="text-xs font-mono text-yellow-400/80 truncate">ffuf -u https://TARGET/PARAM -w blind_xss_wordlist.txt</pre>
+            </div>
+            <div class="code-block bg-gray-950 rounded px-3 py-2 cursor-pointer group" data-code="python3 -m http.server 80">
+              <span class="text-[10px] text-gray-600 uppercase">Callback server</span>
+              <pre class="text-xs font-mono text-yellow-400/80 truncate">python3 -m http.server 80</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <input type="text" id="search-input" placeholder="🔍 Filtrer les payloads (ID, description, contenu...)" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30">
+          <span id="search-count" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 hidden"></span>
+        </div>
+
+        <div id="raw-preview" class="hidden bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2 bg-gray-900/50 border-b border-gray-800">
+            <span class="text-xs text-gray-500">blind_xss_wordlist.txt</span>
+            <span id="raw-lines" class="text-xs text-gray-600"></span>
+          </div>
+          <pre id="raw-content" class="p-4 text-xs font-mono text-green-400 overflow-auto max-h-96 whitespace-pre"></pre>
+        </div>
+
+        <div class="space-y-3" id="payloads-list"></div>
+
+        <div class="bg-gray-900/40 border border-gray-800 rounded-lg p-4">
+          <h3 class="text-sm font-semibold text-gray-300 mb-3">📊 Distribution</h3>
+          <div class="space-y-1.5" id="distribution-list"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-gray-800 mt-8 py-4 text-center text-xs text-gray-600">
+    Blind XSS Payload Generator • <span id="footer-count">0</span> payloads ready • For authorized testing only
+  </footer>
+
+  <script src="script.js"></script>
+</body>
 </html>

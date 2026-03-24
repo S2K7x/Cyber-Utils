@@ -1,0 +1,187 @@
+/* ═══════════════════════════════════════════════
+   SEC.NOTES — Mobile Responsive Overrides
+   Injected into all pages via <link>
+═══════════════════════════════════════════════ */
+
+/* ── HAMBURGER BUTTON ── */
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--border, #1e2a38);
+  color: var(--text-dim, #5a7080);
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.hamburger:hover {
+  border-color: var(--accent, #00e5ff);
+  color: var(--accent, #00e5ff);
+}
+
+/* ── SIDEBAR OVERLAY (mobile) ── */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 150;
+  backdrop-filter: blur(4px);
+}
+.nav-overlay.active { display: block; }
+
+/* ── TABLES: force horizontal scroll ── */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 14px 0;
+}
+.table-wrap table { margin: 0; min-width: 480px; }
+
+/* ── CODE BLOCKS: already have overflow-x:auto but reinforce ── */
+pre {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  white-space: pre !important;
+  word-break: normal !important;
+  max-width: 100%;
+}
+
+/* ── TABLET: 900px ── */
+@media (max-width: 900px) {
+  main { padding: 24px 20px !important; }
+  header { padding: 16px 20px !important; }
+  h2 { font-size: 17px !important; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+  .llm-grid { grid-template-columns: 1fr !important; }
+  .owasp-grid { grid-template-columns: 1fr !important; }
+  .intro-stats, .hero-stats { gap: 10px !important; }
+  .stat { min-width: 70px !important; padding: 10px 12px !important; }
+  .stat-num { font-size: 18px !important; }
+  table { font-size: 11.5px !important; }
+  th, td { padding: 8px 10px !important; }
+}
+
+/* ── MOBILE: 768px ── */
+@media (max-width: 768px) {
+
+  /* Show hamburger, hide sidebar */
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+
+  /* Sidebar becomes fixed overlay */
+  nav {
+    position: fixed !important;
+    top: 0 !important;
+    left: -280px !important;
+    height: 100vh !important;
+    width: 270px !important;
+    min-width: 270px !important;
+    z-index: 160 !important;
+    transition: left 0.25s ease !important;
+    border-right: 1px solid var(--border, #1e2a38) !important;
+    padding-top: 60px !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+  }
+  nav.open { left: 0 !important; }
+
+  /* Close button inside nav */
+  .nav-close {
+    display: flex !important;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: 1px solid var(--border, #1e2a38);
+    color: var(--text-dim, #5a7080);
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  /* Main takes full width */
+  main { max-width: 100% !important; padding: 20px 16px !important; }
+
+  /* Header */
+  header { padding: 12px 16px !important; gap: 10px !important; }
+  .logo { font-size: 16px !important; }
+  header .badge { display: none; }
+  header .badge:last-child { display: none; }
+  .header-meta { display: none; }
+
+  /* Hero */
+  .intro-hero, .hero { padding: 20px 18px !important; margin-bottom: 32px !important; }
+  .intro-hero h1, .hero h1 { font-size: 22px !important; letter-spacing: -0.5px !important; }
+  .intro-hero::after, .hero::after { font-size: 50px !important; }
+  .intro-stats, .hero-stats { gap: 8px !important; flex-wrap: wrap !important; }
+  .stat { min-width: 60px !important; padding: 8px 10px !important; }
+  .stat-num { font-size: 16px !important; }
+  .stat-label { font-size: 8px !important; }
+
+  /* Sections */
+  h2 { font-size: 16px !important; }
+  h3 { font-size: 13px !important; margin: 20px 0 10px !important; }
+  .section { margin-bottom: 40px !important; scroll-margin-top: 70px !important; }
+  .section-header { flex-wrap: wrap !important; gap: 8px !important; }
+  .section-number { display: none !important; }
+
+  /* Cards */
+  .card { padding: 14px 16px !important; }
+  .card-title { font-size: 12px !important; }
+
+  /* Tables */
+  table { font-size: 11px !important; }
+  th, td { padding: 7px 9px !important; }
+
+  /* Q&A */
+  .qa-question { padding: 11px 14px !important; }
+  .qa-q-text { font-size: 12px !important; }
+  .qa-answer { padding: 12px 14px !important; font-size: 12px !important; }
+  .qa-number { min-width: 24px !important; font-size: 9px !important; }
+
+  /* Checklist */
+  .checklist li { padding: 7px 0 !important; }
+
+  /* OWASP cards */
+  .owasp-card, .llm-card { padding: 14px 16px !important; }
+  .owasp-num { font-size: 20px !important; }
+
+  /* Nav links text adjust */
+  nav a { font-size: 12px !important; padding: 8px 14px !important; }
+
+  /* Alert */
+  .alert { padding: 11px 14px !important; font-size: 12px !important; }
+
+  /* Tool tags inline */
+  .tool-tag { font-size: 9px !important; padding: 2px 7px !important; }
+
+  /* Resource cards on resources page */
+  .res-grid { grid-template-columns: 1fr !important; }
+  .res-card { padding: 16px !important; }
+}
+
+/* ── SMALL MOBILE: 480px ── */
+@media (max-width: 480px) {
+  body { font-size: 12.5px !important; }
+  main { padding: 16px 12px !important; }
+  header { padding: 10px 12px !important; }
+  .intro-hero, .hero { padding: 16px 14px !important; }
+  .intro-hero h1, .hero h1 { font-size: 18px !important; }
+  .qa-answer { padding: 10px 12px !important; }
+  pre { font-size: 11px !important; padding: 12px 14px !important; }
+  .cards { gap: 12px !important; }
+  /* index page */
+  .card { padding: 20px 16px !important; }
+  .card-title { font-size: 17px !important; }
+}
+
+/* ── NAV CLOSE BUTTON: hidden on desktop ── */
+.nav-close { display: none; }
+
+/* ── CONTAINER always flex ── */
+.container { display: flex !important; }

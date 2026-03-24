@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/web",
+      "dest": "/Learning/web.html"
+    },
+    {
+      "src": "/llm",
+      "dest": "/Learning/llm.html"
+    },
+    {
+      "src": "/xss",
+      "dest": "/XSS creator/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

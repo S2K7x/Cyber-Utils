@@ -11,7 +11,7 @@ The scripts within this repository cover a wide range of domains, including:
 * **CTF & Pentesting**: Automation scripts, exploitation techniques, and post-exploitation modules.
 * **OSINT**: Tools for information gathering and digital investigation.
 * **Blue Team**: Scripts for monitoring, log analysis, and defensive hardening.
-* **Web Security**: Payloads, XSS/SQLi generators, and custom fuzzing utilities.
+* **Web Security**: Payloads, XSS/SQLi generators, and custom fuzzing utilities. (Including a lightweight, vanilla JS Blind XSS Payload Generator).
 
 ---
 

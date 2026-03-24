@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEC.NOTES — Cybersecurity Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #04060d;
+    --bg2: #080c16;
+    --border: #141e30;
+    --cyan: #00e5ff;
+    --purple: #a78bfa;
+    --red: #f43f5e;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --text: #b8c8dc;
+    --text-dim: #3a4a60;
+    --text-bright: #e8f2ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Radial glow */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 64px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--cyan);
+    letter-spacing: -1px;
+  }
+  .logo span { color: var(--red); }
+
+  .topbar-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .pill {
+    padding: 3px 11px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .pill-cyan { background: rgba(0,229,255,0.08); color: var(--cyan); border: 1px solid rgba(0,229,255,0.2); }
+  .pill-purple { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+  .pill-amber { background: rgba(245,158,11,0.08); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text-bright);
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 .line-cyan { color: var(--cyan); }
+  .hero h1 .line-purple { color: var(--purple); }
+
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* CARDS */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 28px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .card:hover { transform: translateY(-4px); }
+  .card:hover::before { opacity: 1; }
+
+  .card-web::before { background: linear-gradient(90deg, var(--cyan), transparent); }
+  .card-llm::before { background: linear-gradient(90deg, var(--purple), transparent); }
+  .card-xss::before { background: linear-gradient(90deg, var(--amber), transparent); }
+  .card-web:hover { border-color: rgba(0,229,255,0.3); box-shadow: 0 16px 40px rgba(0,229,255,0.07); }
+  .card-llm:hover { border-color: rgba(167,139,250,0.3); box-shadow: 0 16px 40px rgba(167,139,250,0.07); }
+  .card-xss:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 16px 40px rgba(245,158,11,0.07); }
+
+  .card-icon {
+    font-size: 28px;
+    line-height: 1;
+    filter: grayscale(0.3);
+  }
+
+  .card-id {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    opacity: 0.5;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-bright);
+    letter-spacing: -0.5px;
+  }
+
+  .card-web .card-title { color: var(--cyan); }
+  .card-llm .card-title { color: var(--purple); }
+  .card-xss .card-title { color: var(--amber); }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    display: block;
+  }
+  .card-web .stat-num { color: var(--cyan); }
+  .card-llm .stat-num { color: var(--purple); }
+  .card-xss .stat-num { color: var(--amber); }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .card-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .card-web .card-cta { color: var(--cyan); }
+  .card-llm .card-cta { color: var(--purple); }
+  .card-xss .card-cta { color: var(--amber); }
+
+  .arrow {
+    transition: transform 0.2s;
+  }
+  .card:hover .arrow { transform: translateX(4px); }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .footer-links a {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    font-size: 10px;
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  /* Scanline animation on cards */
+  @keyframes scan {
+    0% { top: -100%; }
+    100% { top: 200%; }
+  }
+
+  .card-scan {
+    position: absolute;
+    left: 0; right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.02), transparent);
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+  }
+
+  .card-web .card-scan { background: linear-gradient(transparent, rgba(0,229,255,0.03), transparent); }
+  .card-llm .card-scan { background: linear-gradient(transparent, rgba(167,139,250,0.03), transparent); }
+  .card-xss .card-scan { background: linear-gradient(transparent, rgba(245,158,11,0.03), transparent); }
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="topbar">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
+  <div class="logo">SEC<span>.</span>NOTES</div>
+    <div class="topbar-meta">
+      <span class="pill pill-cyan">Web Security</span>
+      <span class="pill pill-purple">LLM Security</span>
+      <span class="pill pill-amber">Offensive Tools</span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <p class="hero-eyebrow">Cybersecurity Reference · OWASP 2025</p>
+    <h1>
+      <span class="line-cyan">Offensive</span><br>
+      Security<br>
+      <span class="line-purple">Knowledge Base</span>
+    </h1>
+    <p class="hero-desc">Notes de référence en sécurité offensive — Web Application Security et LLM/GenAI Security. Basé sur OWASP Top 10 2025, OWASP LLM Top 10 2025, et PortSwigger Research.</p>
+  </div>
+
+  <div class="cards">
+
+    <a href="Learning/web.html" class="card card-web">
+      <div class="card-scan"></div>
+      <div>
+        <div class="card-id">Module 01</div>
+        <div class="card-icon">🌐</div>
+      </div>
+      <div class="card-title">Web Security</div>
+      <p class="card-desc">HTTP, XSS, SQLi, SSRF, CSRF, XXE, IDOR, JWT, OAuth, SSTI, HTTP Smuggling, Cache Poisoning, API Security. OWASP Top 10 2025 + PortSwigger Research Top 10 2025.</p>
+      <div class="card-stats">
+        <div class="stat"><span class="stat-num">22+</span><span class="stat-label">Domaines</span></div>
+        <div class="stat"><span class="stat-num">60+</span><span class="stat-label">Q&A</span></div>
+        <div class="stat"><span class="stat-num">2025</span><span class="stat-label">OWASP</span></div>
+      </div>
+      <div class="card-cta">Ouvrir la leçon <span class="arrow">→</span></div>
+    </a>
+
+    <a href="Learning/llm.html" class="card card-llm">
+      <div class="card-scan"></div>
+      <div>
+        <div class="card-id">Module 02</div>
+        <div class="card-icon">🤖</div>
+      </div>
+      <div class="card-title">LLM Security</div>
+      <p class="card-desc">Prompt Injection, RAG Security, Excessive Agency, Vector Weaknesses, Supply Chain. OWASP LLM Top 10 2025 + <strong>Agentic Top 10 2026 (ASI01-ASI10)</strong> + MITRE ATLAS + Library genai.owasp.org.</p>
+      <div class="card-stats">
+        <div class="stat"><span class="stat-num">10</span><span class="stat-label">Risques</span></div>
+        <div class="stat"><span class="stat-num">12</span><span class="stat-label">Q&A</span></div>
+        <div class="stat"><span class="stat-num">ASI01</span><span class="stat-label">Agentic</span></div>
+      </div>
+      <div class="card-cta">Ouvrir la leçon <span class="arrow">→</span></div>
+    </a>
+
+    <a href="XSS creator/index.html" class="card card-xss">
+      <div class="card-scan"></div>
+      <div>
+        <div class="card-id">Module 03</div>
+        <div class="card-icon">💉</div>
+      </div>
+      <div class="card-title">XSS Creator</div>
+      <p class="card-desc">Advanced Blind XSS Payload Generator. Generates multiple context payloads from 9 categories with Wordlist Exporter.</p>
+      <div class="card-stats">
+        <div class="stat"><span class="stat-num">9</span><span class="stat-label">Catégories</span></div>
+        <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Payloads</span></div>
+        <div class="stat"><span class="stat-num">1</span><span class="stat-label">Générateur</span></div>
+      </div>
+      <div class="card-cta">Ouvrir l'outil <span class="arrow">→</span></div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-links">
+      <a href="https://owasp.org/Top10/2025/" target="_blank">OWASP Top 10 2025</a>
+      <a href="https://genai.owasp.org/llm-top-10/" target="_blank">OWASP LLM 2025</a>
+      <a href="https://portswigger.net/research" target="_blank">PortSwigger Research</a>
+      <a href="https://atlas.mitre.org" target="_blank">MITRE ATLAS</a>
+    </div>
+    <p class="footer-copy">SEC.NOTES — Personal security knowledge base · OWASP 2025</p>
+  </div>
+
+</div>
+
+<div class="nav-overlay" id="navOverlay"></div>
+
+<script>
+(function(){
+  var btn = document.getElementById('hamburgerBtn');
+  var nav = document.getElementById('sidebar');
+  var overlay = document.getElementById('navOverlay');
+  var close = document.getElementById('navClose');
+  function open(){ nav.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
+  function shut(){ nav.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+  if(btn) btn.addEventListener('click', open);
+  if(overlay) overlay.addEventListener('click', shut);
+  if(close) close.addEventListener('click', shut);
+  // close on nav link click (mobile)
+  if(nav) nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ if(window.innerWidth<=768) shut(); }); });
+})();
+</script>
+
+</body>
+</html>
