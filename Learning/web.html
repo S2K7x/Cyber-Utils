@@ -695,13 +695,13 @@
 <div class="progress-bar" id="progress"></div>
 
 <header>
-
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
   <div class="logo">WEB<span>.SEC</span></div>
   <div class="header-meta">
   </div>
-
+  <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
 </header>
-
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
 
 <div class="container">
 
@@ -2250,5 +2250,17 @@ http://attacker.com/redirect → 301 → http://attacker.com/redirect (loop)
 </main>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+function toggleNav() {
+  document.querySelector('nav').classList.toggle('open');
+  document.getElementById('navOverlay').classList.toggle('open');
+}
+function closeNav() {
+  document.querySelector('nav').classList.remove('open');
+  document.getElementById('navOverlay').classList.remove('open');
+}
+// Close nav on link click (mobile)
+document.querySelectorAll('nav a').forEach(a => a.addEventListener('click', closeNav));
+
+</script><script>
 // Progress bar

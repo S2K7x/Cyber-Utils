@@ -326,7 +326,7 @@
 <div class="wrapper">
 
   <div class="topbar">
-
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menu">☰</button>
   <div class="logo">SEC<span>.</span>NOTES</div>
     <div class="topbar-meta">
       <span class="pill pill-cyan">Web Security</span>
@@ -441,9 +441,23 @@
 
 </div>
 
+<div class="nav-overlay" id="navOverlay"></div>
 
-
-
+<script>
+(function(){
+  var btn = document.getElementById('hamburgerBtn');
+  var nav = document.getElementById('sidebar');
+  var overlay = document.getElementById('navOverlay');
+  var close = document.getElementById('navClose');
+  function open(){ nav.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
+  function shut(){ nav.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+  if(btn) btn.addEventListener('click', open);
+  if(overlay) overlay.addEventListener('click', shut);
+  if(close) close.addEventListener('click', shut);
+  // close on nav link click (mobile)
+  if(nav) nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ if(window.innerWidth<=768) shut(); }); });
+})();
+</script>
 
 </body>
 </html>
