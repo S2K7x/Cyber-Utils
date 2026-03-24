@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostName | Identités Numériques</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Syne', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        dark: {
+                            DEFAULT: '#060910',
+                            100: '#0c1018',
+                            200: '#121820',
+                            300: '#1e2a38'
+                        },
+                        accent: {
+                            cyan: '#00e5ff',
+                            red: '#ff3c6e',
+                            green: '#a0ff6e',
+                            amber: '#ffb800',
+                            purple: '#a78bfa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: theme('colors.dark.DEFAULT'); color: #cdd6e0; font-family: 'Syne', sans-serif; }
+        .glass-panel {
+            background: rgba(18, 24, 32, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid theme('colors.dark.300');
+            border-radius: 12px;
+        }
+        .input-field {
+            background: theme('colors.dark.100');
+            border: 1px solid theme('colors.dark.300');
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: theme('colors.accent.purple');
+            box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.2);
+        }
+        .label-text {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #5a7080;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, theme('colors.accent.purple'), #7c3aed);
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: theme('colors.dark.200');
+            border: 1px solid theme('colors.dark.300');
+            color: #cdd6e0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-secondary:hover {
+            border-color: theme('colors.accent.purple');
+            color: theme('colors.accent.purple');
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: theme('colors.dark.DEFAULT'); }
+        ::-webkit-scrollbar-thumb { background: theme('colors.dark.300'); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5a7080; }
+    </style>
+</head>
+<body class="min-h-screen text-sm">
+
+    <!-- Navbar -->
+    <div class="sticky top-0 z-50 bg-[#070b12] border-b border-dark-300 px-7 py-3 flex items-center gap-4 font-mono text-[11px]">
+        <a href="../index.html" class="text-[#5a7080] font-bold tracking-wide hover:text-accent-cyan transition-colors">← HOME</a>
+        <span class="text-dark-300">|</span>
+        <span class="text-accent-purple font-bold tracking-wide">👻 GHOSTNAME v4.0</span>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-10 flex flex-col lg:flex-row gap-8">
+        
+        <!-- Left Panel: Configuration -->
+        <div class="lg:w-1/3 flex flex-col gap-6">
+            
+            <div class="glass-panel p-6">
+                <h2 class="text-xl font-extrabold text-white mb-1 tracking-tight">Configuration</h2>
+                <p class="text-xs text-[#5a7080] mb-6">Paramètres pour générer les identités leurres.</p>
+
+                <!-- 1. IDENTITÉ -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-accent-purple text-xs">01.</span>
+                        <h3 class="text-white font-bold text-sm tracking-wide uppercase">Identité à Protéger</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="label-text">Prénom</label>
+                            <input type="text" id="info-first" class="input-field" placeholder="John">
+                        </div>
+                        <div>
+                            <label class="label-text">Nom</label>
+                            <input type="text" id="info-last" class="input-field" placeholder="Doe">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-text">Pseudo Habituel <span class="text-[10px] text-[#5a7080] lowercase">(optionnel)</span></label>
+                        <input type="text" id="info-pseudo" class="input-field" placeholder="johndoe99">
+                    </div>
+                </div>
+
+                <!-- 2. LEURRES -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-accent-purple text-xs">02.</span>
+                        <h3 class="text-white font-bold text-sm tracking-wide uppercase">Éléments de Leurre</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="label-text">Ville Leurre</label>
+                            <input type="text" id="decoy-city" class="input-field" placeholder="Ex: Lyon">
+                        </div>
+                        <div>
+                            <label class="label-text">Centres d'intérêt <span class="text-[10px] text-[#5a7080] lowercase">(séparés par virgule)</span></label>
+                            <input type="text" id="decoy-hobbies" class="input-field" placeholder="Ex: Tech, Design, Crypto">
+                        </div>
+                        <div>
+                            <label class="label-text">Nombre de référence <span class="text-[10px] text-[#5a7080] lowercase">(ex: année)</span></label>
+                            <input type="text" id="decoy-number" class="input-field" placeholder="Ex: 1999">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. CONTRAINTES -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-accent-purple text-xs">03.</span>
+                        <h3 class="text-white font-bold text-sm tracking-wide uppercase">Contraintes Site</h3>
+                    </div>
+                    
+                    <div>
+                        <label class="label-text">Plateforme Cible</label>
+                        <select id="config-platform" class="input-field mb-3 appearance-none">
+                            <option value="generic">Génerique (défaut)</option>
+                            <option value="twitter">Twitter / X (max 15, no dot)</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="youtube">YouTube (no dot/dash)</option>
+                            <option value="twitch">Twitch (max 25)</option>
+                            <option value="discord">Discord</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="label-text">Long. min</label>
+                            <input type="number" id="config-min" class="input-field" value="0" min="0">
+                        </div>
+                        <div>
+                            <label class="label-text">Long. max <span class="text-[10px] text-[#5a7080] lowercase">(0=auto)</span></label>
+                            <input type="number" id="config-max" class="input-field" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="label-text">Caractères interdits</label>
+                        <input type="text" id="config-forbidden" class="input-field" placeholder="Ex: _ . -">
+                    </div>
+                    <div class="flex flex-col gap-2 mt-2">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="config-req-num" class="sr-only peer">
+                            <div class="w-4 h-4 border border-dark-300 rounded flex items-center justify-center peer-checked:bg-accent-purple peer-checked:border-accent-purple transition-colors">
+                                <svg class="w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-xs font-mono text-[#cdd6e0] group-hover:text-white">Chiffre obligatoire</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="config-req-spec" class="sr-only peer">
+                            <div class="w-4 h-4 border border-dark-300 rounded flex items-center justify-center peer-checked:bg-accent-purple peer-checked:border-accent-purple transition-colors">
+                                <svg class="w-2.5 h-2.5 text-white opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-xs font-mono text-[#cdd6e0] group-hover:text-white">Caractère spécial obligatoire</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 4. GENERATE -->
+                <div class="mt-8">
+                    <div class="flex gap-2 items-center mb-3">
+                        <div class="w-full">
+                            <label class="label-text">Nombre de Pseudos</label>
+                            <input type="number" id="config-count" class="input-field" value="50" min="1" max="500">
+                        </div>
+                    </div>
+                    <button id="generate-btn" class="btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Générer Identités
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Results -->
+        <div class="lg:w-2/3">
+            <div id="results-container" class="glass-panel p-6 min-h-full flex flex-col hidden">
+                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dark-300">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-white mb-1 tracking-tight">Résultats Générés</h2>
+                        <p class="text-xs text-[#5a7080]">Sélectionnez ou exportez les pseudonymes créés.</p>
+                    </div>
+                    <button id="export-btn" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Exporter (.txt)
+                    </button>
+                </div>
+
+                <div class="mb-6 p-4 bg-accent-purple/5 border border-accent-purple/20 rounded-lg">
+                    <div class="text-[10px] font-bold text-accent-purple uppercase tracking-widest mb-1">Bio Suggérée (Leurre)</div>
+                    <div id="bio-output" class="font-mono text-[13px] text-[#eaf4ff]"></div>
+                </div>
+
+                <div id="results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto pr-2 max-h-[600px] content-start">
+                    <!-- Results populated by JS -->
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="glass-panel p-6 h-full flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 rounded-full bg-dark-300 flex items-center justify-center mb-4 text-accent-purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Aucun résultat</h3>
+                <p class="text-[13px] text-[#5a7080] max-w-sm">Remplissez les informations dans le panneau de gauche et cliquez sur "Générer" pour créer des identités leurres.</p>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Simple toggle for empty state
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            document.getElementById('empty-state').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

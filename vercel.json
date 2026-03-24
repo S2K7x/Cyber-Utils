@@ -20,6 +20,14 @@
       "dest": "/XSS creator/index.html"
     },
     {
+      "src": "/ghostname",
+      "dest": "/GhostName/index.html"
+    },
+    {
+      "src": "/dummy-uploads",
+      "dest": "/Dummy Uploads/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
