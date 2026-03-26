@@ -224,9 +224,11 @@
   .card-web::before { background: linear-gradient(90deg, var(--cyan), transparent); }
   .card-llm::before { background: linear-gradient(90deg, var(--purple), transparent); }
   .card-xss::before { background: linear-gradient(90deg, var(--amber), transparent); }
+  .card-ad::before { background: linear-gradient(90deg, #818cf8, transparent); }
   .card-web:hover { border-color: rgba(0,229,255,0.3); box-shadow: 0 16px 40px rgba(0,229,255,0.07); }
   .card-llm:hover { border-color: rgba(167,139,250,0.3); box-shadow: 0 16px 40px rgba(167,139,250,0.07); }
   .card-xss:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 16px 40px rgba(245,158,11,0.07); }
+  .card-ad:hover { border-color: rgba(129,140,248,0.3); box-shadow: 0 16px 40px rgba(129,140,248,0.07); }
 
   .card-icon {
     font-size: 28px;
@@ -253,6 +255,7 @@
   .card-web .card-title { color: var(--cyan); }
   .card-llm .card-title { color: var(--purple); }
   .card-xss .card-title { color: var(--amber); }
+  .card-ad .card-title { color: #818cf8; }
 
   .card-desc {
     font-size: 12px;
@@ -281,6 +284,7 @@
   .card-web .stat-num { color: var(--cyan); }
   .card-llm .stat-num { color: var(--purple); }
   .card-xss .stat-num { color: var(--amber); }
+  .card-ad .stat-num { color: #818cf8; }
 
   .stat-label {
     font-size: 9px;
@@ -301,6 +305,7 @@
   .card-web .card-cta { color: var(--cyan); }
   .card-llm .card-cta { color: var(--purple); }
   .card-xss .card-cta { color: var(--amber); }
+  .card-ad .card-cta { color: #818cf8; }
 
   .arrow {
     transition: transform 0.2s;
@@ -354,6 +359,7 @@
   .card-web .card-scan { background: linear-gradient(transparent, rgba(0,229,255,0.03), transparent); }
   .card-llm .card-scan { background: linear-gradient(transparent, rgba(167,139,250,0.03), transparent); }
   .card-xss .card-scan { background: linear-gradient(transparent, rgba(245,158,11,0.03), transparent); }
+  .card-ad .card-scan { background: linear-gradient(transparent, rgba(129,140,248,0.03), transparent); }
   .card-ghostname .card-scan { background: linear-gradient(transparent, rgba(160,255,110,0.03), transparent); }
   .card-dummy .card-scan { background: linear-gradient(transparent, rgba(255,121,198,0.03), transparent); }
 
@@ -376,6 +382,7 @@
       </a>
       <span class="pill pill-cyan">Web Security</span>
       <span class="pill pill-purple">LLM Security</span>
+      <span class="pill" style="background: rgba(129,140,248,0.1); color: #818cf8; border: 1px solid rgba(129,140,248,0.25);">Active Directory</span>
       <span class="pill pill-amber">Offensive Tools</span>
     </div>
   </div>
@@ -470,6 +477,22 @@
         <div class="stat"><span class="stat-num">1</span><span class="stat-label">Lab</span></div>
       </div>
       <div class="card-cta">Parcourir le dossier <span class="arrow">→</span></div>
+    </a>
+
+    <a href="Learning/ad.html" class="card card-ad">
+      <div class="card-scan"></div>
+      <div>
+        <div class="card-id">Module 06</div>
+        <div class="card-icon">🏛️</div>
+      </div>
+      <div class="card-title">Active Directory</div>
+      <p class="card-desc">Structure, Kerberos & NTLM, Kerberoasting, AS-REP, PtH, DCSync, ADCS, Persistance & Défense.</p>
+      <div class="card-stats">
+        <div class="stat"><span class="stat-num">15</span><span class="stat-label">Modules</span></div>
+        <div class="stat"><span class="stat-num">30+</span><span class="stat-label">Attaques</span></div>
+        <div class="stat"><span class="stat-num">ESC8</span><span class="stat-label">ADCS</span></div>
+      </div>
+      <div class="card-cta">Ouvrir la leçon <span class="arrow">→</span></div>
     </a>
 
   </div>

