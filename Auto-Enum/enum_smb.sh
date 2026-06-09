@@ -162,7 +162,7 @@ for module in "${!VULNS[@]}"; do
     RESULT=$($NXC smb "$TARGET" $AUTH_ARGS -M "$module" 2>&1)
     echo "$RESULT" | tee -a "$OUTDIR/vuln_checks.txt"
 
-    if echo "$RESULT" | grep -qi "VULNERABLE\|is VULNERABLE\|TRUE\|Pwn3d"; then
+    if echo "$RESULT" | grep -qi "VULNERABLE\|is VULNERABLE\|Pwn3d\|\[+\].*vuln"; then
         finding "VULNÉRABLE à $label !"
         echo "  ★ VULNERABLE: $label" >> "$OUTDIR/vulns_found.txt"
     fi

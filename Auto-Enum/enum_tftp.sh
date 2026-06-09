@@ -11,6 +11,16 @@ require_target "$TARGET"
 banner "TFTP (UDP port 69)" "$TARGET"
 OUTDIR=$(setup_outdir "$TARGET" "tftp")
 
+# Détecter le client TFTP disponible (une seule fois)
+if command -v atftp &>/dev/null; then
+    TFTP_CLIENT="atftp"
+elif command -v tftp &>/dev/null; then
+    TFTP_CLIENT="tftp"
+else
+    TFTP_CLIENT="curl"
+fi
+info "Client TFTP utilisé : $TFTP_CLIENT"
+
 # ─── 1. FINGERPRINT ─────────────────────────────────────────
 section "1. FINGERPRINT"
 
@@ -84,15 +94,13 @@ download_file() {
     local fname="$1"
     local outfile="$OUTDIR/$(echo "$fname" | tr '/' '_')"
 
-    if check_tool atftp; then
-        timeout 5 atftp --get --remote-file "$fname" \
-            --local-file "$outfile" "$TARGET" 2>&1
-    elif check_tool tftp; then
-        timeout 5 tftp "$TARGET" <<< "get $fname $outfile" 2>&1
-    else
-        timeout 5 curl -s --tftp-no-options "tftp://${TARGET}/${fname}" \
-            -o "$outfile" 2>&1
-    fi
+    case "$TFTP_CLIENT" in
+        atftp) timeout 5 atftp --get --remote-file "$fname" \
+                   --local-file "$outfile" "$TARGET" 2>/dev/null ;;
+        tftp)  timeout 5 tftp "$TARGET" <<< "get $fname $outfile" 2>/dev/null ;;
+        curl)  timeout 5 curl -s --tftp-no-options "tftp://${TARGET}/${fname}" \
+                   -o "$outfile" 2>/dev/null ;;
+    esac
 
     if [[ -s "$outfile" ]]; then
         success "FICHIER TROUVÉ : $fname ($(wc -c < "$outfile") bytes)"

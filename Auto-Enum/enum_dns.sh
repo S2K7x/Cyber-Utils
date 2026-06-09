@@ -15,8 +15,13 @@ OUTDIR=$(setup_outdir "$TARGET" "dns")
 # Auto-detect domain si non fourni
 if [[ -z "$DOMAIN" ]]; then
     info "Tentative de détection automatique du domaine"
-    DOMAIN=$(dig +short -x "$TARGET" @"$TARGET" 2>/dev/null | sed 's/\.$//' | head -1)
-    [[ -n "$DOMAIN" ]] && finding "Domaine détecté : $DOMAIN"
+    _raw=$(dig +short -x "$TARGET" @"$TARGET" 2>/dev/null | grep -v "^;;" | sed 's/\.$//' | head -1)
+    if [[ "$_raw" =~ ^[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}$ ]]; then
+        DOMAIN="$_raw"
+        finding "Domaine détecté : $DOMAIN"
+    else
+        warn "DNS ne répond pas ou pas de PTR record — passer le domaine en argument : $0 TARGET DOMAIN"
+    fi
 fi
 
 # ─── 1. FINGERPRINT ─────────────────────────────────────────
@@ -142,8 +147,8 @@ if [[ -n "$DOMAIN" ]]; then
         fi
     done
 
-    DC_COUNT=$(grep -c "ANSWER SECTION" "$OUTDIR/ad_records.txt" 2>/dev/null || echo 0)
-    [[ "$DC_COUNT" -gt 0 ]] && success "Infrastructure AD détectée ($DC_COUNT services)"
+    DC_COUNT=$(grep -c "ANSWER SECTION" "$OUTDIR/ad_records.txt" 2>/dev/null) || DC_COUNT=0
+    [[ "${DC_COUNT:-0}" -gt 0 ]] && success "Infrastructure AD détectée ($DC_COUNT services)"
 fi
 
 # ─── 6. NSEC WALKING ────────────────────────────────────────

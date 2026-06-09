@@ -101,15 +101,21 @@ declare -A SERVICES_FOUND=()
 check_port() {
     local port="$1"
     local label="$2"
+    # TCP confirmé depuis le scan all-ports
     if echo "$OPEN_PORTS" | grep -qE "(^|,)${port}(,|$)"; then
         success "Port $port ouvert — $label"
         SERVICES_FOUND["$port"]="$label"
         return 0
     fi
-    # Vérifier aussi dans le scan détaillé
-    if grep -q "${port}/tcp.*open\|${port}/udp.*open" \
-        "$NMAP_OUTDIR/detailed.txt" "$NMAP_OUTDIR/udp_top20.txt" 2>/dev/null; then
+    # TCP depuis le scan détaillé
+    if grep -qP "^${port}/tcp\s+open\s" "$NMAP_OUTDIR/detailed.txt" 2>/dev/null; then
         success "Port $port ouvert — $label"
+        SERVICES_FOUND["$port"]="$label"
+        return 0
+    fi
+    # UDP : seulement "open" confirmé (PAS open|filtered — trop de faux positifs)
+    if grep -qP "^${port}/udp\s+open\s" "$NMAP_OUTDIR/udp_top20.txt" 2>/dev/null; then
+        success "Port $port ouvert UDP confirmé — $label"
         SERVICES_FOUND["$port"]="$label"
         return 0
     fi
@@ -147,9 +153,12 @@ check_port 3389 "RDP"
 check_port 5432 "PostgreSQL"
 check_port 5985 "WinRM HTTP"
 check_port 5986 "WinRM HTTPS"
-check_port 6379 "Redis"
-check_port 8080 "HTTP-Alt"
-check_port 8443 "HTTPS-Alt"
+check_port 6379  "Redis"
+check_port 8080  "HTTP-Alt"
+check_port 8443  "HTTPS-Alt"
+check_port 8888  "HTTP-Alt"
+check_port 9090  "HTTP-Alt"
+check_port 50000 "HTTP-Alt (Jetty/Jenkins)"
 
 echo ""
 info "Services détectés : ${#SERVICES_FOUND[@]}"
@@ -187,55 +196,83 @@ run_enum() {
 [[ -n "${SERVICES_FOUND[69]}" ]] && \
     run_enum "enum_tftp.sh" "TFTP" "$TARGET"
 
-# HTTP / HTTPS
-if [[ -n "${SERVICES_FOUND[80]}" ]] || [[ -n "${SERVICES_FOUND[443]}" ]] || \
-   [[ -n "${SERVICES_FOUND[8080]}" ]] || [[ -n "${SERVICES_FOUND[8443]}" ]]; then
+# HTTP / HTTPS — détection dynamique de tous les ports HTTP
+# Extraire tous les ports HTTP depuis le scan nmap détaillé
+HTTP_PORTS_DETECTED=$(grep -oP '\d+(?=/tcp\s+open\s+https?)' "$NMAP_OUTDIR/detailed.txt" 2>/dev/null | sort -nu | tr '\n' ' ')
+# Ajouter aussi les ports HTTP-Alt connus trouvés dans SERVICES_FOUND
+for _p in 80 443 8080 8443 8888 9090 50000; do
+    [[ -n "${SERVICES_FOUND[$_p]}" ]] && HTTP_PORTS_DETECTED="$HTTP_PORTS_DETECTED $_p"
+done
+HTTP_PORTS_DETECTED=$(echo "$HTTP_PORTS_DETECTED" | tr ' ' '\n' | sort -nu | tr '\n' ' ')
+
+if [[ -n "$HTTP_PORTS_DETECTED" ]]; then
     section "HTTP/HTTPS — Enum Web"
-    for PORT_HTTP in 80 443 8080 8443; do
-        if [[ -n "${SERVICES_FOUND[$PORT_HTTP]}" ]]; then
-            PROTO="http"
-            [[ "$PORT_HTTP" == "443" || "$PORT_HTTP" == "8443" ]] && PROTO="https"
-            info "Web enum sur ${PROTO}://$TARGET:$PORT_HTTP"
-            WEB_OUTDIR="$OUTDIR/web_${PORT_HTTP}"
-            mkdir -p "$WEB_OUTDIR"
+    for PORT_HTTP in $HTTP_PORTS_DETECTED; do
+        PROTO="http"
+        [[ "$PORT_HTTP" == "443" || "$PORT_HTTP" == "8443" ]] && PROTO="https"
+        # Tester HTTPS si nmap a détecté ssl
+        grep -q "${PORT_HTTP}/tcp.*ssl\|${PORT_HTTP}/tcp.*https" "$NMAP_OUTDIR/detailed.txt" 2>/dev/null && PROTO="https"
 
-            # whatweb
-            if check_tool whatweb; then
-                timeout 30 whatweb -a 3 "${PROTO}://${TARGET}:${PORT_HTTP}" \
-                    2>&1 | tee "$WEB_OUTDIR/whatweb.txt"
-            fi
+        info "Web enum sur ${PROTO}://$TARGET:$PORT_HTTP"
+        WEB_OUTDIR="$OUTDIR/web_${PORT_HTTP}"
+        mkdir -p "$WEB_OUTDIR"
 
-            # nikto
-            if check_tool nikto; then
-                info "nikto scan"
-                timeout 120 nikto -h "${PROTO}://${TARGET}:${PORT_HTTP}" \
-                    -output "$WEB_OUTDIR/nikto.txt" 2>&1 | tail -10
-            fi
+        # whatweb
+        if check_tool whatweb; then
+            timeout 30 whatweb -a 3 "${PROTO}://${TARGET}:${PORT_HTTP}" \
+                2>&1 | tee "$WEB_OUTDIR/whatweb.txt"
+        else
+            curl -sIL --max-time 10 "${PROTO}://${TARGET}:${PORT_HTTP}" 2>&1 | \
+                tee "$WEB_OUTDIR/curl_headers.txt"
+        fi
 
-            # feroxbuster / gobuster
-            if check_tool feroxbuster; then
-                WORDLIST="/usr/share/seclists/Discovery/Web-Content/common.txt"
-                [[ ! -f "$WORDLIST" ]] && WORDLIST="/usr/share/wordlists/dirb/common.txt"
-                [[ -f "$WORDLIST" ]] && {
-                    info "Directory fuzzing (feroxbuster)"
-                    run_long "feroxbuster" "$WEB_OUTDIR/feroxbuster.txt" 90 \
-                        feroxbuster --url "${PROTO}://${TARGET}:${PORT_HTTP}" \
-                        --wordlist "$WORDLIST" \
-                        --no-recursion \
-                        --quiet
-                }
-            elif check_tool gobuster; then
-                WORDLIST="/usr/share/seclists/Discovery/Web-Content/common.txt"
-                [[ ! -f "$WORDLIST" ]] && WORDLIST="/usr/share/wordlists/dirb/common.txt"
-                [[ -f "$WORDLIST" ]] && {
-                    info "Directory fuzzing (gobuster)"
-                    run_long "gobuster dir" "$WEB_OUTDIR/gobuster.txt" 90 \
-                        gobuster dir \
-                        -u "${PROTO}://${TARGET}:${PORT_HTTP}" \
-                        -w "$WORDLIST" \
-                        --no-error -q
-                }
-            fi
+        # nikto
+        if check_tool nikto; then
+            info "nikto scan"
+            timeout 120 nikto -h "${PROTO}://${TARGET}:${PORT_HTTP}" \
+                -output "$WEB_OUTDIR/nikto.txt" 2>&1 | tail -10
+        fi
+
+        # Jenkins / Jetty detection
+        if grep -qi "Jetty\|Jenkins" "$WEB_OUTDIR/whatweb.txt" "$NMAP_OUTDIR/detailed.txt" 2>/dev/null; then
+            info "Jenkins/Jetty détecté — enum spécifique"
+            curl -s --max-time 10 "${PROTO}://${TARGET}:${PORT_HTTP}/api/json?pretty=true" \
+                2>/dev/null | tee "$WEB_OUTDIR/jenkins_api.txt"
+            curl -s --max-time 10 "${PROTO}://${TARGET}:${PORT_HTTP}/script" \
+                2>/dev/null | grep -i "groovy\|script\|jenkins" | head -5 | \
+                tee "$WEB_OUTDIR/jenkins_script.txt"
+            WORDLIST_WEB="/usr/share/seclists/Discovery/Web-Content/common.txt"
+            [[ ! -f "$WORDLIST_WEB" ]] && WORDLIST_WEB="/usr/share/wordlists/dirb/common.txt"
+            [[ -f "$WORDLIST_WEB" ]] && check_tool ffuf && {
+                run_long "ffuf Jenkins" "$WEB_OUTDIR/ffuf_jenkins.txt" 60 \
+                    ffuf -u "${PROTO}://${TARGET}:${PORT_HTTP}/FUZZ" \
+                    -w "$WORDLIST_WEB" -mc 200,301,302,403 -t 30 -s
+            }
+        fi
+
+        # feroxbuster / gobuster
+        if check_tool feroxbuster; then
+            WORDLIST="/usr/share/seclists/Discovery/Web-Content/common.txt"
+            [[ ! -f "$WORDLIST" ]] && WORDLIST="/usr/share/wordlists/dirb/common.txt"
+            [[ -f "$WORDLIST" ]] && {
+                info "Directory fuzzing (feroxbuster)"
+                run_long "feroxbuster" "$WEB_OUTDIR/feroxbuster.txt" 90 \
+                    feroxbuster --url "${PROTO}://${TARGET}:${PORT_HTTP}" \
+                    --wordlist "$WORDLIST" \
+                    --no-recursion \
+                    --quiet
+            }
+        elif check_tool gobuster; then
+            WORDLIST="/usr/share/seclists/Discovery/Web-Content/common.txt"
+            [[ ! -f "$WORDLIST" ]] && WORDLIST="/usr/share/wordlists/dirb/common.txt"
+            [[ -f "$WORDLIST" ]] && {
+                info "Directory fuzzing (gobuster)"
+                run_long "gobuster dir" "$WEB_OUTDIR/gobuster.txt" 90 \
+                    gobuster dir \
+                    -u "${PROTO}://${TARGET}:${PORT_HTTP}" \
+                    -w "$WORDLIST" \
+                    --no-error -q
+            }
         fi
     done
 fi
