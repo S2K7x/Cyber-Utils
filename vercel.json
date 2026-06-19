@@ -28,6 +28,10 @@
       "dest": "/Dummy Uploads/index.html"
     },
     {
+      "src": "/file-transfer",
+      "dest": "/File-Transfer/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
