@@ -13,6 +13,33 @@ GRAY='\033[0;90m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 
+# ─── Compatibilité macOS ────────────────────────────────────
+# Bug fix: macOS n'a pas `timeout` natif (c'est GNU coreutils)
+# Priorité : gtimeout (brew install coreutils) → implémentation bash pure
+if ! command -v timeout &>/dev/null; then
+    if command -v gtimeout &>/dev/null; then
+        timeout() { gtimeout "$@"; }
+        export -f timeout 2>/dev/null || true
+    else
+        # Implémentation bash pure sans GNU coreutils
+        timeout() {
+            local _secs="$1"; shift
+            (
+                "$@" &
+                local _pid=$!
+                ( sleep "$_secs" && kill -TERM "$_pid" 2>/dev/null ) &
+                local _kill_pid=$!
+                wait "$_pid" 2>/dev/null
+                local _rc=$?
+                kill "$_kill_pid" 2>/dev/null
+                wait "$_kill_pid" 2>/dev/null
+                return "$_rc"
+            )
+        }
+        export -f timeout 2>/dev/null || true
+    fi
+fi
+
 # ─── Helpers ────────────────────────────────────────────────
 banner() {
     local service="$1"
