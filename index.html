@@ -365,6 +365,12 @@
 
   .card-ghostname .card-title { color: #a78bfa !important; }
   .card-dummy .card-title { color: #ff79c6 !important; }
+  .card-filetransfer .card-title { color: #f59e0b !important; }
+  .card-filetransfer::before { background: linear-gradient(90deg, #f59e0b, transparent); }
+  .card-filetransfer:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 16px 40px rgba(245,158,11,0.07); }
+  .card-filetransfer .stat-num { color: #f59e0b; }
+  .card-filetransfer .card-cta { color: #f59e0b; }
+  .card-filetransfer .card-scan { background: linear-gradient(transparent, rgba(245,158,11,0.03), transparent); }
 </style>
 <link rel="stylesheet" href="mobile.css">
 </head>
@@ -493,6 +499,22 @@
         <div class="stat"><span class="stat-num">ESC8</span><span class="stat-label">ADCS</span></div>
       </div>
       <div class="card-cta">Ouvrir la leçon <span class="arrow">→</span></div>
+    </a>
+
+    <a href="File-Transfer/index.html" class="card card-filetransfer">
+      <div class="card-scan"></div>
+      <div>
+        <div class="card-id">Module 07</div>
+        <div class="card-icon">📡</div>
+      </div>
+      <div class="card-title">File Transfer</div>
+      <p class="card-desc">Cheat sheet interactive — Windows, Linux, Code, LOLBins & Server Setup. Entrez votre IP/Port et copiez les commandes en un clic.</p>
+      <div class="card-stats">
+        <div class="stat"><span class="stat-num">49</span><span class="stat-label">Techniques</span></div>
+        <div class="stat"><span class="stat-num">5</span><span class="stat-label">Plateformes</span></div>
+        <div class="stat"><span class="stat-num">CPTS</span><span class="stat-label">HTB</span></div>
+      </div>
+      <div class="card-cta">Ouvrir la cheat sheet <span class="arrow">→</span></div>
     </a>
 
   </div>
